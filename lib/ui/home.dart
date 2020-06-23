@@ -4,7 +4,9 @@ import 'package:jacobspears/app/model/point_of_interest.dart';
 import 'package:jacobspears/ui/account/settings.dart';
 import 'package:jacobspears/ui/alerts/alerts.dart';
 import 'package:jacobspears/ui/map/map.dart';
+import 'package:jacobspears/ui/reports/CameraScreen.dart';
 
+import 'reports/reports.dart';
 import 'reports/reports.dart';
 
 class Home extends StatefulWidget {

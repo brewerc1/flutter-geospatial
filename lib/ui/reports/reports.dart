@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:jacobspears/ui/reports/CameraScreen.dart';
 import 'package:jacobspears/ui/reports/dropdownWidget.dart';
 
 class ReportsScreen extends StatefulWidget {
@@ -11,6 +12,21 @@ class ReportsScreen extends StatefulWidget {
 }
 
 class _ReportsScreen extends State<ReportsScreen> {
+
+  bool showCamera = false;
+
+  void _onCameraPressed() {
+    setState(() {
+      showCamera = !showCamera;
+    });
+  }
+
+  void onSubmitPressed() {
+    setState(() {
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -55,7 +71,7 @@ class _ReportsScreen extends State<ReportsScreen> {
         label: Text('Add a Photo'),
         textColor: Colors.white,
         onPressed: () {
-          // to do
+          _onCameraPressed();
         },
       ),
     );
@@ -103,7 +119,7 @@ class _ReportsScreen extends State<ReportsScreen> {
     );
 
 
-    return Container(
+    return showCamera ? CameraExampleHome() : Container(
       child: Stack(
         children: <Widget>[
           listView,
