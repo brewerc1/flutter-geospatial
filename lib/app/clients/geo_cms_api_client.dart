@@ -20,7 +20,7 @@ class GeoCmsApiClient extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
 
-    request.headers["Accept"] = "application/json";
+    request.headers["accept"] = "application/json";
     // TODO how to get this value?
     request.headers["X-CSRFToken"] = "WzkmIf0jCJjq5qxTclnAiy4E7mneUeWJB2YnlZ5C21X1hnTD7cgaPUKNyPlMT2GT";
     if (request.contentLength > 0) {

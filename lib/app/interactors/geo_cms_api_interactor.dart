@@ -14,7 +14,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<List<Point>>> getListOfPointsOfInterest() async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/swagger/points/list"));
+        _apiClient.url("/api/v1/points/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
       final List<dynamic> json = jsonDecode(response.body);
@@ -24,7 +24,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<Point>> getPointOfInterest(String uuid) async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/swagger/points/$uuid"));
+        _apiClient.url("/api/v1/points/$uuid/"));
 
     return _runNetworkAction(networkAction.then((response) {
       return Point.fromJson(jsonDecode(response.body));
