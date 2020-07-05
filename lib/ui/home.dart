@@ -4,7 +4,10 @@ import 'package:jacobspears/app/model/point_of_interest.dart';
 import 'package:jacobspears/ui/account/settings.dart';
 import 'package:jacobspears/ui/alerts/alerts.dart';
 import 'package:jacobspears/ui/map/map.dart';
-import 'package:jacobspears/ui/reports/reports.dart';
+import 'package:jacobspears/ui/reports/CameraScreen.dart';
+
+import 'reports/reports.dart';
+import 'reports/reports.dart';
 
 import 'alerts/alerts.dart';
 
@@ -30,7 +33,7 @@ class _HomeState extends State<Home> {
       ]
     ),
     AlertsScreen(),
-    ReportScreen(Colors.green),
+    ReportsScreen(),
     SettingsScreen(Colors.red),
   ];
 
