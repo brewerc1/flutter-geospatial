@@ -9,6 +9,8 @@ import 'package:jacobspears/ui/reports/CameraScreen.dart';
 import 'reports/reports.dart';
 import 'reports/reports.dart';
 
+import 'alerts/alerts.dart';
+
 class Home extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -30,13 +32,7 @@ class _HomeState extends State<Home> {
             "Description of Point C")
       ]
     ),
-    AlertsScreen(items: List<ListItem>.generate(
-      30,
-          (i) => i % 6 == 0
-          ? HeadingItem("5/$i/2020")
-          : MessageItem("Alert $i", "Alert body $i"),
-      ),
-    ),
+    AlertsScreen(),
     ReportsScreen(),
     SettingsScreen(Colors.red),
   ];
