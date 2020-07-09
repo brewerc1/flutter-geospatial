@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:jacobspears/app/app_providers.dart';
 import 'package:jacobspears/ui/home.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(AppProviders(
+    child: MaterialApp(
+      title: 'Jacob Spears',
+      home: Home(),
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
