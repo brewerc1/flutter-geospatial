@@ -66,7 +66,8 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   void initState() {
     super.initState();
 
-    _apiClient = GeoCmsApiClient("https://api.qa.gogo.guru");
+    // TODO pass in base url dynamically
+    _apiClient = GeoCmsApiClient("https://api.dev.gogo.guru");
     
     _apiInteractor = GeoCmsApiInteractor(_apiClient);
     _pointInteractor = PointInteractor(_apiInteractor); 

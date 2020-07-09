@@ -128,7 +128,7 @@ class _PointListScreenState extends State<PointListScreen> {
           maxLines: 1,
         ),
         subtitle: Text(
-          point.description,
+          point.uuid,
           style: TextStyle(fontSize: 14.0),
           maxLines: 5,
           overflow: TextOverflow.ellipsis,

@@ -18,7 +18,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<List<Point>>> getListOfPointsOfInterest() async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/points/list/"));
+        _apiClient.url("/api/v1/mobile/points/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
       final List<dynamic> json = jsonDecode(response.body);
@@ -28,7 +28,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<Point>> getPointOfInterest(String uuid) async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/points/$uuid/"));
+        _apiClient.url("/api/v1/mobile/points/$uuid/"));
 
     return _runNetworkAction(networkAction.then((response) {
       return Point.fromJson(jsonDecode(response.body));
@@ -37,7 +37,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<void>> createPoint(final Point point, final int org) {
     final Future<Response> networkAction = _apiClient.post(
-      _apiClient.url("/api/v1/points/create/"),
+      _apiClient.url("/api/v1/mobile/points/create/"),
       body: jsonEncode({
         "name": point.name,
         "description": point.description,
@@ -51,7 +51,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<void>> updatePoint(final Point point) {
     final Future<Response> networkAction = _apiClient.post(
-      _apiClient.url("/api/v1/points/${point.uuid}/"),
+      _apiClient.url("/api/v1/mobile/points/${point.uuid}/"),
       body: jsonEncode({
         "id": point.uuid,
         "name": point.name,
@@ -65,7 +65,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<List<Segment>>> getSegments() async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/segments/list/"));
+        _apiClient.url("/api/v1/mobile/segments/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
       final List<dynamic> json = jsonDecode(response.body);
@@ -75,7 +75,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<Segment>> getSegment(String uuid) async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/segments/$uuid/"));
+        _apiClient.url("/api/v1/mobile/segments/$uuid/"));
 
     return _runNetworkAction(networkAction.then((response) {
       return Segment.fromJson(jsonDecode(response.body));
@@ -84,7 +84,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<List<Cluster>>> getClusters() async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/clusters/list/"));
+        _apiClient.url("/api/v1/mobile/clusters/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
       final List<dynamic> json = jsonDecode(response.body);
@@ -94,7 +94,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<Cluster>> getCluster(String uuid) async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/clusters/$uuid/"));
+        _apiClient.url("/api/v1/mobile/clusters/$uuid/"));
 
     return _runNetworkAction(networkAction.then((response) {
       return Cluster.fromJson(jsonDecode(response.body));
@@ -103,7 +103,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<List<Organization>>> getOrganizations() async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/organizations/list/"));
+        _apiClient.url("/api/v1/mobile/organizations/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
       final List<dynamic> json = jsonDecode(response.body);
@@ -113,7 +113,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<Organization>> getOrganization(String uuid) async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/organizations/$uuid/"));
+        _apiClient.url("/api/v1/mobile/organizations/$uuid/"));
 
     return _runNetworkAction(networkAction.then((response) {
       return Organization.fromJson(jsonDecode(response.body));
@@ -122,7 +122,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<User>> getUser(String uuid) async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/users/$uuid/"));
+        _apiClient.url("/api/v1/mobile/users/$uuid/"));
 
     return _runNetworkAction(networkAction.then((response) {
       return User.fromJson(jsonDecode(response.body));
