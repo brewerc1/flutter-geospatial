@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:jacobspears/app/clients/geo_cms_api_client.dart';
+import 'package:jacobspears/app/clients/preferences_client.dart';
 import 'package:jacobspears/app/interactors/geo_cms_api_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
 import 'package:package_info/package_info.dart';
@@ -56,9 +57,10 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   final PackageInfo _packageInfo;
 
   GeoCmsApiClient _apiClient;
+  PreferencesClient _prefClient;
   
   GeoCmsApiInteractor _apiInteractor;
-  PointInteractor _pointInteractor; 
+  PointInteractor _pointInteractor;
 
   _AppProvidersFutureState(this._packageInfo);
 
@@ -67,9 +69,9 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
     super.initState();
 
     // TODO pass in base url dynamically
-    _apiClient = GeoCmsApiClient("https://api.dev.gogo.guru");
+    _apiClient = GeoCmsApiClient("https://api.dev.gogo.guru", _prefClient);
     
-    _apiInteractor = GeoCmsApiInteractor(_apiClient);
+    _apiInteractor = GeoCmsApiInteractor(_apiClient, _prefClient);
     _pointInteractor = PointInteractor(_apiInteractor); 
 
   }
@@ -86,7 +88,8 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
         Provider.value(value: _navigatorKey),
         Provider.value(value: _apiClient),
         Provider.value(value: _apiInteractor),
-        Provider.value(value: _pointInteractor)
+        Provider.value(value: _pointInteractor),
+        Provider.value(value: _prefClient)
       ],
       child: widget.child,
     );
