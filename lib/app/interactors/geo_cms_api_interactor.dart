@@ -13,6 +13,7 @@ import 'package:jacobspears/app/model/user.dart';
 import 'package:jacobspears/utils/app_exception.dart';
 
 class GeoCmsApiInteractor {
+  final PreferencesClient _prefClient = PreferencesClient();
   final GeoCmsApiClient _apiClient;
 
   GeoCmsApiInteractor(this._apiClient);
@@ -29,7 +30,7 @@ class GeoCmsApiInteractor {
     );
 
     return _runNetworkAction(networkAction.then((response) async {
-      PreferencesClient().saveUserToken(jsonDecode(response.body)["token"]);
+      _prefClient.saveUserToken(jsonDecode(response.body)["token"]);
     }));
   }
 

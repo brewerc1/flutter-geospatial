@@ -9,6 +9,7 @@ import 'package:jacobspears/values/variants.dart';
 
 class GeoCmsApiClient extends http.BaseClient {
   final http.Client _client = http.Client();
+  final PreferencesClient _prefClient = PreferencesClient();
   final Variant _variant;
 
   GeoCmsApiClient(this._variant);
@@ -23,7 +24,7 @@ class GeoCmsApiClient extends http.BaseClient {
       request.headers["Content-Type"] = "application/json";
     }
 
-    request.headers["Authorization"] = await PreferencesClient().getToken();
+    request.headers["Authorization"] = await _prefClient.getToken();
     request.headers["X-Org-Token"] = _variant.orgToken;
 
     return _client.send(request).then((streamResponse) async {
