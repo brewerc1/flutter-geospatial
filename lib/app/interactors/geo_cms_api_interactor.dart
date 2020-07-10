@@ -14,9 +14,8 @@ import 'package:jacobspears/utils/app_exception.dart';
 
 class GeoCmsApiInteractor {
   final GeoCmsApiClient _apiClient;
-  final PreferencesClient _prefClient;
 
-  GeoCmsApiInteractor(this._apiClient, this._prefClient);
+  GeoCmsApiInteractor(this._apiClient);
 
   Future<Result<void>> login(String email, String password) async {
     final Future<Response> networkAction = _apiClient.post(
@@ -30,7 +29,7 @@ class GeoCmsApiInteractor {
     );
 
     return _runNetworkAction(networkAction.then((response) async {
-      _prefClient.saveUserToken(jsonDecode(response.body)["token"]);
+      PreferencesClient().saveUserToken(jsonDecode(response.body)["token"]);
     }));
   }
 

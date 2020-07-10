@@ -5,7 +5,7 @@ import 'package:jacobspears/values/variants.dart';
 
 void main() {
   runApp(AppProviders(
-    variant: Variant.development(),
+    variant: Variant.production(),
     child: MaterialApp(
       title: 'Jacob Spears',
       home: Home(),
