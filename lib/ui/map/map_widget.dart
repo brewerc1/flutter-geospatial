@@ -4,14 +4,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapWidget extends StatelessWidget {
   final Set<Marker> items;
-  final VoidCallback onPressedCallback;
   final VoidCallback onMapPressedCallback;
   final MapType currentMapType;
 
-  MapWidget({Key key, @required this.items, this.currentMapType, this.onPressedCallback, this.onMapPressedCallback})
+  MapWidget({Key key, @required this.items, this.currentMapType, this.onMapPressedCallback})
       : super(key: key);
 
-  final LatLng _center = const LatLng(39.0236095, -84.5011132);
+  final LatLng _center = const LatLng(39.03151931295077, -84.46246682421877);
 
   GoogleMapController mapController;
   void _onMapCreated(GoogleMapController controller) {
@@ -35,12 +34,6 @@ class MapWidget extends StatelessWidget {
           child: Align(
               alignment: Alignment.topRight,
               child: Column(children: <Widget>[
-                FloatingActionButton(
-                  onPressed: onPressedCallback,
-                  materialTapTargetSize: MaterialTapTargetSize.padded,
-                  backgroundColor: Colors.green,
-                  child: const Icon(Icons.list, size: 36.0),
-                ),
                 SizedBox(height: 16.0),
                 FloatingActionButton(
                   onPressed: onMapPressedCallback,

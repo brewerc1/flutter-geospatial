@@ -28,4 +28,10 @@ class Geometry extends Equatable {
   factory Geometry.fromJson(Map<String, dynamic> json) => _$GeometryFromJson(json);
 
   Map<String, dynamic> toJson() => _$GeometryToJson(this);
+
+  String printCoordinates() {
+    String lng = coordinates[0]?.toString()?.substring(0, 8);
+    String lat = coordinates[1]?.toString()?.substring(0, 8);
+    return lat + ", " + lng;
+  }
 }

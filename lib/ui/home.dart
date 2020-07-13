@@ -33,7 +33,7 @@ class _HomeState extends State<Home> {
 //            "Description of Point C")
 //      ]
 //    ),
-//
+
     PointListScreen(),
     AlertsScreen(),
     ReportsScreen(),
