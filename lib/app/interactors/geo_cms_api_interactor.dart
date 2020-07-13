@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:http/http.dart';
 import 'package:jacobspears/app/clients/geo_cms_api_client.dart';
+import 'package:jacobspears/app/clients/preferences_client.dart';
 import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/organization.dart';
 import 'package:jacobspears/app/model/point.dart';
@@ -12,9 +13,26 @@ import 'package:jacobspears/app/model/user.dart';
 import 'package:jacobspears/utils/app_exception.dart';
 
 class GeoCmsApiInteractor {
+  final PreferencesClient _prefClient = PreferencesClient();
   final GeoCmsApiClient _apiClient;
 
   GeoCmsApiInteractor(this._apiClient);
+
+  Future<Result<void>> login(String email, String password) async {
+    final Future<Response> networkAction = _apiClient.post(
+      _apiClient.url("/api/v1/mobile/auth/login/"),
+      body: jsonEncode({
+        "email": "sierrarobryan@gmail.com",
+        "password": "jacobpw1!",
+//        "email": email,
+//        "password": password
+      }),
+    );
+
+    return _runNetworkAction(networkAction.then((response) async {
+      _prefClient.saveUserToken(jsonDecode(response.body)["token"]);
+    }));
+  }
 
   Future<Result<List<Point>>> getListOfPointsOfInterest() async {
     final Future<Response> networkAction = _apiClient.get(

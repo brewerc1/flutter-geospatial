@@ -3,13 +3,16 @@ import 'package:flutter/widgets.dart';
 import 'package:jacobspears/app/clients/geo_cms_api_client.dart';
 import 'package:jacobspears/app/interactors/geo_cms_api_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
+import 'package:jacobspears/values/variants.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 
 class AppProviders extends StatelessWidget {
+  final Variant variant;
   final Widget child;
 
   AppProviders({
+    @required this.variant,
     @required this.child,
   });
 
@@ -19,10 +22,9 @@ class AppProviders extends StatelessWidget {
         future: initialization(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            final packageInfo = snapshot.data;
             return _AppProvidersFuture(
               child: child,
-              packageInfo: packageInfo,
+              variant: variant,
             );
           } else {
             return Container();
@@ -38,36 +40,35 @@ class AppProviders extends StatelessWidget {
 }
 
 class _AppProvidersFuture extends StatefulWidget {
-  final PackageInfo packageInfo;
+  final Variant variant;
   final Widget child;
 
   _AppProvidersFuture({
-    @required this.packageInfo,
+    @required this.variant,
     @required this.child,
   });
 
   @override
-  _AppProvidersFutureState createState() => _AppProvidersFutureState(packageInfo);
+  _AppProvidersFutureState createState() => _AppProvidersFutureState(variant);
 }
 
 class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   final GlobalKey<NavigatorState> _navigatorKey = new GlobalKey();
 
-  final PackageInfo _packageInfo;
+  final Variant _variant;
 
   GeoCmsApiClient _apiClient;
   
   GeoCmsApiInteractor _apiInteractor;
-  PointInteractor _pointInteractor; 
+  PointInteractor _pointInteractor;
 
-  _AppProvidersFutureState(this._packageInfo);
+  _AppProvidersFutureState(this._variant);
 
   @override
   void initState() {
     super.initState();
 
-    // TODO pass in base url dynamically
-    _apiClient = GeoCmsApiClient("https://api.dev.gogo.guru");
+    _apiClient = GeoCmsApiClient(_variant);
     
     _apiInteractor = GeoCmsApiInteractor(_apiClient);
     _pointInteractor = PointInteractor(_apiInteractor); 
@@ -84,6 +85,7 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
     return MultiProvider(
       providers: [
         Provider.value(value: _navigatorKey),
+        Provider.value(value: _variant),
         Provider.value(value: _apiClient),
         Provider.value(value: _apiInteractor),
         Provider.value(value: _pointInteractor)
