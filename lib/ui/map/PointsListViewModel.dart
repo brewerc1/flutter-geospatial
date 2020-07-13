@@ -23,4 +23,10 @@ class PointListViewModel {
   }
 
   Stream<List<Point>> getPoints() => pointInteractor.getAllPoints();
+
+  Stream<Point> getPointOfInterest() => pointInteractor.getPointOfInterest();
+
+  void getPointById(String uuid) {
+    pointInteractor.getPointAsync(uuid);
+  }
 }

@@ -27,6 +27,7 @@ dependencies:
   package_info: ^0.4.0+13
   rxdart: ^0.24.0
   shared_preferences: ">=0.5.8 <2.0.0"
+  flutter_html: ^1.0.0-pre.1
 
 dev_dependencies:
   flutter_test:
