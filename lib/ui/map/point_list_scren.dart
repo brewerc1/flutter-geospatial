@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/ui/components/colored_tab_bar.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/map/map_widget.dart';
+import 'package:jacobspears/ui/map/point_of_interest_screen.dart';
 import 'package:provider/provider.dart';
-
 
 class PointListScreen extends StatefulWidget {
   @override
@@ -35,9 +34,10 @@ class _PointListScreenState extends State<PointListScreen> {
       _markers.add(Marker(
         // This marker id can be anything that uniquely identifies each marker.
         markerId: MarkerId(element.name),
-        position: LatLng(element.geometry.coordinates[1], element.geometry.coordinates[0]),
+        position: LatLng(
+            element.geometry.coordinates[1], element.geometry.coordinates[0]),
         infoWindow:
-        InfoWindow(title: element.name, snippet: element.description),
+            InfoWindow(title: element.name, snippet: element.description),
         icon: BitmapDescriptor.defaultMarker,
       ));
     });
@@ -59,16 +59,13 @@ class _PointListScreenState extends State<PointListScreen> {
           appBar: ColoredTabBar(
               Colors.blue,
               TabBar(indicatorColor: Colors.white, tabs: [
-                Tab(
-                  text: "LIST",
-                ),
-                Tab(
-                  text: "MAP",
-                )
+                Tab(text: "LIST",),
+                Tab(text: "MAP",)
               ])),
           body: TabBarView(children: [
             new Container(child: _buildList(context)),
-            new Container(child: _buildMap(context),)
+            new Container(child: _buildMap(context),
+            )
           ]),
         ));
   }
@@ -133,9 +130,8 @@ class _PointListScreenState extends State<PointListScreen> {
                     return ListView.builder(
                         itemCount: points.length,
                         itemBuilder: (context, i) {
-                          return Column(children: [
-                            _buildRow(context, points[i])
-                          ]);
+                          return Column(
+                              children: [_buildRow(context, points[i])]);
                         });
                   } else {
                     return Column(
@@ -254,7 +250,10 @@ class _PointListScreenState extends State<PointListScreen> {
 //  }
     return Card(
         child: ListTile(
-            leading: Icon(Icons.location_on, size: 36.0,),
+            leading: Icon(
+              Icons.location_on,
+              size: 36.0,
+            ),
             title: Text(
               point.name,
               style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
@@ -269,13 +268,14 @@ class _PointListScreenState extends State<PointListScreen> {
             trailing: Icon(Icons.chevron_right),
             onTap: () {
               _viewModel.getPointById(point.uuid);
-              showModalBottomSheet<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return buildSinglePoint(context);
-                },
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => buildSinglePoint(context))
               );
-            }));
+              buildSinglePoint(context);
+            }
+            )
+    );
   }
 
   Widget buildSinglePoint(BuildContext context) {
@@ -286,7 +286,7 @@ class _PointListScreenState extends State<PointListScreen> {
           Expanded(
             child: Container(
               width: double.infinity,
-              child: StreamBuilder<Point> (
+              child: StreamBuilder<Point>(
                 stream: _viewModel.getPointOfInterest(),
                 builder: (final BuildContext context,
                     final AsyncSnapshot<Point> snapshot) {
@@ -294,13 +294,7 @@ class _PointListScreenState extends State<PointListScreen> {
                     return Text(snapshot.error.toString());
                   } else if (snapshot.hasData) {
                     Point point = snapshot.data;
-                    return Container(
-                        height: 500,
-                        color: Colors.grey[300],
-                        child: Html(
-                        data: point.description,
-                    )
-                    );
+                    return PointOfInterestScreen(point: point,);
                   } else {
                     return Column(
                       children: <Widget>[
