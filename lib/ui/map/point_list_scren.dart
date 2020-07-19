@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/ui/components/colored_tab_bar.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
+import 'package:jacobspears/ui/map/error_screen.dart';
 import 'package:jacobspears/ui/map/map_widget.dart';
 import 'package:jacobspears/ui/map/point_of_interest_screen.dart';
 import 'package:provider/provider.dart';
@@ -92,15 +93,7 @@ class _PointListScreenState extends State<PointListScreen> {
                       onMapPressedCallback: _onMapTypeButtonPressed,
                     );
                   } else {
-                    return Column(
-                      children: <Widget>[
-                        SizedBox(height: 16.0),
-                        Text(
-                          "No point available at this time",
-                          style: Theme.of(context).textTheme.headline2,
-                        )
-                      ],
-                    );
+                    return ErrorScreen(message: "Oops, something went wrong",);
                   }
                 },
               ),
@@ -134,15 +127,7 @@ class _PointListScreenState extends State<PointListScreen> {
                               children: [_buildRow(context, points[i])]);
                         });
                   } else {
-                    return Column(
-                      children: <Widget>[
-                        SizedBox(height: 16.0),
-                        Text(
-                          "No point available at this time",
-                          style: Theme.of(context).textTheme.headline2,
-                        )
-                      ],
-                    );
+                    return ErrorScreen(message: "Oops, something went wrong\nCheck your network connection",);
                   }
                 },
               ),
@@ -296,15 +281,7 @@ class _PointListScreenState extends State<PointListScreen> {
                     Point point = snapshot.data;
                     return PointOfInterestScreen(point: point,);
                   } else {
-                    return Column(
-                      children: <Widget>[
-                        SizedBox(height: 16.0),
-                        Text(
-                          "No point available at this time",
-                          style: Theme.of(context).textTheme.headline2,
-                        )
-                      ],
-                    );
+                    return ErrorScreen(message: "Oops, something went wrong",);
                   }
                 },
               ),
