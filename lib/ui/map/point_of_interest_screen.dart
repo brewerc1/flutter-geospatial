@@ -47,40 +47,50 @@ class PointOfInterestScreen extends StatelessWidget {
             ),
           ),
           Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                _buildButtonColumn(Colors.blue, Icons.add_location, "Check in")
-              ],
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              _buildButtonColumn(Colors.blue, Icons.add_location, "Check in")
+            ],
           ),
         ],
       ),
     );
 
-    Widget mapSection = Container(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-        height: 200,
-        child: GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: CameraPosition(
-            target: LatLng(
-              point.geometry.coordinates[1],
-              point.geometry.coordinates[0],
-            ),
-            zoom: 12.0,
-          ),
-          markers: {
+    Widget mapSection = Card(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        borderOnForeground: true,
+        child: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(
+                height: 200,
+                child: GoogleMap(
+                  onTap: (LatLng) {
+                    Navigator.pop(context);
+                  },
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      point.geometry.coordinates[1],
+                      point.geometry.coordinates[0],
+                    ),
+                    zoom: 12.0,
+                  ),
+                  markers: {
             Marker(
               // This marker id can be anything that uniquely identifies each marker.
               markerId: MarkerId(point.name),
               position: LatLng(
                   point.geometry.coordinates[1], point.geometry.coordinates[0]),
               infoWindow:
-                  InfoWindow(title: point.name),
+              InfoWindow(title: point.name),
               icon: BitmapDescriptor.defaultMarker,
             )
           },
-          mapType: MapType.normal,
-        ));
+                  mapType: MapType.normal,
+                )
+            )));
 
     Widget textSection = Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -90,7 +100,7 @@ class PointOfInterestScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
         actions: <Widget>[
           new IconButton(
             padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),

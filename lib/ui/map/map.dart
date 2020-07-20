@@ -57,9 +57,7 @@ class _MapScreen extends State<MapScreen> {
   Widget build(BuildContext context) {
     return isMapView
         ? MapWidget(
-            items: _onAddMarkerButtonPressed(),
-            currentMapType: _currentMapType,
-            onMapPressedCallback: _onMapTypeButtonPressed,
+            items: [],
           )
         : ListWidget(
             items: items,

@@ -19,30 +19,13 @@ enum ViewType { LIST, MAP }
 class _PointListScreenState extends State<PointListScreen> {
   PointListViewModel _viewModel;
 
-  MapType _currentMapType = MapType.normal;
-
-  void _onMapTypeButtonPressed() {
-    setState(() {
-      _currentMapType = _currentMapType == MapType.normal
-          ? MapType.satellite
-          : MapType.normal;
-    });
-  }
-
-  Set<Marker> _onAddMarkerButtonPressed(List<Point> points) {
-    final Set<Marker> _markers = {};
-    points.forEach((element) {
-      _markers.add(Marker(
-        // This marker id can be anything that uniquely identifies each marker.
-        markerId: MarkerId(element.name),
-        position: LatLng(
-            element.geometry.coordinates[1], element.geometry.coordinates[0]),
-        infoWindow:
-            InfoWindow(title: element.name, snippet: element.description),
-        icon: BitmapDescriptor.defaultMarker,
-      ));
-    });
-    return _markers;
+  void _navigateToSingle(String uuid) {
+    _viewModel.getPointById(uuid);
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => buildSinglePoint(context))
+    );
+    buildSinglePoint(context);
   }
 
   @override
@@ -84,13 +67,12 @@ class _PointListScreenState extends State<PointListScreen> {
                 builder: (final BuildContext context,
                     final AsyncSnapshot<List<Point>> snapshot) {
                   if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
+                    return ErrorScreen(message: snapshot.error.toString(),);
                   } else if (snapshot.hasData && snapshot.data.isNotEmpty) {
                     List<Point> points = snapshot.data;
                     return MapWidget(
-                      items: _onAddMarkerButtonPressed(points),
-                      currentMapType: _currentMapType,
-                      onMapPressedCallback: _onMapTypeButtonPressed,
+                      items: points,
+                      onNavigateCallback: _navigateToSingle,
                     );
                   } else {
                     return ErrorScreen(message: "Oops, something went wrong",);
@@ -117,7 +99,7 @@ class _PointListScreenState extends State<PointListScreen> {
                 builder: (final BuildContext context,
                     final AsyncSnapshot<List<Point>> snapshot) {
                   if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
+                    return ErrorScreen(message: snapshot.error.toString(),);
                   } else if (snapshot.hasData && snapshot.data.isNotEmpty) {
                     List<Point> points = snapshot.data;
                     return ListView.builder(
@@ -127,7 +109,7 @@ class _PointListScreenState extends State<PointListScreen> {
                               children: [_buildRow(context, points[i])]);
                         });
                   } else {
-                    return ErrorScreen(message: "Oops, something went wrong\nCheck your network connection",);
+                    return ErrorScreen(message: "Oops, something went wrong",);
                   }
                 },
               ),
@@ -251,14 +233,7 @@ class _PointListScreenState extends State<PointListScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             trailing: Icon(Icons.chevron_right),
-            onTap: () {
-              _viewModel.getPointById(point.uuid);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => buildSinglePoint(context))
-              );
-              buildSinglePoint(context);
-            }
+            onTap: () { _navigateToSingle(point.uuid); }
             )
     );
   }
@@ -276,7 +251,7 @@ class _PointListScreenState extends State<PointListScreen> {
                 builder: (final BuildContext context,
                     final AsyncSnapshot<Point> snapshot) {
                   if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
+                    return ErrorScreen(message: snapshot.error.toString(),);
                   } else if (snapshot.hasData) {
                     Point point = snapshot.data;
                     return PointOfInterestScreen(point: point,);

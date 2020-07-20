@@ -20,13 +20,13 @@ class ErrorScreen extends StatelessWidget {
             children: <Widget>[
               Align(
                 alignment: Alignment.center,
-                child: Icon(Icons.map, color: Colors.grey[500], size: 84,),
+                child: Icon(Icons.map, color: Colors.grey[300], size: 84,),
               ),
               Align(
                 alignment: Alignment.center,
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                  child: Icon(Icons.signal_wifi_off, color: Colors.blue[500], size: 48,),
+                  child: Icon(Icons.signal_wifi_off, color: Colors.blue, size: 48,),
                 )
               )
             ],
