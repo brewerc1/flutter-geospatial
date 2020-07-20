@@ -4,6 +4,7 @@ import 'package:jacobspears/app/model/point_of_interest.dart';
 import 'package:jacobspears/ui/map/list_widget.dart';
 import 'package:jacobspears/ui/map/map_widget.dart';
 
+// not currently being used
 class MapScreen extends StatefulWidget {
   final List<PointOfInterest> items;
 
@@ -56,10 +57,7 @@ class _MapScreen extends State<MapScreen> {
   Widget build(BuildContext context) {
     return isMapView
         ? MapWidget(
-            items: _onAddMarkerButtonPressed(),
-            currentMapType: _currentMapType,
-            onPressedCallback: _onListTypePressed,
-            onMapPressedCallback: _onMapTypeButtonPressed,
+            items: [],
           )
         : ListWidget(
             items: items,

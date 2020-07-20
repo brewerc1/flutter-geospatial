@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:developer' as developer;
 import 'package:jacobspears/app/interactors/geo_cms_api_interactor.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:rxdart/rxdart.dart';

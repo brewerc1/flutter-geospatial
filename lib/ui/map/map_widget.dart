@@ -1,21 +1,68 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jacobspears/app/model/point.dart';
+import 'package:jacobspears/utils/Callback.dart';
 
-class MapWidget extends StatelessWidget {
-  final Set<Marker> items;
-  final VoidCallback onPressedCallback;
-  final VoidCallback onMapPressedCallback;
-  final MapType currentMapType;
+class MapWidget extends StatefulWidget {
+  final List<Point> items;
+  final StringCallback onNavigateCallback;
 
-  MapWidget({Key key, @required this.items, this.currentMapType, this.onPressedCallback, this.onMapPressedCallback})
-      : super(key: key);
+  MapWidget({
+    Key key,
+    @required this.items,
+    @required this.onNavigateCallback
+  }) : super(key: key);
 
-  final LatLng _center = const LatLng(39.0236095, -84.5011132);
+  @override
+  _MapWidgetState createState() => _MapWidgetState(items, onNavigateCallback);
+}
+
+class _MapWidgetState extends State<MapWidget> {
+  final List<Point> _items;
+  final StringCallback _onNavigateCallback;
+
+  _MapWidgetState(this._items, this._onNavigateCallback);
 
   GoogleMapController mapController;
+  Point _selectedPoint;
+
+  MapType _currentMapType = MapType.normal;
+
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+  }
+
+  void _onMapTypeButtonPressed() {
+    setState(() {
+      _currentMapType = _currentMapType == MapType.normal
+          ? MapType.satellite
+          : MapType.normal;
+    });
+  }
+
+  void _setSelectedPoint(Point point) {
+    setState(() {
+      _selectedPoint = point;
+    });
+  }
+
+  Set<Marker> _onAddMarkerButtonPressed(List<Point> points) {
+    final Set<Marker> _markers = {};
+    points.forEach((element) {
+      _markers.add(Marker(
+        // This marker id can be anything that uniquely identifies each marker.
+        markerId: MarkerId(element.name),
+        position: element.geometry.getLatLng(),
+        infoWindow:
+            InfoWindow(title: element.name, snippet: element.description),
+        onTap: () {
+          _setSelectedPoint(element);
+        },
+        icon: BitmapDescriptor.defaultMarker,
+      ));
+    });
+    return _markers;
   }
 
   @override
@@ -24,31 +71,86 @@ class MapWidget extends StatelessWidget {
       GoogleMap(
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(
-          target: _center,
+          target: _items[1].geometry.getLatLng(),
           zoom: 12.0,
         ),
-        markers: items,
-        mapType: currentMapType,
+        markers: _onAddMarkerButtonPressed(_items),
+        mapType: _currentMapType,
+        onTap: (_) {
+          if (_selectedPoint != null) _setSelectedPoint(null);
+        },
       ),
       Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Align(
-              alignment: Alignment.topRight,
-              child: Column(children: <Widget>[
-                FloatingActionButton(
-                  onPressed: onPressedCallback,
-                  materialTapTargetSize: MaterialTapTargetSize.padded,
-                  backgroundColor: Colors.green,
-                  child: const Icon(Icons.list, size: 36.0),
-                ),
-                SizedBox(height: 16.0),
-                FloatingActionButton(
-                  onPressed: onMapPressedCallback,
-                  materialTapTargetSize: MaterialTapTargetSize.padded,
-                  backgroundColor: Colors.green,
-                  child: const Icon(Icons.map, size: 36.0),
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topRight,
+                  child: Column(children: <Widget>[
+                    SizedBox(height: 16.0),
+                    FloatingActionButton(
+                      onPressed: _onMapTypeButtonPressed,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      backgroundColor: Colors.green,
+                      child: const Icon(Icons.map, size: 36.0),
+                    ),
+                  ])),
+              if (_selectedPoint != null)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Card(
+                      child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            // TODO check in
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Icon(
+                                Icons.add_location,
+                                color: Colors.blue,
+                              ),
+                              Text(
+                                "CHECK IN",
+                                style: const TextStyle(
+                                  fontSize: 12.0,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                              _onNavigateCallback(_selectedPoint.uuid);
+                            },
+                            child: Row (
+                            children: <Widget>[
+                              Icon(
+                                Icons.info_outline,
+                                color: Colors.blue,
+                              ),
+                              Text(
+                                "INFO",
+                                style: const TextStyle(
+                                  fontSize: 12.0,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
                 )
-              ]))),
+            ],
+          )),
     ]);
   }
 }

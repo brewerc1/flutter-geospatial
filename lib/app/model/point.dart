@@ -23,7 +23,7 @@ class Point extends Equatable {
   final Geometry geometry;
 
   @JsonKey(name: "segments")
-  final List<Segment> segments;
+  final List<String> segments;
 
   Point({
     this.uuid,
