@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/ui/components/colored_tab_bar.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
@@ -21,11 +20,13 @@ class _PointListScreenState extends State<PointListScreen> {
 
   void _navigateToSingle(String uuid) {
     _viewModel.getPointById(uuid);
-    Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => buildSinglePoint(context))
-    );
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => buildSinglePoint(context)));
     buildSinglePoint(context);
+  }
+
+  void _checkIn(Point point) {
+    _viewModel.checkIn(point.uuid);
   }
 
   @override
@@ -73,6 +74,7 @@ class _PointListScreenState extends State<PointListScreen> {
                     return MapWidget(
                       items: points,
                       onNavigateCallback: _navigateToSingle,
+                      checkInCallback: _checkIn,
                     );
                   } else {
                     return ErrorScreen(message: "Oops, something went wrong",);

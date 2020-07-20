@@ -7,22 +7,25 @@ import 'package:jacobspears/utils/Callback.dart';
 class MapWidget extends StatefulWidget {
   final List<Point> items;
   final StringCallback onNavigateCallback;
+  final PointCallback checkInCallback;
 
   MapWidget({
     Key key,
     @required this.items,
-    @required this.onNavigateCallback
+    @required this.onNavigateCallback,
+    @required this.checkInCallback
   }) : super(key: key);
 
   @override
-  _MapWidgetState createState() => _MapWidgetState(items, onNavigateCallback);
+  _MapWidgetState createState() => _MapWidgetState(items, onNavigateCallback, checkInCallback);
 }
 
 class _MapWidgetState extends State<MapWidget> {
   final List<Point> _items;
   final StringCallback _onNavigateCallback;
+  final PointCallback _checkInCallback;
 
-  _MapWidgetState(this._items, this._onNavigateCallback);
+  _MapWidgetState(this._items, this._onNavigateCallback, this._checkInCallback);
 
   GoogleMapController mapController;
   Point _selectedPoint;
@@ -45,6 +48,34 @@ class _MapWidgetState extends State<MapWidget> {
     setState(() {
       _selectedPoint = point;
     });
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Checking in?"),
+          content: Text("Are you ready to check into ${_selectedPoint.name}?"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text("Check in"),
+              onPressed: () {
+                // TODO add error cases and check location
+                _checkInCallback(_selectedPoint);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Set<Marker> _onAddMarkerButtonPressed(List<Point> points) {
@@ -106,7 +137,7 @@ class _MapWidgetState extends State<MapWidget> {
                       children: [
                         InkWell(
                           onTap: () {
-                            // TODO check in
+                              _showDialog();
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -41,6 +41,10 @@ class PointInteractor {
     }
   }
 
+  Future<void> checkIn(String uuid) async {
+    final result = await apiInteractor.checkIn(uuid);
+  }
+
   Stream<List<Point>> getAllPoints() => _points;
   
   Stream<Point> getPointOfInterest() => _point; 

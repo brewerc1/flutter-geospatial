@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
+import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 
-class PointOfInterestScreen extends StatelessWidget {
+class PointOfInterestScreen extends StatefulWidget {
   final Point point;
 
   PointOfInterestScreen({
@@ -12,10 +13,55 @@ class PointOfInterestScreen extends StatelessWidget {
     @required this.point,
   }) : super(key: key);
 
+  @override
+  _PointOfInterestScreenState createState() => _PointOfInterestScreenState(point);
+}
+
+class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
+  final Point point;
+
+  _PointOfInterestScreenState(this.point);
+
+  PointListViewModel _viewModel;
   GoogleMapController mapController;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
+  }
+
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Checking in?"),
+          content: Text("Are you ready to check into ${point.name}?"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text("Check in"),
+              onPressed: () {
+                // TODO add error cases and check location
+                _viewModel.checkIn(point.uuid);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _viewModel = PointListViewModel.fromContext(context);
   }
 
   @override
@@ -49,7 +95,12 @@ class PointOfInterestScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              _buildButtonColumn(Colors.blue, Icons.add_location, "Check in")
+              InkWell(
+                onTap: () {
+                  _showDialog();
+                },
+              child: _buildButtonColumn(Colors.blue, Icons.add_location, "Check in")
+              ),
             ],
           ),
         ],

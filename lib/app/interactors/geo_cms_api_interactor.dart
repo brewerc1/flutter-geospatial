@@ -81,6 +81,17 @@ class GeoCmsApiInteractor {
     return _runNetworkAction(networkAction);
   }
 
+  Future<Result<void>> checkIn(String uuid) async {
+    final Future<Response> networkAction = _apiClient.post(
+      _apiClient.url("/api/v1/track-points/"),
+      body: jsonEncode({
+        "point": uuid,
+      }),
+    );
+
+    return _runNetworkAction(networkAction);
+  }
+
   Future<Result<List<Segment>>> getSegments() async {
     final Future<Response> networkAction = _apiClient.get(
         _apiClient.url("/api/v1/mobile/segments/list/"));

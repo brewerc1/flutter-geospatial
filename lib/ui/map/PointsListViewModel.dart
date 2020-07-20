@@ -29,4 +29,6 @@ class PointListViewModel {
   void getPointById(String uuid) {
     pointInteractor.getPointAsync(uuid);
   }
+
+  void checkIn(String uuid) => pointInteractor.checkIn(uuid);
 }
