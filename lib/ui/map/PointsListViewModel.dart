@@ -31,5 +31,9 @@ class PointListViewModel {
     pointInteractor.getPointAsync(uuid);
   }
 
-  void checkIn(String uuid) => pointInteractor.checkIn(uuid);
+  Future<Response<String>> checkIn(String uuid) async {
+    return pointInteractor.checkIn(uuid);
+  }
+
+  Stream<Response<String>> getCheckinResult() => pointInteractor.getCheckinResult();
 }

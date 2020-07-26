@@ -94,15 +94,12 @@ class _PointListScreenState extends State<PointListScreen> {
                           );
                         }
                         break;
-                      case Status.ERROR:
+                      default:
                         return ErrorScreen(
                           message: snapshot.error.toString(),
                         );
                         break;
                     }
-                    return ErrorScreen(
-                      message: snapshot.error.toString(),
-                    );
                   } else {
                     return ErrorScreen(
                       message: "Oops, something went wrong",
@@ -155,15 +152,12 @@ class _PointListScreenState extends State<PointListScreen> {
                           );
                         }
                         break;
-                      case Status.ERROR:
+                      default:
                         return ErrorScreen(
                           message: snapshot.error.toString(),
                         );
                         break;
                     }
-                    return ErrorScreen(
-                      message: snapshot.error.toString(),
-                    );
                   } else {
                     return ErrorScreen(
                       message: "Oops, something went wrong",
@@ -329,15 +323,12 @@ class _PointListScreenState extends State<PointListScreen> {
                           );
                         }
                         break;
-                      case Status.ERROR:
+                      default:
                         return ErrorScreen(
                           message: snapshot.error.toString(),
                         );
                         break;
                     }
-                    return ErrorScreen(
-                      message: snapshot.error.toString(),
-                    );
                   } else {
                     return ErrorScreen(
                       message: "Oops, something went wrong",

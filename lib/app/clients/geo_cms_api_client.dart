@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'dart:developer' as developer;
+
 import 'package:http/http.dart' as http;
 import 'package:jacobspears/app/clients/preferences_client.dart';
 import 'package:jacobspears/app/model/api_exception.dart';
@@ -28,9 +30,11 @@ class GeoCmsApiClient extends http.BaseClient {
     request.headers["X-Org-Token"] = _variant.orgToken;
 
     return _client.send(request).then((streamResponse) async {
+      
       // Client errors
       if (streamResponse.statusCode == 400) {
         final response = await http.Response.fromStream(streamResponse);
+        developer.log("${request.url} ${request.headers} ${response.body}");
         final Map<String, dynamic> json = jsonDecode(response.body);
         throw APIException.fromJson(json);
       }
@@ -39,6 +43,8 @@ class GeoCmsApiClient extends http.BaseClient {
       if (streamResponse.statusCode == 401) {
         final response = await http.Response.fromStream(streamResponse);
         final Map<String, dynamic> json = jsonDecode(response.body);
+        developer.log("${request.url} ${request.headers} ${response.body}");
+
         final apiException = APIException.fromJson(json);
 
         final reason = apiException.atPath('');
@@ -49,8 +55,9 @@ class GeoCmsApiClient extends http.BaseClient {
 
       // Any other unexpected responses
       if (streamResponse.statusCode != 200) {
-        throw NetworkException(
+        developer.log(
             "Unexpected API response: ${request.method} ${request.url} returned ${streamResponse.statusCode}");
+        return streamResponse;
       } else {
         return streamResponse;
       }
