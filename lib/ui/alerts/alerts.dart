@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 
 class AlertsScreen extends StatelessWidget {
 
@@ -149,7 +150,9 @@ class CustomAlertListItemFull extends StatelessWidget {
   IconData _getIconData(String type) {
     switch(type) {
       case "one": {
-        return Icons.terrain;
+        return IconData(int.parse("0xf2dc"),
+            fontFamily:'Material Design Icons',
+            fontPackage:'material_design_icons_flutter');
       }
       case "two": {
         return Icons.cloud;
@@ -196,6 +199,7 @@ class CustomAlertListItemFull extends StatelessWidget {
       Icon(
         _getIconData(alertType),
         color: Colors.white,
+        size: 30,
       ),
       decoration: BoxDecoration(
         color: _getIconColor(alertType),

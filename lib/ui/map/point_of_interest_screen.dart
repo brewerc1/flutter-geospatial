@@ -61,7 +61,6 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _viewModel = PointListViewModel.fromContext(context);
   }
 
   @override

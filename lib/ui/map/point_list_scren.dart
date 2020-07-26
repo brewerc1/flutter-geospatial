@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jacobspears/app/model/point.dart';
+import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/components/colored_tab_bar.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/map/error_screen.dart';
+import 'package:jacobspears/ui/map/loading_screen.dart';
 import 'package:jacobspears/ui/map/map_widget.dart';
 import 'package:jacobspears/ui/map/point_of_interest_screen.dart';
 import 'package:provider/provider.dart';
@@ -63,21 +65,48 @@ class _PointListScreenState extends State<PointListScreen> {
           Expanded(
             child: Container(
               width: double.infinity,
-              child: StreamBuilder<List<Point>>(
+              child: StreamBuilder<Response<List<Point>>>(
                 stream: _viewModel.getPoints(),
                 builder: (final BuildContext context,
-                    final AsyncSnapshot<List<Point>> snapshot) {
+                    final AsyncSnapshot<Response<List<Point>>> snapshot) {
                   if (snapshot.hasError) {
-                    return ErrorScreen(message: snapshot.error.toString(),);
-                  } else if (snapshot.hasData && snapshot.data.isNotEmpty) {
-                    List<Point> points = snapshot.data;
-                    return MapWidget(
-                      items: points,
-                      onNavigateCallback: _navigateToSingle,
-                      checkInCallback: _checkIn,
+                    return ErrorScreen(
+                      message: snapshot.error.toString(),
+                    );
+                  } else if (snapshot.hasData) {
+                    switch (snapshot.data.status) {
+                      case Status.LOADING:
+                        return LoadingScreen(
+                          message: "Loading...",
+                        );
+                        break;
+                      case Status.COMPLETED:
+                        if (snapshot.data.data.isNotEmpty) {
+                          List<Point> points = snapshot.data.data;
+                          return MapWidget(
+                            items: points,
+                            onNavigateCallback: _navigateToSingle,
+                            checkInCallback: _checkIn,
+                          );
+                        } else {
+                          return ErrorScreen(
+                            message: "Oops, something went wrong",
+                          );
+                        }
+                        break;
+                      case Status.ERROR:
+                        return ErrorScreen(
+                          message: snapshot.error.toString(),
+                        );
+                        break;
+                    }
+                    return ErrorScreen(
+                      message: snapshot.error.toString(),
                     );
                   } else {
-                    return ErrorScreen(message: "Oops, something went wrong",);
+                    return ErrorScreen(
+                      message: "Oops, something went wrong",
+                    );
                   }
                 },
               ),
@@ -96,22 +125,49 @@ class _PointListScreenState extends State<PointListScreen> {
           Expanded(
             child: Container(
               width: double.infinity,
-              child: StreamBuilder<List<Point>>(
+              child: StreamBuilder<Response<List<Point>>>(
                 stream: _viewModel.getPoints(),
                 builder: (final BuildContext context,
-                    final AsyncSnapshot<List<Point>> snapshot) {
+                    final AsyncSnapshot<Response<List<Point>>> snapshot) {
                   if (snapshot.hasError) {
-                    return ErrorScreen(message: snapshot.error.toString(),);
-                  } else if (snapshot.hasData && snapshot.data.isNotEmpty) {
-                    List<Point> points = snapshot.data;
-                    return ListView.builder(
-                        itemCount: points.length,
-                        itemBuilder: (context, i) {
-                          return Column(
-                              children: [_buildRow(context, points[i])]);
-                        });
+                    return ErrorScreen(
+                      message: snapshot.error.toString(),
+                    );
+                  } else if (snapshot.hasData) {
+                    switch (snapshot.data.status) {
+                      case Status.LOADING:
+                        return LoadingScreen(
+                          message: "Loading...",
+                        );
+                        break;
+                      case Status.COMPLETED:
+                        if (snapshot.data.data.isNotEmpty) {
+                          List<Point> points = snapshot.data.data;
+                          return ListView.builder(
+                              itemCount: points.length,
+                              itemBuilder: (context, i) {
+                                return Column(
+                                    children: [_buildRow(context, points[i])]);
+                              });
+                        } else {
+                          return ErrorScreen(
+                            message: "Oops, something went wrong",
+                          );
+                        }
+                        break;
+                      case Status.ERROR:
+                        return ErrorScreen(
+                          message: snapshot.error.toString(),
+                        );
+                        break;
+                    }
+                    return ErrorScreen(
+                      message: snapshot.error.toString(),
+                    );
                   } else {
-                    return ErrorScreen(message: "Oops, something went wrong",);
+                    return ErrorScreen(
+                      message: "Oops, something went wrong",
+                    );
                   }
                 },
               ),
@@ -248,17 +304,44 @@ class _PointListScreenState extends State<PointListScreen> {
           Expanded(
             child: Container(
               width: double.infinity,
-              child: StreamBuilder<Point>(
+              child: StreamBuilder<Response<Point>>(
                 stream: _viewModel.getPointOfInterest(),
                 builder: (final BuildContext context,
-                    final AsyncSnapshot<Point> snapshot) {
+                    final AsyncSnapshot<Response<Point>> snapshot) {
                   if (snapshot.hasError) {
-                    return ErrorScreen(message: snapshot.error.toString(),);
+                    return ErrorScreen(
+                      message: snapshot.error.toString(),
+                    );
                   } else if (snapshot.hasData) {
-                    Point point = snapshot.data;
-                    return PointOfInterestScreen(point: point,);
+                    switch (snapshot.data.status) {
+                      case Status.LOADING:
+                        return LoadingScreen(
+                          message: "Loading...",
+                        );
+                        break;
+                      case Status.COMPLETED:
+                        if (snapshot.data.data != null) {
+                          Point point = snapshot.data.data;
+                          return PointOfInterestScreen(point: point,);
+                        } else {
+                          return ErrorScreen(
+                            message: "Oops, something went wrong",
+                          );
+                        }
+                        break;
+                      case Status.ERROR:
+                        return ErrorScreen(
+                          message: snapshot.error.toString(),
+                        );
+                        break;
+                    }
+                    return ErrorScreen(
+                      message: snapshot.error.toString(),
+                    );
                   } else {
-                    return ErrorScreen(message: "Oops, something went wrong",);
+                    return ErrorScreen(
+                      message: "Oops, something went wrong",
+                    );
                   }
                 },
               ),

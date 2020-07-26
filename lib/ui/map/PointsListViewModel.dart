@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
 import 'package:jacobspears/app/model/point.dart';
+import 'package:jacobspears/app/model/response.dart';
 import 'package:provider/provider.dart';
 
 
@@ -22,9 +23,9 @@ class PointListViewModel {
     pointInteractor.refreshPoints();
   }
 
-  Stream<List<Point>> getPoints() => pointInteractor.getAllPoints();
+  Stream<Response<List<Point>>> getPoints() => pointInteractor.getAllPoints();
 
-  Stream<Point> getPointOfInterest() => pointInteractor.getPointOfInterest();
+  Stream<Response<Point>> getPointOfInterest() => pointInteractor.getPointOfInterest();
 
   void getPointById(String uuid) {
     pointInteractor.getPointAsync(uuid);
