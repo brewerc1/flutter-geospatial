@@ -1,11 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
+import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/subjects.dart';
-
-enum CheckInViewType { BODY, CHECKING_IN, CHECKED_IN, ERROR }
 
 class PointListViewModel {
 

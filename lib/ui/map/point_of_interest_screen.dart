@@ -4,8 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
-import 'package:jacobspears/app/model/response.dart';
+import 'package:jacobspears/ui/components/check_in_error_widget.dart';
+import 'package:jacobspears/ui/components/checked_in_widget.dart';
+import 'package:jacobspears/ui/components/checking_in_widget.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 
 import 'dart:developer' as developer;
@@ -171,211 +174,6 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
       ],
     );
 
-    Widget bodyProgress = new Container(
-      child: new Stack(
-        children: <Widget>[
-          body,
-          new Container(
-            alignment: AlignmentDirectional.center,
-            decoration: new BoxDecoration(
-              color: Colors.white70,
-            ),
-            child: new Container(
-              decoration: new BoxDecoration(
-                  color: Colors.blue[200],
-                  borderRadius: new BorderRadius.circular(10.0)
-              ),
-              width: 300.0,
-              height: 200.0,
-              alignment: AlignmentDirectional.center,
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  new Center(
-                    child: new SizedBox(
-                      height: 50.0,
-                      width: 50.0,
-                      child: new CircularProgressIndicator(
-                        value: null,
-                        strokeWidth: 7.0,
-                      ),
-                    ),
-                  ),
-                  new Container(
-                    margin: const EdgeInsets.only(top: 25.0),
-                    child: new Center(
-                      child: new Text(
-                        "Checking into ${point.name}",
-                        style: new TextStyle(
-                            color: Colors.white
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    Widget bodyDone = new Container(
-      child: new Stack(
-        children: <Widget>[
-          body,
-          new Container(
-            alignment: AlignmentDirectional.center,
-            decoration: new BoxDecoration(
-              color: Colors.white70,
-            ),
-            child: new Container(
-              decoration: new BoxDecoration(
-                  color: Colors.blue[200],
-                  borderRadius: new BorderRadius.circular(10.0)
-              ),
-              width: 300.0,
-              height: 200.0,
-              alignment: AlignmentDirectional.center,
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  new Center(
-                    child: new SizedBox(
-                      height: 50.0,
-                      width: 50.0,
-                      child: Icon(Icons.check, color: Colors.white, size: 50.0,),
-                    ),
-                  ),
-                  new Container(
-                    margin: const EdgeInsets.only(top: 25.0),
-                    child: new Center(
-                      child: new Text(
-                        "Checked into ${point.name}",
-                        style: new TextStyle(
-                            color: Colors.white
-                        ),
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      _setViewState(CheckInViewType.BODY);
-                    },
-                    child: Container (
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: new Center(
-                        child: new Text(
-                          "CLOSE",
-                          style: new TextStyle(
-                              color: Colors.white
-                          ),
-                        ),
-                      ),
-                    )
-                  )
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    Widget bodyError = new Container(
-      child: new Stack(
-        children: <Widget>[
-          body,
-          new Container(
-            alignment: AlignmentDirectional.center,
-            decoration: new BoxDecoration(
-              color: Colors.white70,
-            ),
-            child: new Container(
-              decoration: new BoxDecoration(
-                  color: Colors.blue[200],
-                  borderRadius: new BorderRadius.circular(10.0)
-              ),
-              width: 300.0,
-              height: 200.0,
-              alignment: AlignmentDirectional.center,
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  new Center(
-                    child: new SizedBox(
-                      height: 50.0,
-                      width: 50.0,
-                      child: Icon(Icons.error_outline, color: Colors.white, size: 50.0,),
-                    ),
-                  ),
-                  new Container(
-                    margin: const EdgeInsets.only(top: 25.0),
-                    child: new Center(
-                      child: new Text(
-                        "Oops, something went wrong!",
-                        style: new TextStyle(
-                            color: Colors.white
-                        ),
-                      ),
-                    ),
-                  ),
-                  new Container(
-                    margin: const EdgeInsets.only(top: 25.0),
-                    child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          _setViewState(CheckInViewType.BODY);
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Icon(Icons.close, color: Colors.white,),
-                            Text( "CLOSE",
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          _checkIn();
-                        },
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.refresh,
-                              color: Colors.white,
-                            ),
-                            Text(
-                              "TRY AGAIN",
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
     return Scaffold(
         appBar: AppBar(
           actions: <Widget>[
@@ -387,9 +185,14 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
           ],
           leading: new Container(),
         ),
-        body:  _viewType == CheckInViewType.BODY ? body :
-          (_viewType == CheckInViewType.CHECKED_IN ? bodyDone :
-            (_viewType == CheckInViewType.CHECKING_IN ? bodyProgress : bodyError))
+        body: Stack(
+          children: <Widget>[
+            body,
+            if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: point.name),
+            if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: point.name, onButtonPress: _setViewState,),
+            if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
+          ],
+        )
     );
   }
 

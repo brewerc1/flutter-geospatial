@@ -1,0 +1,1 @@
+enum CheckInViewType { BODY, CHECKING_IN, CHECKED_IN, ERROR }

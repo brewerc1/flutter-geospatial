@@ -27,10 +27,6 @@ class _PointListScreenState extends State<PointListScreen> {
     buildSinglePoint(context);
   }
 
-  void _checkIn(Point point) {
-    _viewModel.checkIn(point.uuid);
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -86,7 +82,6 @@ class _PointListScreenState extends State<PointListScreen> {
                           return MapWidget(
                             items: points,
                             onNavigateCallback: _navigateToSingle,
-                            checkInCallback: _checkIn,
                           );
                         } else {
                           return ErrorScreen(
@@ -342,8 +337,4 @@ class _PointListScreenState extends State<PointListScreen> {
       ),
     );
   }
-
-//  Widget buildErrorState(BuildContext context) {
-//    return
-//  }
 }
