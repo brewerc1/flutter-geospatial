@@ -1,23 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/utils/Callback.dart';
 
+import 'PointsListViewModel.dart';
+
 class MapWidget extends StatefulWidget {
   final List<Point> items;
   final StringCallback onNavigateCallback;
   final PointCallback checkInCallback;
 
-  MapWidget({
-    Key key,
-    @required this.items,
-    @required this.onNavigateCallback,
-    @required this.checkInCallback
-  }) : super(key: key);
+  MapWidget(
+      {Key key,
+      @required this.items,
+      @required this.onNavigateCallback,
+      @required this.checkInCallback})
+      : super(key: key);
 
   @override
-  _MapWidgetState createState() => _MapWidgetState(items, onNavigateCallback, checkInCallback);
+  _MapWidgetState createState() =>
+      _MapWidgetState(items, onNavigateCallback, checkInCallback);
 }
 
 class _MapWidgetState extends State<MapWidget> {
@@ -29,7 +34,10 @@ class _MapWidgetState extends State<MapWidget> {
 
   GoogleMapController mapController;
   Point _selectedPoint;
+  PointListViewModel _viewModel;
+  StreamSubscription _checkinSubscription;
 
+  CheckInViewType _viewType = CheckInViewType.BODY;
   MapType _currentMapType = MapType.normal;
 
   void _onMapCreated(GoogleMapController controller) {
@@ -50,6 +58,16 @@ class _MapWidgetState extends State<MapWidget> {
     });
   }
 
+  void _setViewState(CheckInViewType viewType)  {
+    setState(() {
+      _viewType = viewType;
+    });
+  }
+
+  void _checkIn() {
+    _viewModel.checkIn(_selectedPoint.uuid);
+  }
+
   void _showDialog() {
     showDialog(
       context: context,
@@ -67,9 +85,8 @@ class _MapWidgetState extends State<MapWidget> {
             FlatButton(
               child: Text("Check in"),
               onPressed: () {
-                // TODO add error cases and check location
-                _checkInCallback(_selectedPoint);
                 Navigator.of(context).pop();
+                _checkIn();
               },
             ),
           ],
@@ -97,8 +114,15 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _viewModel = PointListViewModel.fromContext(context);
+    _checkinSubscription = _viewModel.checkInEvent.listen((event) => _setViewState(event));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Stack(children: <Widget>[
+    Widget body = Stack(children: <Widget>[
       GoogleMap(
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(
@@ -131,26 +155,226 @@ class _MapWidgetState extends State<MapWidget> {
                   alignment: Alignment.bottomCenter,
                   child: Card(
                       child: Container(
-                    padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                _showDialog();
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  Icon(Icons.add_location, color: Colors.blue,),
+                                  Text( "CHECK IN",
+                                    style: const TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                _onNavigateCallback(_selectedPoint.uuid);
+                              },
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.info_outline,
+                                    color: Colors.blue,
+                                  ),
+                                  Text(
+                                    "INFO",
+                                    style: const TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                  ),
+                )
+            ],
+          )
+      ),
+    ]);
+
+    Widget bodyProgress = new Container(
+      child: new Stack(
+        children: <Widget>[
+          body,
+          new Container(
+            alignment: AlignmentDirectional.center,
+            decoration: new BoxDecoration(
+              color: Colors.white70,
+            ),
+            child: new Container(
+              decoration: new BoxDecoration(
+                  color: Colors.blue[200],
+                  borderRadius: new BorderRadius.circular(10.0)
+              ),
+              width: 300.0,
+              height: 200.0,
+              alignment: AlignmentDirectional.center,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Center(
+                    child: new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: new CircularProgressIndicator(
+                        value: null,
+                        strokeWidth: 7.0,
+                      ),
+                    ),
+                  ),
+                  new Container(
+                    margin: const EdgeInsets.only(top: 25.0),
+                    child: new Center(
+                      child: new Text(
+                        "Checking into ${_selectedPoint?.name}",
+                        style: new TextStyle(
+                            color: Colors.white
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Widget bodyDone = new Container(
+      child: new Stack(
+        children: <Widget>[
+          body,
+          new Container(
+            alignment: AlignmentDirectional.center,
+            decoration: new BoxDecoration(
+              color: Colors.white70,
+            ),
+            child: new Container(
+              decoration: new BoxDecoration(
+                  color: Colors.blue[200],
+                  borderRadius: new BorderRadius.circular(10.0)
+              ),
+              width: 300.0,
+              height: 200.0,
+              alignment: AlignmentDirectional.center,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Center(
+                    child: new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: Icon(Icons.check, color: Colors.white, size: 50.0,),
+                    ),
+                  ),
+                  new Container(
+                    margin: const EdgeInsets.only(top: 25.0),
+                    child: new Center(
+                      child: new Text(
+                        "Checked into ${_selectedPoint?.name}",
+                        style: new TextStyle(
+                            color: Colors.white
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                      onTap: () {
+                        _setViewState(CheckInViewType.BODY);
+                      },
+                      child: Container (
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: new Center(
+                          child: new Text(
+                            "CLOSE",
+                            style: new TextStyle(
+                                color: Colors.white
+                            ),
+                          ),
+                        ),
+                      )
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Widget bodyError = new Container(
+      child: new Stack(
+        children: <Widget>[
+          body,
+          new Container(
+            alignment: AlignmentDirectional.center,
+            decoration: new BoxDecoration(
+              color: Colors.white70,
+            ),
+            child: new Container(
+              decoration: new BoxDecoration(
+                  color: Colors.blue[200],
+                  borderRadius: new BorderRadius.circular(10.0)
+              ),
+              width: 300.0,
+              height: 200.0,
+              alignment: AlignmentDirectional.center,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Center(
+                    child: new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: Icon(Icons.error_outline, color: Colors.white, size: 50.0,),
+                    ),
+                  ),
+                  new Container(
+                    margin: const EdgeInsets.only(top: 25.0),
+                    child: new Center(
+                      child: new Text(
+                        "Oops, something went wrong!",
+                        style: new TextStyle(
+                            color: Colors.white
+                        ),
+                      ),
+                    ),
+                  ),
+                  new Container(
+                    margin: const EdgeInsets.only(top: 25.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         InkWell(
                           onTap: () {
-                              _showDialog();
+                            _setViewState(CheckInViewType.BODY);
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              Icon(
-                                Icons.add_location,
-                                color: Colors.blue,
-                              ),
-                              Text(
-                                "CHECK IN",
+                              Icon(Icons.close, color: Colors.white,),
+                              Text( "CLOSE",
                                 style: const TextStyle(
                                   fontSize: 12.0,
-                                  color: Colors.black54,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
@@ -158,19 +382,19 @@ class _MapWidgetState extends State<MapWidget> {
                         ),
                         InkWell(
                           onTap: () {
-                              _onNavigateCallback(_selectedPoint.uuid);
-                            },
-                            child: Row (
+                            _checkIn();
+                          },
+                          child: Row(
                             children: <Widget>[
                               Icon(
-                                Icons.info_outline,
-                                color: Colors.blue,
+                                Icons.refresh,
+                                color: Colors.white,
                               ),
                               Text(
-                                "INFO",
+                                "TRY AGAIN",
                                 style: const TextStyle(
                                   fontSize: 12.0,
-                                  color: Colors.black54,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
@@ -178,10 +402,18 @@ class _MapWidgetState extends State<MapWidget> {
                         ),
                       ],
                     ),
-                  )),
-                )
-            ],
-          )),
-    ]);
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+
+    return _viewType == CheckInViewType.BODY ? body :
+    (_viewType == CheckInViewType.CHECKED_IN ? bodyDone :
+    (_viewType == CheckInViewType.CHECKING_IN ? bodyProgress : bodyError));
   }
 }

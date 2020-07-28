@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -20,66 +22,29 @@ class PointOfInterestScreen extends StatefulWidget {
   _PointOfInterestScreenState createState() => _PointOfInterestScreenState(point);
 }
 
-enum ViewType { BODY, CHECKING_IN, CHECKED_IN, ERROR }
-
 class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   final Point point;
 
   _PointOfInterestScreenState(this.point);
 
   PointListViewModel _viewModel;
+  StreamSubscription _checkinSubscription;
   GoogleMapController mapController;
-  ViewType _viewType = ViewType.BODY;
+  CheckInViewType _viewType = CheckInViewType.BODY;
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
-  Future _setViewState(ViewType viewType) async {
+  void _setViewState(CheckInViewType viewType)  {
       setState(() {
         _viewType = viewType;
       });
   }
 
   void _checkIn() {
-    setState(() {
-      _viewType = ViewType.CHECKING_IN;
-      new Future.delayed(new Duration(seconds: 3), _login);
-    });
+    _viewModel.checkIn(point.uuid);
   }
-
-
-  Future _login() async{
-    setState((){
-      _viewType = ViewType.CHECKED_IN;
-      new Future.delayed(new Duration(seconds: 3), _close);
-
-    });
-  }
-
-  Future _close() async {
-    setState(() {
-      _viewType = ViewType.BODY;
-
-    });
-  }
-//    final Response<String> result = await _viewModel.checkIn(point.uuid);
-//    developer.log("$result");
-//    switch (result.status) {
-//      case Status.LOADING:
-//        developer.log("loading!");
-//        // _setViewState(ViewType.CHECKING_IN);
-//        break;
-//      case Status.COMPLETED:
-//        developer.log("completed!");
-//        // _setViewState(ViewType.CHECKED_IN);
-//        break;
-//      case Status.ERROR:
-//        developer.log("error!");
-//        // _setViewState(ViewType.ERROR);
-//        break;
-//    }
-//  }
 
   void _showDialog() {
     showDialog(
@@ -112,6 +77,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _viewModel = PointListViewModel.fromContext(context);
+    _checkinSubscription = _viewModel.checkInEvent.listen((event) => _setViewState(event));
   }
 
   @override
@@ -294,6 +260,114 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                       ),
                     ),
                   ),
+                  InkWell(
+                    onTap: () {
+                      _setViewState(CheckInViewType.BODY);
+                    },
+                    child: Container (
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: new Center(
+                        child: new Text(
+                          "CLOSE",
+                          style: new TextStyle(
+                              color: Colors.white
+                          ),
+                        ),
+                      ),
+                    )
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Widget bodyError = new Container(
+      child: new Stack(
+        children: <Widget>[
+          body,
+          new Container(
+            alignment: AlignmentDirectional.center,
+            decoration: new BoxDecoration(
+              color: Colors.white70,
+            ),
+            child: new Container(
+              decoration: new BoxDecoration(
+                  color: Colors.blue[200],
+                  borderRadius: new BorderRadius.circular(10.0)
+              ),
+              width: 300.0,
+              height: 200.0,
+              alignment: AlignmentDirectional.center,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Center(
+                    child: new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: Icon(Icons.error_outline, color: Colors.white, size: 50.0,),
+                    ),
+                  ),
+                  new Container(
+                    margin: const EdgeInsets.only(top: 25.0),
+                    child: new Center(
+                      child: new Text(
+                        "Oops, something went wrong!",
+                        style: new TextStyle(
+                            color: Colors.white
+                        ),
+                      ),
+                    ),
+                  ),
+                  new Container(
+                    margin: const EdgeInsets.only(top: 25.0),
+                    child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          _setViewState(CheckInViewType.BODY);
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Icon(Icons.close, color: Colors.white,),
+                            Text( "CLOSE",
+                              style: const TextStyle(
+                                fontSize: 12.0,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          _checkIn();
+                        },
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.refresh,
+                              color: Colors.white,
+                            ),
+                            Text(
+                              "TRY AGAIN",
+                              style: const TextStyle(
+                                fontSize: 12.0,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  ),
                 ],
               ),
             ),
@@ -313,7 +387,9 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
           ],
           leading: new Container(),
         ),
-        body:  _viewType == ViewType.BODY ? body : (_viewType == ViewType.CHECKED_IN ? bodyDone : bodyProgress)
+        body:  _viewType == CheckInViewType.BODY ? body :
+          (_viewType == CheckInViewType.CHECKED_IN ? bodyDone :
+            (_viewType == CheckInViewType.CHECKING_IN ? bodyProgress : bodyError))
     );
   }
 

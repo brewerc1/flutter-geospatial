@@ -3,7 +3,9 @@ import 'package:jacobspears/app/interactors/point_interactor.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/subjects.dart';
 
+enum CheckInViewType { BODY, CHECKING_IN, CHECKED_IN, ERROR }
 
 class PointListViewModel {
 
@@ -17,11 +19,18 @@ class PointListViewModel {
 
   final PointInteractor pointInteractor;
 
+  PublishSubject<CheckInViewType> _checkinEvent = PublishSubject();
+
   PointListViewModel(this.pointInteractor);
 
   init() {
     pointInteractor.refreshPoints();
+    _checkinEvent.add(CheckInViewType.BODY);
   }
+
+  void dispose() {}
+
+  Stream<CheckInViewType> get checkInEvent => _checkinEvent.stream;
 
   Stream<Response<List<Point>>> getPoints() => pointInteractor.getAllPoints();
 
@@ -31,9 +40,21 @@ class PointListViewModel {
     pointInteractor.getPointAsync(uuid);
   }
 
-  Future<Response<String>> checkIn(String uuid) async {
-    return pointInteractor.checkIn(uuid);
+  Future<void> checkIn(String uuid) async {
+    _checkinEvent.add(CheckInViewType.CHECKING_IN);
+    var response = await pointInteractor.checkIn(uuid);
+    switch (response.status) {
+      case Status.LOADING:
+        _checkinEvent.add(CheckInViewType.CHECKING_IN);
+        break;
+      case Status.COMPLETED:
+        _checkinEvent.add(CheckInViewType.CHECKED_IN);
+        break;
+      case Status.ERROR:
+        _checkinEvent.add(CheckInViewType.ERROR);
+        break;
+      default:
+        _checkinEvent.add(CheckInViewType.BODY);
+    }
   }
-
-  Stream<Response<String>> getCheckinResult() => pointInteractor.getCheckinResult();
 }

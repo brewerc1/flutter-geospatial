@@ -10,7 +10,6 @@ class PointInteractor {
 
   final BehaviorSubject<Response<List<Point>>> _points = BehaviorSubject.seeded(null);
   final BehaviorSubject<Response<Point>> _point = BehaviorSubject.seeded(null);
-  final BehaviorSubject<Response<String>> _checkinResult = BehaviorSubject.seeded(null);
 
   StreamSubscription _pointsStream;
 
@@ -46,13 +45,10 @@ class PointInteractor {
   }
 
   Future<Response<String>> checkIn(String uuid) async {
-    _point.add(Response.loading("Checking into point $uuid"));
     final result = await apiInteractor.checkIn(uuid);
     if (result.isValue) {
-      _checkinResult.add(Response.completed(""));
       return Response.completed("");
     } else {
-      developer.log("${result.asError.error}");
       return Response.error("Something went wrong");
     }
   }
@@ -60,8 +56,6 @@ class PointInteractor {
   Stream<Response<List<Point>>> getAllPoints() => _points;
   
   Stream<Response<Point>> getPointOfInterest() => _point;
-
-  Stream<Response<String>> getCheckinResult() => _checkinResult;
 
   _updatePoints(final List<Point> points) {
     _points.add(Response.completed(points));
