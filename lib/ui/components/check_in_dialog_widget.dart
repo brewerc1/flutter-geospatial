@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/utils/Callback.dart';
 
-class CheckInErrorWidget extends StatelessWidget {
-  final VoidCallback onTryAgainButtonPress;
+class CheckInDialogWidget extends StatelessWidget {
+  final String name; 
+  final VoidCallback onCheckInButton;
   final CheckedInStateCallBack onCloseButtonPress;
 
-  const CheckInErrorWidget({Key key, this.onCloseButtonPress, this.onTryAgainButtonPress})
+  const CheckInDialogWidget({Key key, this.name, this.onCloseButtonPress, this.onCheckInButton})
       : super(key: key);
 
   @override
@@ -19,7 +20,7 @@ class CheckInErrorWidget extends StatelessWidget {
       ),
       child: new Container(
         decoration: new BoxDecoration(
-            color: Colors.blue,
+            color: Colors.white,
             borderRadius: new BorderRadius.circular(10.0)
         ),
         width: 300.0,
@@ -33,16 +34,17 @@ class CheckInErrorWidget extends StatelessWidget {
               child: new SizedBox(
                 height: 50.0,
                 width: 50.0,
-                child: Icon(Icons.error_outline, color: Colors.white, size: 50.0,),
+                child: Icon(Icons.not_listed_location, color: Colors.blue, size: 50.0,),
               ),
             ),
             new Container(
-              margin: const EdgeInsets.only(top: 25.0),
+              margin: const EdgeInsets.fromLTRB(10, 25.0, 10, 10),
               child: new Center(
                 child: new Text(
-                  "Oops, something went wrong!",
+                  "Are you ready to check into $name?",
+                  textAlign: TextAlign.center,
                   style: new TextStyle(
-                      color: Colors.white
+                      color: Colors.blue,
                   ),
                 ),
               ),
@@ -59,29 +61,29 @@ class CheckInErrorWidget extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Icon(Icons.close, color: Colors.white,),
+                        Icon(Icons.close, color: Colors.blue,),
                         Text( "CLOSE",
                           style: const TextStyle(
                             fontSize: 12.0,
-                            color: Colors.white,
+                            color: Colors.blue,
                           ),
                         ),
                       ],
                     ),
                   ),
                   InkWell(
-                    onTap: onTryAgainButtonPress,
+                    onTap: onCheckInButton,
                     child: Row(
                       children: <Widget>[
                         Icon(
-                          Icons.refresh,
-                          color: Colors.white,
+                          Icons.check,
+                          color: Colors.blue,
                         ),
                         Text(
-                          "TRY AGAIN",
+                          "CHECK IN",
                           style: const TextStyle(
                             fontSize: 12.0,
-                            color: Colors.white,
+                            color: Colors.blue,
                           ),
                         ),
                       ],

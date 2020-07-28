@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jacobspears/ui/components/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/ui/components/check_in_error_widget.dart';
@@ -49,33 +50,6 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
     _viewModel.checkIn(point.uuid);
   }
 
-  void _showDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Checking in?"),
-          content: Text("Are you ready to check into ${point.name}?"),
-          actions: <Widget>[
-            FlatButton(
-              child: Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            FlatButton(
-              child: Text("Check in"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _checkIn();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -116,8 +90,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
             children: <Widget>[
               InkWell(
                   onTap: () {
-                     _showDialog();
-                      //_checkIn();
+                     _setViewState(CheckInViewType.DIALOG);
                   },
                   child: _buildButtonColumn(Colors.blue, Icons.add_location, "Check in")
               ),
@@ -188,6 +161,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
         body: Stack(
           children: <Widget>[
             body,
+            if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: point.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
             if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: point.name),
             if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: point.name, onButtonPress: _setViewState,),
             if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),

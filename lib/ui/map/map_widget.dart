@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jacobspears/ui/components/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/ui/components/check_in_error_widget.dart';
@@ -67,33 +68,6 @@ class _MapWidgetState extends State<MapWidget> {
 
   void _checkIn() {
     _viewModel.checkIn(_selectedPoint.uuid);
-  }
-
-  void _showDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Checking in?"),
-          content: Text("Are you ready to check into ${_selectedPoint.name}?"),
-          actions: <Widget>[
-            FlatButton(
-              child: Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            FlatButton(
-              child: Text("Check in"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _checkIn();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Set<Marker> _onAddMarkerButtonPressed(List<Point> points) {
@@ -162,7 +136,7 @@ class _MapWidgetState extends State<MapWidget> {
                           children: [
                             InkWell(
                               onTap: () {
-                                _showDialog();
+                                _setViewState(CheckInViewType.DIALOG);
                               },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -210,6 +184,7 @@ class _MapWidgetState extends State<MapWidget> {
     return Stack(
       children: <Widget>[
         body,
+        if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: _selectedPoint?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
         if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: _selectedPoint?.name),
         if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _selectedPoint?.name, onButtonPress: _setViewState,),
         if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),

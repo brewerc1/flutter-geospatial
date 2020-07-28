@@ -1,1 +1,1 @@
-enum CheckInViewType { BODY, CHECKING_IN, CHECKED_IN, ERROR }
+enum CheckInViewType { BODY, DIALOG, CHECKING_IN, CHECKED_IN, ERROR }

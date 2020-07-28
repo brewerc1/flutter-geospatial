@@ -11,7 +11,7 @@ class CheckingInWidget extends StatelessWidget {
     return new Container(
       alignment: AlignmentDirectional.center,
       decoration: new BoxDecoration(
-        color: Colors.white70,
+        color: Colors.grey.withOpacity(0.6),
       ),
       child: new Container(
         decoration: new BoxDecoration(
