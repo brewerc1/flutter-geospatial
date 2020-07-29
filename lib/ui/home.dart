@@ -4,7 +4,7 @@ import 'package:jacobspears/app/model/point_of_interest.dart';
 import 'package:jacobspears/ui/account/settings.dart';
 import 'package:jacobspears/ui/alerts/alerts.dart';
 import 'package:jacobspears/ui/map/map.dart';
-import 'package:jacobspears/ui/map/point_list_scren.dart';
+import 'package:jacobspears/ui/map/point_list_screen.dart';
 import 'package:jacobspears/ui/reports/CameraScreen.dart';
 
 import 'reports/reports.dart';
