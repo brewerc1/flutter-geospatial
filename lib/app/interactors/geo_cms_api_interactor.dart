@@ -39,7 +39,7 @@ class GeoCmsApiInteractor {
         _apiClient.url("/api/v1/mobile/points/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
-      final List<dynamic> json = jsonDecode(response.body);
+      final List<dynamic> json = jsonDecode(response.body)["results"];
       return json.map((e) => Point.fromJson(e)).toList();
     }));
   }
