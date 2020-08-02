@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jacobspears/app/model/point.dart';
@@ -15,11 +17,10 @@ class PointListScreen extends StatefulWidget {
   PointListScreenState createState() => PointListScreenState();
 }
 
-enum ViewType { LIST, MAP }
-
 class PointListScreenState extends State<PointListScreen> with SingleTickerProviderStateMixin {
   PointListViewModel _viewModel;
   TabController _controller;
+  StreamSubscription _tabSubscription;
 
   void _navigateToSingle(Point point) {
     _viewModel.getPointById(point);
@@ -47,6 +48,8 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
     super.didChangeDependencies();
     _viewModel = PointListViewModel.fromContext(context);
     _viewModel.init();
+    _tabSubscription = _viewModel.tabEvent.listen((event) => _controller.animateTo(event == CurrentTab.MAP ? 1 : 0));
+
   }
 
   @override
@@ -82,7 +85,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
             child: Container(
               width: double.infinity,
               child: StreamBuilder<Response<List<Point>>>(
-                stream: _viewModel.getPoints(),
+                stream: _viewModel.pointsWithCheckInStream(),
                 builder: (final BuildContext context,
                     final AsyncSnapshot<Response<List<Point>>> snapshot) {
                   if (snapshot.hasError) {
@@ -139,7 +142,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
             child: Container(
               width: double.infinity,
               child: StreamBuilder<Response<List<Point>>>(
-                stream: _viewModel.getPoints(),
+                stream: _viewModel.pointsWithCheckInStream(),
                 builder: (final BuildContext context,
                     final AsyncSnapshot<Response<List<Point>>> snapshot) {
                   if (snapshot.hasError) {
@@ -341,7 +344,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
                       case Status.COMPLETED:
                         if (snapshot.data.data != null) {
                           Point point = snapshot.data.data;
-                          return PointOfInterestScreen(point: point,);
+                          return PointOfInterestScreen(point: point, viewModel: _viewModel,);
                         } else {
                           return ErrorScreen(
                             message: "Oops, something went wrong",

@@ -19,22 +19,24 @@ import 'package:provider/provider.dart';
 
 class PointOfInterestScreen extends StatefulWidget {
   final Point point;
+  final PointListViewModel viewModel;
 
   PointOfInterestScreen({
     Key key,
+    @required this.viewModel,
     @required this.point,
   }) : super(key: key);
 
   @override
-  _PointOfInterestScreenState createState() => _PointOfInterestScreenState(point);
+  _PointOfInterestScreenState createState() => _PointOfInterestScreenState(point, viewModel);
 }
 
 class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   final Point point;
+  final PointListViewModel _viewModel;
 
-  _PointOfInterestScreenState(this.point);
+  _PointOfInterestScreenState(this.point, this._viewModel);
 
-  PointListViewModel _viewModel;
   StreamSubscription _checkinSubscription;
   GoogleMapController mapController;
   CheckInViewType _viewType = CheckInViewType.BODY;
@@ -56,8 +58,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _viewModel = PointListViewModel.fromContext(context);
-    _checkinSubscription = _viewModel.checkInEvent.listen((event) => _setViewState(event));
+    _checkinSubscription = _viewModel.checkInEvent?.listen((event) => _setViewState(event));
   }
 
   @override
@@ -110,6 +111,8 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                 height: 200,
                 child: GoogleMap(
                   onTap: (LatLng) {
+                    _viewModel.setCurrentTab(CurrentTab.MAP);
+                    _viewModel.setSelectedPoint(point);
                     Navigator.pop(context);
                   },
                   onMapCreated: _onMapCreated,

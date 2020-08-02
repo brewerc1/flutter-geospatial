@@ -14,9 +14,7 @@ Point _$PointFromJson(Map<String, dynamic> json) {
     geometry: json['geometry'] == null
         ? null
         : Geometry.fromJson(json['geometry'] as Map<String, dynamic>),
-    segments: (json['segments'] as List)
-        ?.map((e) => e as String)
-        ?.toList(),
+    segments: (json['segments'] as List)?.map((e) => e as String)?.toList(),
   );
 }
 

@@ -5,18 +5,20 @@ import 'package:async/async.dart';
 import 'package:http/http.dart';
 import 'package:jacobspears/app/clients/geo_cms_api_client.dart';
 import 'package:jacobspears/app/clients/preferences_client.dart';
+import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/organization.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/segment.dart';
 import 'package:jacobspears/app/model/user.dart';
-import 'package:jacobspears/utils/app_exception.dart';
+import 'package:jacobspears/values/variants.dart';
 
 class GeoCmsApiInteractor {
   final PreferencesClient _prefClient = PreferencesClient();
   final GeoCmsApiClient _apiClient;
+  final Variant _variant;
 
-  GeoCmsApiInteractor(this._apiClient);
+  GeoCmsApiInteractor(this._apiClient, this._variant);
 
   Future<Result<void>> login(String email, String password) async {
     final Future<Response> networkAction = _apiClient.post(
@@ -92,12 +94,22 @@ class GeoCmsApiInteractor {
     return _runNetworkAction(networkAction);
   }
 
+  Future<Result<List<CheckInResult>>> getCheckInHistory() {
+    final Future<Response> networkAction = _apiClient.get(
+      _apiClient.url("/api/v1/mobile/track-points/list/"));
+
+    return _runNetworkAction(networkAction.then((response) {
+      final List<dynamic> json = jsonDecode(response.body)["results"];
+      return json.map((e) => CheckInResult.fromJson(e)).toList();
+    }));
+  }
+
   Future<Result<List<Segment>>> getSegments() async {
     final Future<Response> networkAction = _apiClient.get(
         _apiClient.url("/api/v1/mobile/segments/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
-      final List<dynamic> json = jsonDecode(response.body);
+      final List<dynamic> json = jsonDecode(response.body)["results"];
       return json.map((e) => Segment.fromJson(e)).toList();
     }));
   }
@@ -116,14 +128,14 @@ class GeoCmsApiInteractor {
         _apiClient.url("/api/v1/mobile/clusters/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
-      final List<dynamic> json = jsonDecode(response.body);
+      final List<dynamic> json = jsonDecode(response.body)["results"];
       return json.map((e) => Cluster.fromJson(e)).toList();
     }));
   }
 
-  Future<Result<Cluster>> getCluster(String uuid) async {
+  Future<Result<Cluster>> getCluster() async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/mobile/clusters/$uuid/"));
+        _apiClient.url("/api/v1/mobile/clusters/${_variant.clusterId}/"));
 
     return _runNetworkAction(networkAction.then((response) {
       return Cluster.fromJson(jsonDecode(response.body));
@@ -135,7 +147,7 @@ class GeoCmsApiInteractor {
         _apiClient.url("/api/v1/mobile/organizations/list/"));
 
     return _runNetworkAction(networkAction.then((response) {
-      final List<dynamic> json = jsonDecode(response.body);
+      final List<dynamic> json = jsonDecode(response.body)["results"];
       return json.map((e) => Organization.fromJson(e)).toList();
     }));
   }

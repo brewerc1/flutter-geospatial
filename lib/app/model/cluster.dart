@@ -1,5 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:jacobspears/app/model/incident_type.dart';
+import 'package:jacobspears/app/model/point.dart';
+import 'package:jacobspears/app/model/segment.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'cluster.g.dart';
@@ -14,14 +17,22 @@ class Cluster extends Equatable {
   @JsonKey(name: "name")
   final String name;
 
+  @JsonKey(name: "segments")
+  final List<Segment> segmants;
+
 
   @JsonKey(name: "related_points")
-  final List<String> relatedPoints;
+  final List<Point> relatedPoints;
+
+  @JsonKey(name: "incident_types")
+  final List<IncidentType> incidentTypes;
 
   Cluster({
     this.uuid,
     this.name,
-    this.relatedPoints
+    this.segmants,
+    this.relatedPoints,
+    this.incidentTypes
   });
 
   @override

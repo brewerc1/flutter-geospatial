@@ -1,13 +1,18 @@
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jacobspears/app/interactors/checkin_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
+import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/subjects.dart';
 
 import 'dart:developer' as developer;
+
+enum CurrentTab { MAP, LIST }
 
 class PointListViewModel {
 
@@ -16,18 +21,24 @@ class PointListViewModel {
   }
 
   factory PointListViewModel.fromContext(BuildContext context) {
-    return PointListViewModel(Provider.of(context, listen: false));
+    return PointListViewModel(
+        Provider.of(context, listen: false),
+        Provider.of(context, listen: false)
+    );
   }
 
   final PointInteractor pointInteractor;
+  final CheckInInteractor checkInInteractor;
 
   PublishSubject<CheckInViewType> _checkinEvent = PublishSubject();
   PublishSubject<Point> _selectedData = PublishSubject();
+  PublishSubject<CurrentTab> _currentTab = PublishSubject(); 
 
-  PointListViewModel(this.pointInteractor);
+  PointListViewModel(this.pointInteractor, this.checkInInteractor);
 
   init() {
     pointInteractor.refreshPoints();
+    checkInInteractor.refreshCheckInHistory();
     _checkinEvent.add(CheckInViewType.BODY);
   }
 
@@ -36,13 +47,11 @@ class PointListViewModel {
   LatLng _center;
 
   Stream<CheckInViewType> get checkInEvent => _checkinEvent.stream;
-
   Stream<Point> get selectedPoint => _selectedData.stream;
-
+  Stream<CurrentTab> get tabEvent => _currentTab.stream;
   Stream<Response<List<Point>>> getPoints() => pointInteractor.getAllPoints();
-
   Stream<Response<Point>> getPointOfInterest() => pointInteractor.getPointOfInterest();
-
+  
   void setCenter(LatLng center) {
     _center = center;
   }
@@ -56,6 +65,10 @@ class PointListViewModel {
     }
     _selectedData.add(point);
   }
+  
+  void setCurrentTab(CurrentTab tab) {
+    _currentTab.add(tab);
+  }
 
   void getPointById(Point point) {
     setSelectedPoint(point);
@@ -64,7 +77,7 @@ class PointListViewModel {
 
   Future<void> checkIn(String uuid) async {
     _checkinEvent.add(CheckInViewType.CHECKING_IN);
-    var response = await pointInteractor.checkIn(uuid);
+    var response = await checkInInteractor.checkIn(uuid);
     switch (response.status) {
       case Status.LOADING:
         _checkinEvent.add(CheckInViewType.CHECKING_IN);
@@ -79,4 +92,26 @@ class PointListViewModel {
         _checkinEvent.add(CheckInViewType.BODY);
     }
   }
+
+  Stream<Response<List<Point>>> pointsWithCheckInStream() {
+    return Rx.combineLatest2(
+        pointInteractor.getAllPoints(), checkInInteractor.getAllCheckIns(),
+            (Response<List<Point>> pointsResponse, Response<List<CheckInResult>> checkInResponse)  {
+          if (pointsResponse.status == Status.LOADING || checkInResponse.status == Status.LOADING) {
+            return Response.loading("Loading all Points with Check ins..."); 
+          } else if (pointsResponse.status == Status.COMPLETED && checkInResponse.status == Status.COMPLETED) {
+            pointsResponse.data.map((point) {
+              if (checkInResponse.data.map((e) => e.point.uuid).contains(point.uuid)){
+                point.checkedIn = true;
+              } else {
+                point.checkedIn = false;
+              }
+            }); 
+            return Response.completed(pointsResponse.data);
+          } else {
+            return Response.error("Error"); 
+          }
+    });
+  }
+
 }

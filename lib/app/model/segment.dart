@@ -21,15 +21,15 @@ class Segment extends Equatable {
   @JsonKey(name: "points")
   final List<Point> points;
 
-  @JsonKey(name: "points_rules")
-  final List<String> pointRules;
+//  @JsonKey(name: "points_rules")
+//  final List<String> pointRules;
 
   Segment({
     this.uuid,
     this.name,
     this.description,
     this.points,
-    this.pointRules
+    // this.pointRules
   });
 
   @override

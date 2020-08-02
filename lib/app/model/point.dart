@@ -25,6 +25,9 @@ class Point extends Equatable {
   @JsonKey(name: "segments")
   final List<String> segments;
 
+  bool checkedIn = false;
+  int checkInIn = 0;
+
   Point({
     this.uuid,
     this.name,

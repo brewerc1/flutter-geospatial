@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:jacobspears/app/interactors/geo_cms_api_interactor.dart';
+import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:rxdart/rxdart.dart';
@@ -10,7 +11,6 @@ class PointInteractor {
 
   final BehaviorSubject<Response<List<Point>>> _points = BehaviorSubject.seeded(null);
   final BehaviorSubject<Response<Point>> _point = BehaviorSubject.seeded(null);
-
   StreamSubscription _pointsStream;
 
   PointInteractor(
@@ -30,9 +30,11 @@ class PointInteractor {
 
   Future<void> refreshPoints() async {
     _points.add(Response.loading("Loading points"));
-    final result = await apiInteractor.getListOfPointsOfInterest();
+    final result = await apiInteractor.getCluster();
     if (result.isValue) {
-      _updatePoints(result.asValue.value);
+      _updatePoints(result.asValue.value.relatedPoints);
+    } else {
+      return Response.error("RefreshPoints: Something went wrong");
     }
   }
 
@@ -41,15 +43,8 @@ class PointInteractor {
     final result = await apiInteractor.getPointOfInterest(uuid);
     if (result.isValue) {
       _point.add(Response.completed(result.asValue.value));
-    }
-  }
-
-  Future<Response<String>> checkIn(String uuid) async {
-    final result = await apiInteractor.checkIn(uuid);
-    if (result.isValue) {
-      return Response.completed("");
-    } else {
-      return Response.error("Something went wrong");
+    }else {
+      return Response.error("GetPoints: Something went wrong");
     }
   }
 

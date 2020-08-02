@@ -68,9 +68,11 @@ class _MapWidgetState extends State<MapWidget> {
 
 
   void _setPoint(Point point)  {
-    setState(() {
-      _point = point;
-    });
+    if (mounted) {
+      setState(() {
+        _point = point;
+      });
+    }
   }
 
   void _checkIn() {
@@ -195,7 +197,7 @@ class _MapWidgetState extends State<MapWidget> {
         body,
         if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: _point?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
         if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: _point?.name),
-        if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _point?.name, onButtonPress: _setViewState,),
+        if (_viewType == CheckInViewType.CHECKED_IN) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
         if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
       ],
     );
