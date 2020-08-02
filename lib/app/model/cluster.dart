@@ -17,6 +17,9 @@ class Cluster extends Equatable {
   @JsonKey(name: "name")
   final String name;
 
+  @JsonKey(name: "description")
+  final String description;
+
   @JsonKey(name: "segments")
   final List<Segment> segmants;
 
@@ -30,6 +33,7 @@ class Cluster extends Equatable {
   Cluster({
     this.uuid,
     this.name,
+    this.description,
     this.segmants,
     this.relatedPoints,
     this.incidentTypes

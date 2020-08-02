@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/interactors/checkin_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
 import 'package:jacobspears/app/model/check_in_result.dart';
+import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
@@ -49,7 +50,7 @@ class PointListViewModel {
   Stream<CheckInViewType> get checkInEvent => _checkinEvent.stream;
   Stream<Point> get selectedPoint => _selectedData.stream;
   Stream<CurrentTab> get tabEvent => _currentTab.stream;
-  Stream<Response<List<Point>>> getPoints() => pointInteractor.getAllPoints();
+  Stream<Response<Cluster>> getCluster() => pointInteractor.getCluster();
   Stream<Response<Point>> getPointOfInterest() => pointInteractor.getPointOfInterest();
   
   void setCenter(LatLng center) {
@@ -93,21 +94,24 @@ class PointListViewModel {
     }
   }
 
-  Stream<Response<List<Point>>> pointsWithCheckInStream() {
+  Stream<Response<Cluster>> pointsWithCheckInStream() {
     return Rx.combineLatest2(
-        pointInteractor.getAllPoints(), checkInInteractor.getAllCheckIns(),
-            (Response<List<Point>> pointsResponse, Response<List<CheckInResult>> checkInResponse)  {
-          if (pointsResponse.status == Status.LOADING || checkInResponse.status == Status.LOADING) {
+        pointInteractor.getCluster(), checkInInteractor.getAllCheckIns(),
+            (Response<Cluster> clusterResponse, Response<List<CheckInResult>> checkInResponse)  {
+          if (clusterResponse.status == Status.LOADING || checkInResponse.status == Status.LOADING) {
             return Response.loading("Loading all Points with Check ins..."); 
-          } else if (pointsResponse.status == Status.COMPLETED && checkInResponse.status == Status.COMPLETED) {
-            pointsResponse.data.map((point) {
-              if (checkInResponse.data.map((e) => e.point.uuid).contains(point.uuid)){
-                point.checkedIn = true;
-              } else {
-                point.checkedIn = false;
-              }
-            }); 
-            return Response.completed(pointsResponse.data);
+          } else if (clusterResponse.status == Status.COMPLETED && checkInResponse.status == Status.COMPLETED) {
+           clusterResponse.data.segmants.forEach((segment) {
+              segment.points.forEach((point) {
+                if (checkInResponse.data.map((e) => e.point.uuid).contains(point.uuid)){
+                  point.checkedIn = true;
+                } else {
+                  point.checkedIn = false;
+                }
+              }); 
+            });
+            developer.log("${clusterResponse.data.segmants[1].points}");
+            return Response.completed(clusterResponse.data);
           } else {
             return Response.error("Error"); 
           }

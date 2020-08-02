@@ -47,9 +47,6 @@ class GeoCmsApiClient extends http.BaseClient {
 
         final apiException = APIException.fromJson(json);
 
-        final reason = apiException.atPath('');
-        String errorCode = reason.errorCode;
-
         throw apiException;
       }
 

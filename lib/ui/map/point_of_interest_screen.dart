@@ -86,6 +86,12 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                     color: Colors.grey[500],
                   ),
                 ),
+                if (point.checkedIn) Text(
+                  "Checked In",
+                  style: TextStyle(
+                    color: Colors.green,
+                  ),
+                ),
               ],
             ),
           ),

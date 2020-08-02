@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
+import 'package:jacobspears/app/model/segment.dart';
 import 'package:jacobspears/ui/components/colored_tab_bar.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/map/error_screen.dart';
@@ -84,10 +86,10 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
           Expanded(
             child: Container(
               width: double.infinity,
-              child: StreamBuilder<Response<List<Point>>>(
+              child: StreamBuilder<Response<Cluster>>(
                 stream: _viewModel.pointsWithCheckInStream(),
                 builder: (final BuildContext context,
-                    final AsyncSnapshot<Response<List<Point>>> snapshot) {
+                    final AsyncSnapshot<Response<Cluster>> snapshot) {
                   if (snapshot.hasError) {
                     return ErrorScreen(
                       message: snapshot.error.toString(),
@@ -100,8 +102,11 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
                         );
                         break;
                       case Status.COMPLETED:
-                        if (snapshot.data.data.isNotEmpty) {
-                          List<Point> points = snapshot.data.data;
+                        if (snapshot.data.data.segmants.isNotEmpty) {
+                          List<Point> points = snapshot.data.data.segmants
+                              .map((e) => e.points)
+                              .expand((element) => element)
+                              .toList();
                           return MapWidget(
                             viewModel: _viewModel,
                             items: points,
@@ -141,10 +146,10 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
           Expanded(
             child: Container(
               width: double.infinity,
-              child: StreamBuilder<Response<List<Point>>>(
+              child: StreamBuilder<Response<Cluster>>(
                 stream: _viewModel.pointsWithCheckInStream(),
                 builder: (final BuildContext context,
-                    final AsyncSnapshot<Response<List<Point>>> snapshot) {
+                    final AsyncSnapshot<Response<Cluster>> snapshot) {
                   if (snapshot.hasError) {
                     return ErrorScreen(
                       message: snapshot.error.toString(),
@@ -157,13 +162,15 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
                         );
                         break;
                       case Status.COMPLETED:
-                        if (snapshot.data.data.isNotEmpty) {
-                          List<Point> points = snapshot.data.data;
+                        if (snapshot.data.data.segmants.isNotEmpty) {
+                          List<Segment> segments = snapshot.data.data.segmants;
                           return ListView.builder(
-                              itemCount: points.length,
+                              shrinkWrap: true,
+                              itemCount: segments.length,
                               itemBuilder: (context, i) {
-                                return Column(
-                                    children: [_buildRow(context, points[i])]);
+                                return Column(children: [
+                                  _buildSegment(context, segments[i])
+                                ]);
                               });
                         } else {
                           return ErrorScreen(
@@ -191,89 +198,129 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
     );
   }
 
+  Widget _buildSegment(final BuildContext context, final Segment segment) {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _buildHeader(context, segment),
+          ListView.builder(
+              itemCount: 2,
+              physics: ClampingScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, i) {
+                return Column(
+                    children: [_buildRow(context, segment.points[i])]);
+              })
+        ]);
+  }
+
+  Widget _buildHeader(final BuildContext context, final Segment segment) {
+    return Container(
+      margin: const EdgeInsets.all(32),
+      child: Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                segment.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Text(
+              segment.description,
+              style: TextStyle(
+                color: Colors.grey[500],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildRow(final BuildContext context, final Point point) {
     Widget infoBlock = InkWell(
       onTap: () {
         _navigateToSingle(point);
       },
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                point.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Padding(padding: EdgeInsets.only(top: 20.0)),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(Icons.location_on),
-                  Text(
-                    point.geometry.printCoordinates(),
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                      color: Colors.black54,
-                    ),
-                  ),
-                const Padding(padding: EdgeInsets.only(bottom: 20.0)),
-                ],
-              )
-            ],
-          ),
-        ),
-      ],
-    ));
+      child: Expanded(
+          child: Row(children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                      Text(
+                        point.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Container(
+                          margin: const EdgeInsets.only(top: 5.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  Icon(Icons.location_on),
+                                  Text(
+                                    point.geometry.printCoordinates(),
+                                    style: const TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (point.checkedIn)
+                                Row(children: <Widget>[
+                                  Icon(
+                                    Icons.check,
+                                    color: Colors.green,
+                                  ),
+                                  Text(
+                                    "Checked In",
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                    ),
+                                  )
+                                ]),
+                            ],
+                          )),
+              ],
+            ),
+            Align(
+                alignment: Alignment.topRight,
+                child: Icon(Icons.chevron_right)
+            ),
+          ])));
 
-    Widget thumbnailImage = InkWell(
-      onTap: () {
-        switchToMap(point);
-      },
-      child: new Container(
-      height: 50,
-      width: 50,
-      child:
-      Icon(
-        Icons.location_on,
-        color: Colors.white,
-      ),
-      decoration: BoxDecoration(
-          color: Colors.blue,
-          shape: BoxShape.circle
-      ),
-    ));
-
-    Widget iconView = Stack(
-      children: <Widget>[
-        Center(
-            child: Container(
-              width: 2,
-              height: double.maxFinite,
-              color: Colors.black,
-            )
-        ),
-        Center(
-          child: thumbnailImage,
-        )
-      ],
+      Widget iconView = Align(
+      alignment: Alignment.topCenter,
+      child: InkWell(
+          onTap: () {
+            switchToMap(point);
+          },
+          child: new Container(
+            height: 50,
+            width: 50,
+            child: Icon(
+              Icons.location_on,
+              color: Colors.white,
+            ),
+            decoration:
+            BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
+          )),
     );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 1.0),
+    return Container (
+      margin: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
       child: SizedBox(
         height: 100,
         child: Row(
@@ -283,40 +330,15 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
               aspectRatio: 0.5,
               child: iconView,
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
-                child: infoBlock,
-              ),
-            )
+            Container(
+              margin: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+              child: infoBlock,
+            ),
           ],
         ),
       ),
     );
   }
-
-//    return Card(
-//        child: ListTile(
-//            leading: Icon(
-//              Icons.location_on,
-//              size: 36.0,
-//            ),
-//            title: Text(
-//              point.name,
-//              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-//              maxLines: 1,
-//            ),
-//            subtitle: Text(
-//              point.geometry.printCoordinates(),
-//              style: TextStyle(fontSize: 14.0),
-//              maxLines: 5,
-//              overflow: TextOverflow.ellipsis,
-//            ),
-//            trailing: Icon(Icons.chevron_right),
-//            onTap: () { _navigateToSingle(point); }
-//            )
-//    );
-//  }
 
   Widget buildSinglePoint(BuildContext context) {
     return Provider(

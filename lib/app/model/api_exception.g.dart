@@ -8,34 +8,22 @@ part of 'api_exception.dart';
 
 APIException _$APIExceptionFromJson(Map<String, dynamic> json) {
   return APIException(
-    json['status'] as int,
-    json['message'] as String,
-    (json['errors'] as List)
-        ?.map((e) => e == null
-            ? null
-            : APIExceptionReason.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
+    json['detail'] as String,
   );
 }
 
 Map<String, dynamic> _$APIExceptionToJson(APIException instance) =>
     <String, dynamic>{
-      'status': instance.status,
-      'message': instance.message,
-      'errors': instance.errors,
+      'detail': instance.message,
     };
 
 APIExceptionReason _$APIExceptionReasonFromJson(Map<String, dynamic> json) {
   return APIExceptionReason(
-    json['path'] as String,
-    json['message'] as String,
-    json['errorCode'] as String,
+    json['detail'] as String,
   );
 }
 
 Map<String, dynamic> _$APIExceptionReasonToJson(APIExceptionReason instance) =>
     <String, dynamic>{
-      'path': instance.path,
-      'message': instance.message,
-      'errorCode': instance.errorCode,
+      'detail': instance.message,
     };
