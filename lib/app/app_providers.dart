@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:jacobspears/app/clients/geo_cms_api_client.dart';
 import 'package:jacobspears/app/interactors/geo_cms_api_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
+import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/values/variants.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
@@ -62,6 +63,8 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   GeoCmsApiInteractor _apiInteractor;
   PointInteractor _pointInteractor;
 
+  PointListViewModel _pointListViewModel;
+
   _AppProvidersFutureState(this._variant);
 
   @override
@@ -71,7 +74,9 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
     _apiClient = GeoCmsApiClient(_variant);
     
     _apiInteractor = GeoCmsApiInteractor(_apiClient);
-    _pointInteractor = PointInteractor(_apiInteractor); 
+    _pointInteractor = PointInteractor(_apiInteractor);
+    _pointListViewModel = PointListViewModel(_pointInteractor);
+
 
   }
 
@@ -88,7 +93,8 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
         Provider.value(value: _variant),
         Provider.value(value: _apiClient),
         Provider.value(value: _apiInteractor),
-        Provider.value(value: _pointInteractor)
+        Provider.value(value: _pointInteractor),
+        Provider.value(value: _pointListViewModel)
       ],
       child: widget.child,
     );

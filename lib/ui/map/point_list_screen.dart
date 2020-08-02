@@ -12,19 +12,34 @@ import 'package:provider/provider.dart';
 
 class PointListScreen extends StatefulWidget {
   @override
-  _PointListScreenState createState() => _PointListScreenState();
+  PointListScreenState createState() => PointListScreenState();
 }
 
 enum ViewType { LIST, MAP }
 
-class _PointListScreenState extends State<PointListScreen> {
+class PointListScreenState extends State<PointListScreen> with SingleTickerProviderStateMixin {
   PointListViewModel _viewModel;
+  TabController _controller;
 
-  void _navigateToSingle(String uuid) {
-    _viewModel.getPointById(uuid);
+  void _navigateToSingle(Point point) {
+    _viewModel.getPointById(point);
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => buildSinglePoint(context)));
-    buildSinglePoint(context);
+  }
+
+  void switchToMap(Point point) {
+    _viewModel.setSelectedPoint(point);
+    _controller.animateTo(1);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TabController(
+      vsync: this,
+      length: 2,
+      initialIndex: 0,
+    );
   }
 
   @override
@@ -36,16 +51,21 @@ class _PointListScreenState extends State<PointListScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return DefaultTabController(
         length: 2,
         child: new Scaffold(
           appBar: ColoredTabBar(
               Colors.blue,
-              TabBar(indicatorColor: Colors.white, tabs: [
+              TabBar(
+                controller: _controller,
+                  indicatorColor: Colors.white, tabs: [
                 Tab(text: "LIST",),
                 Tab(text: "MAP",)
               ])),
-          body: TabBarView(children: [
+          body: TabBarView(
+              controller: _controller,
+              children: [
             new Container(child: _buildList(context)),
             new Container(child: _buildMap(context),
             )
@@ -80,6 +100,7 @@ class _PointListScreenState extends State<PointListScreen> {
                         if (snapshot.data.data.isNotEmpty) {
                           List<Point> points = snapshot.data.data;
                           return MapWidget(
+                            viewModel: _viewModel,
                             items: points,
                             onNavigateCallback: _navigateToSingle,
                           );
@@ -168,122 +189,131 @@ class _PointListScreenState extends State<PointListScreen> {
   }
 
   Widget _buildRow(final BuildContext context, final Point point) {
-//    Widget infoBlock = Column(
-//      crossAxisAlignment: CrossAxisAlignment.start,
-//      children: <Widget>[
-//        Expanded(
-//          child: Column(
-//            crossAxisAlignment: CrossAxisAlignment.start,
-//            children: <Widget>[
-//              Text(
-//                point.name,
-//                maxLines: 2,
-//                overflow: TextOverflow.ellipsis,
-//                style: const TextStyle(
-//                  fontWeight: FontWeight.bold,
-//                ),
-//              ),
-//              const Padding(padding: EdgeInsets.only(top: 20.0)),
-//            ],
-//          ),
-//        ),
-//        Expanded(
-//          child: Column(
-//            crossAxisAlignment: CrossAxisAlignment.start,
-//            mainAxisAlignment: MainAxisAlignment.end,
-//            children: <Widget>[
-//              Row(
-//                children: <Widget>[
-//                  Icon(Icons.location_on),
-//                  Text(
-//                    point.geometry.printCoordinates(),
-//                    style: const TextStyle(
-//                      fontSize: 12.0,
-//                      color: Colors.black54,
-//                    ),
-//                  ),
-//                const Padding(padding: EdgeInsets.only(bottom: 20.0)),
-//                ],
-//              )
-//            ],
-//          ),
-//        ),
-//      ],
-//    );
-//
-//    Widget thumbnailImage = new Container(
-//      height: 50,
-//      width: 50,
-//      child:
-//      Icon(
-//        Icons.location_on,
-//        color: Colors.white,
-//      ),
-//      decoration: BoxDecoration(
-//          color: Colors.blue,
-//          shape: BoxShape.circle
-//      ),
-//    );
-//
-//    Widget iconView = Stack(
-//      children: <Widget>[
-//        Center(
-//            child: Container(
-//              width: 2,
-//              height: double.maxFinite,
-//              color: Colors.black,
-//            )
-//        ),
-//        Center(
-//          child: thumbnailImage,
-//        )
-//      ],
-//    );
-//
-//    return Padding(
-//      padding: const EdgeInsets.symmetric(horizontal: 1.0),
-//      child: SizedBox(
-//        height: 100,
-//        child: Row(
-//          crossAxisAlignment: CrossAxisAlignment.start,
-//          children: <Widget>[
-//            AspectRatio(
-//              aspectRatio: 0.5,
-//              child: iconView,
-//            ),
-//            Expanded(
-//              child: Padding(
-//                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
-//                child: infoBlock,
-//              ),
-//            )
-//          ],
-//        ),
-//      ),
-//    );
-//  }
-    return Card(
-        child: ListTile(
-            leading: Icon(
-              Icons.location_on,
-              size: 36.0,
-            ),
-            title: Text(
-              point.name,
-              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              maxLines: 1,
-            ),
-            subtitle: Text(
-              point.geometry.printCoordinates(),
-              style: TextStyle(fontSize: 14.0),
-              maxLines: 5,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: Icon(Icons.chevron_right),
-            onTap: () { _navigateToSingle(point.uuid); }
+    Widget infoBlock = InkWell(
+      onTap: () {
+        _navigateToSingle(point);
+      },
+      child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                point.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Padding(padding: EdgeInsets.only(top: 20.0)),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(Icons.location_on),
+                  Text(
+                    point.geometry.printCoordinates(),
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                      color: Colors.black54,
+                    ),
+                  ),
+                const Padding(padding: EdgeInsets.only(bottom: 20.0)),
+                ],
+              )
+            ],
+          ),
+        ),
+      ],
+    ));
+
+    Widget thumbnailImage = InkWell(
+      onTap: () {
+        switchToMap(point);
+      },
+      child: new Container(
+      height: 50,
+      width: 50,
+      child:
+      Icon(
+        Icons.location_on,
+        color: Colors.white,
+      ),
+      decoration: BoxDecoration(
+          color: Colors.blue,
+          shape: BoxShape.circle
+      ),
+    ));
+
+    Widget iconView = Stack(
+      children: <Widget>[
+        Center(
+            child: Container(
+              width: 2,
+              height: double.maxFinite,
+              color: Colors.black,
             )
+        ),
+        Center(
+          child: thumbnailImage,
+        )
+      ],
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 1.0),
+      child: SizedBox(
+        height: 100,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            AspectRatio(
+              aspectRatio: 0.5,
+              child: iconView,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
+                child: infoBlock,
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
+
+//    return Card(
+//        child: ListTile(
+//            leading: Icon(
+//              Icons.location_on,
+//              size: 36.0,
+//            ),
+//            title: Text(
+//              point.name,
+//              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+//              maxLines: 1,
+//            ),
+//            subtitle: Text(
+//              point.geometry.printCoordinates(),
+//              style: TextStyle(fontSize: 14.0),
+//              maxLines: 5,
+//              overflow: TextOverflow.ellipsis,
+//            ),
+//            trailing: Icon(Icons.chevron_right),
+//            onTap: () { _navigateToSingle(point); }
+//            )
+//    );
+//  }
 
   Widget buildSinglePoint(BuildContext context) {
     return Provider(

@@ -11,33 +11,39 @@ import 'package:jacobspears/ui/components/checked_in_widget.dart';
 import 'package:jacobspears/ui/components/checking_in_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
 
+import 'dart:developer' as developer;
+
+
 import 'PointsListViewModel.dart';
 
 class MapWidget extends StatefulWidget {
+  final PointListViewModel viewModel;
   final List<Point> items;
-  final StringCallback onNavigateCallback;
+  final PointCallback onNavigateCallback;
 
   MapWidget(
       {Key key,
+      @required this.viewModel,
       @required this.items,
       @required this.onNavigateCallback})
       : super(key: key);
 
   @override
   _MapWidgetState createState() =>
-      _MapWidgetState(items, onNavigateCallback);
+      _MapWidgetState(viewModel, items, onNavigateCallback);
 }
 
 class _MapWidgetState extends State<MapWidget> {
-  final List<Point> _items;
-  final StringCallback _onNavigateCallback;
-
-  _MapWidgetState(this._items, this._onNavigateCallback);
-
-  GoogleMapController mapController;
-  Point _selectedPoint;
   PointListViewModel _viewModel;
+  final List<Point> _items;
+  final PointCallback _onNavigateCallback;
+
+  _MapWidgetState(this._viewModel, this._items, this._onNavigateCallback);
+
+  Point _point;
+  GoogleMapController mapController;
   StreamSubscription _checkinSubscription;
+  StreamSubscription _pointSubscription;
 
   CheckInViewType _viewType = CheckInViewType.BODY;
   MapType _currentMapType = MapType.normal;
@@ -54,20 +60,21 @@ class _MapWidgetState extends State<MapWidget> {
     });
   }
 
-  void _setSelectedPoint(Point point) {
-    setState(() {
-      _selectedPoint = point;
-    });
-  }
-
   void _setViewState(CheckInViewType viewType)  {
     setState(() {
       _viewType = viewType;
     });
   }
 
+
+  void _setPoint(Point point)  {
+    setState(() {
+      _point = point;
+    });
+  }
+
   void _checkIn() {
-    _viewModel.checkIn(_selectedPoint.uuid);
+    _viewModel.checkIn(_point.uuid);
   }
 
   Set<Marker> _onAddMarkerButtonPressed(List<Point> points) {
@@ -80,7 +87,7 @@ class _MapWidgetState extends State<MapWidget> {
         infoWindow:
             InfoWindow(title: element.name, snippet: element.description),
         onTap: () {
-          _setSelectedPoint(element);
+          _viewModel.setSelectedPoint(element);
         },
         icon: BitmapDescriptor.defaultMarker,
       ));
@@ -91,23 +98,25 @@ class _MapWidgetState extends State<MapWidget> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _viewModel = PointListViewModel.fromContext(context);
     _checkinSubscription = _viewModel.checkInEvent.listen((event) => _setViewState(event));
+    _pointSubscription = _viewModel.selectedPoint.listen((event) => _setPoint(event));
   }
 
   @override
   Widget build(BuildContext context) {
+    developer.log("get center ${_viewModel.getCenter()}");
+    var center = (_viewModel.getCenter() != null) ? _viewModel.getCenter() : _items[1].geometry.getLatLng();
     Widget body = Stack(children: <Widget>[
       GoogleMap(
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(
-          target: _items[1].geometry.getLatLng(),
+          target: center,
           zoom: 12.0,
         ),
         markers: _onAddMarkerButtonPressed(_items),
         mapType: _currentMapType,
         onTap: (_) {
-          if (_selectedPoint != null) _setSelectedPoint(null);
+          if (_point != null) _viewModel.setSelectedPoint(null);
         },
       ),
       Padding(
@@ -125,7 +134,7 @@ class _MapWidgetState extends State<MapWidget> {
                       child: const Icon(Icons.map, size: 36.0),
                     ),
                   ])),
-              if (_selectedPoint != null)
+              if (_point != null)
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Card(
@@ -153,7 +162,7 @@ class _MapWidgetState extends State<MapWidget> {
                             ),
                             InkWell(
                               onTap: () {
-                                _onNavigateCallback(_selectedPoint.uuid);
+                                _onNavigateCallback(_point);
                               },
                               child: Row(
                                 children: <Widget>[
@@ -184,9 +193,9 @@ class _MapWidgetState extends State<MapWidget> {
     return Stack(
       children: <Widget>[
         body,
-        if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: _selectedPoint?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
-        if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: _selectedPoint?.name),
-        if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _selectedPoint?.name, onButtonPress: _setViewState,),
+        if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: _point?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
+        if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: _point?.name),
+        if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _point?.name, onButtonPress: _setViewState,),
         if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
       ],
     );

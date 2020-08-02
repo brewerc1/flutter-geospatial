@@ -1,10 +1,13 @@
 import 'package:flutter/widgets.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/subjects.dart';
+
+import 'dart:developer' as developer;
 
 class PointListViewModel {
 
@@ -19,6 +22,7 @@ class PointListViewModel {
   final PointInteractor pointInteractor;
 
   PublishSubject<CheckInViewType> _checkinEvent = PublishSubject();
+  PublishSubject<Point> _selectedData = PublishSubject();
 
   PointListViewModel(this.pointInteractor);
 
@@ -29,14 +33,33 @@ class PointListViewModel {
 
   void dispose() {}
 
+  LatLng _center;
+
   Stream<CheckInViewType> get checkInEvent => _checkinEvent.stream;
+
+  Stream<Point> get selectedPoint => _selectedData.stream;
 
   Stream<Response<List<Point>>> getPoints() => pointInteractor.getAllPoints();
 
   Stream<Response<Point>> getPointOfInterest() => pointInteractor.getPointOfInterest();
 
-  void getPointById(String uuid) {
-    pointInteractor.getPointAsync(uuid);
+  void setCenter(LatLng center) {
+    _center = center;
+  }
+
+  LatLng getCenter() => _center;
+
+  void setSelectedPoint(Point point) {
+    if (point != null) {
+      developer.log("set center ${point.geometry.getLatLng()}");
+      _center = point.geometry.getLatLng();
+    }
+    _selectedData.add(point);
+  }
+
+  void getPointById(Point point) {
+    setSelectedPoint(point);
+    pointInteractor.getPointAsync(point.uuid);
   }
 
   Future<void> checkIn(String uuid) async {

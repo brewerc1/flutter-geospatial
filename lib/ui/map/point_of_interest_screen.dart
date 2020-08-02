@@ -11,8 +11,11 @@ import 'package:jacobspears/ui/components/check_in_error_widget.dart';
 import 'package:jacobspears/ui/components/checked_in_widget.dart';
 import 'package:jacobspears/ui/components/checking_in_widget.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
+import 'package:jacobspears/ui/map/point_list_screen.dart';
 
 import 'dart:developer' as developer;
+
+import 'package:provider/provider.dart';
 
 class PointOfInterestScreen extends StatefulWidget {
   final Point point;
@@ -153,7 +156,9 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
             new IconButton(
               padding: const EdgeInsets.fromLTRB(0, 0, 16, 0),
               icon: new Icon(Icons.close),
-              onPressed: () => Navigator.of(context).pop(null),
+              onPressed: () {
+                Navigator.of(context).pop(null);
+              },
             ),
           ],
           leading: new Container(),
