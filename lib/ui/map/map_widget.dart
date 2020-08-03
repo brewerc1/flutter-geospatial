@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:jacobspears/ui/components/check_in_dialog_widget.dart';
+import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
-import 'package:jacobspears/ui/components/check_in_error_widget.dart';
-import 'package:jacobspears/ui/components/checked_in_widget.dart';
-import 'package:jacobspears/ui/components/checking_in_widget.dart';
+import 'package:jacobspears/ui/map/check_in_error_widget.dart';
+import 'package:jacobspears/ui/map/checked_in_widget.dart';
+import 'package:jacobspears/ui/map/checking_in_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
 
 import 'dart:developer' as developer;
@@ -206,7 +206,7 @@ class _MapWidgetState extends State<MapWidget> {
         body,
         if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: _point?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
         if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: _point?.name),
-        if (_viewType == CheckInViewType.CHECKED_IN) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
+        if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _point?.name, onButtonPress: _setViewState, ),
         if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
       ],
     );

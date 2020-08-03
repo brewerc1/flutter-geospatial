@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/response.dart';
-import 'package:jacobspears/ui/components/check_in_dialog_widget.dart';
+import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
-import 'package:jacobspears/ui/components/check_in_error_widget.dart';
-import 'package:jacobspears/ui/components/checked_in_widget.dart';
-import 'package:jacobspears/ui/components/checking_in_widget.dart';
+import 'package:jacobspears/ui/map/check_in_error_widget.dart';
+import 'package:jacobspears/ui/map/checked_in_widget.dart';
+import 'package:jacobspears/ui/map/checking_in_widget.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/map/point_list_screen.dart';
 
@@ -18,8 +18,8 @@ import 'dart:developer' as developer;
 
 import 'package:provider/provider.dart';
 
-import 'error_screen.dart';
-import 'loading_screen.dart';
+import '../components/error_screen.dart';
+import '../components/loading_screen.dart';
 
 class PointOfInterestScreen extends StatefulWidget {
   final PointListViewModel viewModel;

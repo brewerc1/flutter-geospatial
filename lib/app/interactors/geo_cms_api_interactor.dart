@@ -9,6 +9,7 @@ import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/organization.dart';
 import 'package:jacobspears/app/model/point.dart';
+import 'package:jacobspears/app/model/report.dart';
 import 'package:jacobspears/app/model/segment.dart';
 import 'package:jacobspears/app/model/user.dart';
 import 'package:jacobspears/values/variants.dart';
@@ -167,6 +168,16 @@ class GeoCmsApiInteractor {
 
     return _runNetworkAction(networkAction.then((response) {
       return User.fromJson(jsonDecode(response.body));
+    }));
+  }
+
+  Future<Result<List<Report>>> getAlerts() async {
+    // todo implement
+    final Future<Response> networkAction = _apiClient.get(
+        _apiClient.url("/api/v1/mobile/alerts"));
+
+    return _runNetworkAction(networkAction.then((response) {
+      return List<Report>();
     }));
   }
 
