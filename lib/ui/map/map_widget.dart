@@ -87,7 +87,7 @@ class _MapWidgetState extends State<MapWidget> {
         markerId: MarkerId(element.name),
         position: element.geometry.getLatLng(),
         infoWindow:
-            InfoWindow(title: element.name, snippet: element.description),
+            InfoWindow(title: element.name),
         onTap: () {
           _viewModel.setSelectedPoint(element);
         },
@@ -145,6 +145,17 @@ class _MapWidgetState extends State<MapWidget> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                            if (_point.checkedIn) Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Icon(Icons.check, color: Colors.green,),
+                                Text( "CHECKED IN",
+                                  style: const TextStyle(
+                                  color: Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
                             InkWell(
                               onTap: () {
                                 _setViewState(CheckInViewType.DIALOG);
@@ -155,7 +166,6 @@ class _MapWidgetState extends State<MapWidget> {
                                   Icon(Icons.add_location, color: Colors.blue,),
                                   Text( "CHECK IN",
                                     style: const TextStyle(
-                                      fontSize: 12.0,
                                       color: Colors.black54,
                                     ),
                                   ),
@@ -175,7 +185,6 @@ class _MapWidgetState extends State<MapWidget> {
                                   Text(
                                     "INFO",
                                     style: const TextStyle(
-                                      fontSize: 12.0,
                                       color: Colors.black54,
                                     ),
                                   ),

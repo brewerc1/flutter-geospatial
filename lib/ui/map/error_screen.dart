@@ -12,7 +12,9 @@ class ErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Container(
+      color: Colors.white,
+      child: Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -45,7 +47,7 @@ class ErrorScreen extends StatelessWidget {
           ),
         ],
       )
-    );
+    ));
   }
 
 }

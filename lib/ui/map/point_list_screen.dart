@@ -27,7 +27,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
   void _navigateToSingle(Point point) {
     _viewModel.getPointById(point);
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => buildSinglePoint(context)));
+        MaterialPageRoute(builder: (context) => buildSinglePoint(context, point.checkedIn)));
   }
 
   void switchToMap(Point point) {
@@ -243,65 +243,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
   }
 
   Widget _buildRow(final BuildContext context, final Point point) {
-    Widget infoBlock = InkWell(
-      onTap: () {
-        _navigateToSingle(point);
-      },
-      child: Expanded(
-          child: Row(children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                      Text(
-                        point.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(
-                          margin: const EdgeInsets.only(top: 5.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Row(
-                                children: <Widget>[
-                                  Icon(Icons.location_on),
-                                  Text(
-                                    point.geometry.printCoordinates(),
-                                    style: const TextStyle(
-                                      fontSize: 12.0,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (point.checkedIn)
-                                Row(children: <Widget>[
-                                  Icon(
-                                    Icons.check,
-                                    color: Colors.green,
-                                  ),
-                                  Text(
-                                    "Checked In",
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                    ),
-                                  )
-                                ]),
-                            ],
-                          )),
-              ],
-            ),
-            Align(
-                alignment: Alignment.topRight,
-                child: Icon(Icons.chevron_right)
-            ),
-          ])));
-
-      Widget iconView = Align(
+    Widget left = Align(
       alignment: Alignment.topCenter,
       child: InkWell(
           onTap: () {
@@ -315,81 +257,87 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
               color: Colors.white,
             ),
             decoration:
-            BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
+                BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
           )),
     );
 
-    return Container (
-      margin: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
-      child: SizedBox(
-        height: 100,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            AspectRatio(
-              aspectRatio: 0.5,
-              child: iconView,
-            ),
-            Container(
-              margin: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
-              child: infoBlock,
-            ),
-          ],
-        ),
+    Widget middle = Expanded(
+        child: InkWell(
+            onTap: () {
+              _navigateToSingle(point);
+            },
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    point.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Container(
+                      margin: const EdgeInsets.only(top: 5.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              Icon(Icons.location_on),
+                              Text(
+                                point.geometry.printCoordinates(),
+                                style: const TextStyle(
+                                  fontSize: 12.0,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (point.checkedIn)
+                            Row(children: <Widget>[
+                              Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              ),
+                              Text(
+                                "Checked In",
+                                style: TextStyle(
+                                  color: Colors.green,
+                                ),
+                              )
+                            ]),
+                        ],
+                      )),
+                ],
+              ),
+            )));
+
+    Widget right = InkWell(
+      onTap: () {
+        _navigateToSingle(point);
+      },
+        child: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[Icon(Icons.chevron_right)])));
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      child: new Row(
+        children: <Widget>[
+          left,
+          middle,
+          right,
+        ],
       ),
     );
   }
 
-  Widget buildSinglePoint(BuildContext context) {
-    return Provider(
-      create: (_) => _viewModel,
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              child: StreamBuilder<Response<Point>>(
-                stream: _viewModel.getPointOfInterest(),
-                builder: (final BuildContext context,
-                    final AsyncSnapshot<Response<Point>> snapshot) {
-                  if (snapshot.hasError) {
-                    return ErrorScreen(
-                      message: snapshot.error.toString(),
-                    );
-                  } else if (snapshot.hasData) {
-                    switch (snapshot.data.status) {
-                      case Status.LOADING:
-                        return LoadingScreen(
-                          message: "Loading...",
-                        );
-                        break;
-                      case Status.COMPLETED:
-                        if (snapshot.data.data != null) {
-                          Point point = snapshot.data.data;
-                          return PointOfInterestScreen(point: point, viewModel: _viewModel,);
-                        } else {
-                          return ErrorScreen(
-                            message: "Oops, something went wrong",
-                          );
-                        }
-                        break;
-                      default:
-                        return ErrorScreen(
-                          message: snapshot.error.toString(),
-                        );
-                        break;
-                    }
-                  } else {
-                    return ErrorScreen(
-                      message: "Oops, something went wrong",
-                    );
-                  }
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget buildSinglePoint(BuildContext context, bool checkedIn ) {
+    return PointOfInterestScreen(viewModel: _viewModel, checkedIn: checkedIn,);
   }
 }
