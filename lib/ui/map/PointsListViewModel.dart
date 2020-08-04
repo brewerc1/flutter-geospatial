@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/interactors/checkin_interactor.dart';
@@ -33,17 +35,27 @@ class PointListViewModel {
 
   PublishSubject<CheckInViewType> _checkinEvent = PublishSubject();
   PublishSubject<Point> _selectedData = PublishSubject();
-  PublishSubject<CurrentTab> _currentTab = PublishSubject(); 
+  PublishSubject<CurrentTab> _currentTab = PublishSubject();
+  BehaviorSubject<Response<Cluster>> _clusterWithCheckIn = BehaviorSubject();
+
+  StreamSubscription _clusterWithCheckinsSubscription;
 
   PointListViewModel(this.pointInteractor, this.checkInInteractor);
 
   init() {
     pointInteractor.refreshPoints();
     checkInInteractor.refreshCheckInHistory();
+    _clusterWithCheckinsSubscription = pointsWithCheckInStream();
     _checkinEvent.add(CheckInViewType.BODY);
   }
 
-  void dispose() {}
+  void dispose() {
+    _clusterWithCheckinsSubscription?.cancel();
+    _checkinEvent?.close();
+    _selectedData?.close();
+    _clusterWithCheckIn?.close();
+    _currentTab?.close();
+  }
 
   LatLng _center;
 
@@ -52,7 +64,8 @@ class PointListViewModel {
   Stream<CurrentTab> get tabEvent => _currentTab.stream;
   Stream<Response<Cluster>> getCluster() => pointInteractor.getCluster();
   Stream<Response<Point>> getPointOfInterest() => pointInteractor.getPointOfInterest();
-  
+  Stream<Response<Cluster>> get clusterWithCheckInsStream => _clusterWithCheckIn.stream;
+
   void setCenter(LatLng center) {
     _center = center;
   }
@@ -94,12 +107,13 @@ class PointListViewModel {
     }
   }
 
-  Stream<Response<Cluster>> pointsWithCheckInStream() {
-    return Rx.combineLatest2(
+  StreamSubscription pointsWithCheckInStream() {
+    return Rx.combineLatest2<Response<Cluster>, Response<List<CheckInResult>>, Response<Cluster>>(
         pointInteractor.getCluster(), checkInInteractor.getAllCheckIns(),
             (Response<Cluster> clusterResponse, Response<List<CheckInResult>> checkInResponse)  {
           if (clusterResponse.status == Status.LOADING || checkInResponse.status == Status.LOADING) {
-            return Response.loading("Loading all Points with Check ins..."); 
+            return Response.loading("Loading all Points with Check ins...");
+            // return _clusterWithFavorites.stream;
           } else if (clusterResponse.status == Status.COMPLETED && checkInResponse.status == Status.COMPLETED) {
            clusterResponse.data.segmants.forEach((segment) {
               segment.points.forEach((point) {
@@ -112,9 +126,14 @@ class PointListViewModel {
             });
             developer.log("${clusterResponse.data.segmants[1].points}");
             return Response.completed(clusterResponse.data);
+           // return _clusterWithFavorites.stream;
           } else {
-            return Response.error("Error"); 
+            developer.log("Sierra");
+            return Response.error("Error");
           }
+    }).listen((event) {
+      developer.log("Sierra");
+      _clusterWithCheckIn.add(event);
     });
   }
 

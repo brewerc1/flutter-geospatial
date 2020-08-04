@@ -14,6 +14,8 @@ import 'package:jacobspears/ui/map/map_widget.dart';
 import 'package:jacobspears/ui/map/point_of_interest_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'dart:developer' as developer;
+
 class PointListScreen extends StatefulWidget {
   @override
   PointListScreenState createState() => PointListScreenState();
@@ -48,6 +50,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _viewModel?.dispose();
     _viewModel = PointListViewModel.fromContext(context);
     _viewModel.init();
     _tabSubscription = _viewModel.tabEvent.listen((event) => _controller.animateTo(event == CurrentTab.MAP ? 1 : 0));
@@ -71,9 +74,8 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
           body: TabBarView(
               controller: _controller,
               children: [
-            new Container(child: _buildList(context)),
-            new Container(child: _buildMap(context),
-            )
+                _buildList(context),
+                _buildMap(context),
           ]),
         ));
   }
@@ -87,7 +89,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
             child: Container(
               width: double.infinity,
               child: StreamBuilder<Response<Cluster>>(
-                stream: _viewModel.pointsWithCheckInStream(),
+                stream: _viewModel.clusterWithCheckInsStream,
                 builder: (final BuildContext context,
                     final AsyncSnapshot<Response<Cluster>> snapshot) {
                   if (snapshot.hasError) {
@@ -147,9 +149,10 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
             child: Container(
               width: double.infinity,
               child: StreamBuilder<Response<Cluster>>(
-                stream: _viewModel.pointsWithCheckInStream(),
+                stream: _viewModel.clusterWithCheckInsStream,
                 builder: (final BuildContext context,
                     final AsyncSnapshot<Response<Cluster>> snapshot) {
+                  
                   if (snapshot.hasError) {
                     return ErrorScreen(
                       message: snapshot.error.toString(),
