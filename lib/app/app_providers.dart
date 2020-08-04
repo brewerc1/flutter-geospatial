@@ -5,6 +5,7 @@ import 'package:jacobspears/app/interactors/alert_interactor.dart';
 import 'package:jacobspears/app/interactors/checkin_interactor.dart';
 import 'package:jacobspears/app/interactors/geo_cms_api_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
+import 'package:jacobspears/app/interactors/report_interactor.dart';
 import 'package:jacobspears/app/interactors/user_interactor.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/values/variants.dart';
@@ -68,6 +69,7 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   CheckInInteractor _checkInInteractor;
   AlertsInteractor _alertsInteractor; 
   UserInteractor _userInteractor; 
+  ReportInteractor _reportInteractor; 
 
   _AppProvidersFutureState(this._variant);
 
@@ -82,6 +84,7 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
     _checkInInteractor = CheckInInteractor(_apiInteractor);
     _alertsInteractor = AlertsInteractor(_apiInteractor); 
     _userInteractor = UserInteractor(_apiInteractor); 
+    _reportInteractor = ReportInteractor(_apiInteractor); 
 
   }
 
@@ -101,7 +104,8 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
         Provider.value(value: _pointInteractor),
         Provider.value(value: _checkInInteractor),
         Provider.value(value: _alertsInteractor), 
-        Provider.value(value: _userInteractor)
+        Provider.value(value: _userInteractor), 
+        Provider.value(value: _reportInteractor)
       ],
       child: widget.child,
     );

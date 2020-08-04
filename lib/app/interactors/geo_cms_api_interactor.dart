@@ -5,11 +5,12 @@ import 'package:async/async.dart';
 import 'package:http/http.dart';
 import 'package:jacobspears/app/clients/geo_cms_api_client.dart';
 import 'package:jacobspears/app/clients/preferences_client.dart';
+import 'package:jacobspears/app/model/Incident.dart';
+import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/organization.dart';
 import 'package:jacobspears/app/model/point.dart';
-import 'package:jacobspears/app/model/report.dart';
 import 'package:jacobspears/app/model/segment.dart';
 import 'package:jacobspears/app/model/user.dart';
 import 'package:jacobspears/values/variants.dart';
@@ -171,14 +172,23 @@ class GeoCmsApiInteractor {
     }));
   }
 
-  Future<Result<List<Report>>> getAlerts() async {
-    // todo implement
+  Future<Result<List<Alert>>> getAlerts() async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/mobile/alerts"));
+        _apiClient.url("/api/v1/mobile/alerts/"));
 
     return _runNetworkAction(networkAction.then((response) {
-      return List<Report>();
+      final List<dynamic> json = jsonDecode(response.body)["results"];
+      return json.map((e) => Alert.fromJson(e)).toList();
     }));
+  }
+
+  Future<Result<void>> reportIncident(final Incident incident) {
+    final Future<Response> networkAction = _apiClient.post(
+      _apiClient.url("/api/v1/mobile/incidents/"),
+      body: jsonEncode(incident.toJson()),
+    );
+
+    return _runNetworkAction(networkAction);
   }
 
   Future<Result<T>> _runNetworkAction<T>(Future<T> networkAction) {
