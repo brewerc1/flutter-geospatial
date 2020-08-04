@@ -1,13 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jacobspears/app/interactors/checkin_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
+import 'package:jacobspears/app/model/check_in_result.dart';
+import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/subjects.dart';
 
 import 'dart:developer' as developer;
+
+enum CurrentTab { MAP, LIST }
 
 class PointListViewModel {
 
@@ -16,32 +24,47 @@ class PointListViewModel {
   }
 
   factory PointListViewModel.fromContext(BuildContext context) {
-    return PointListViewModel(Provider.of(context, listen: false));
+    return PointListViewModel(
+        Provider.of(context, listen: false),
+        Provider.of(context, listen: false)
+    );
   }
 
   final PointInteractor pointInteractor;
+  final CheckInInteractor checkInInteractor;
 
   PublishSubject<CheckInViewType> _checkinEvent = PublishSubject();
   PublishSubject<Point> _selectedData = PublishSubject();
+  PublishSubject<CurrentTab> _currentTab = PublishSubject();
+  BehaviorSubject<Response<Cluster>> _clusterWithCheckIn = BehaviorSubject();
 
-  PointListViewModel(this.pointInteractor);
+  StreamSubscription _clusterWithCheckinsSubscription;
+
+  PointListViewModel(this.pointInteractor, this.checkInInteractor);
 
   init() {
     pointInteractor.refreshPoints();
+    checkInInteractor.refreshCheckInHistory();
+    _clusterWithCheckinsSubscription = pointsWithCheckInStream();
     _checkinEvent.add(CheckInViewType.BODY);
   }
 
-  void dispose() {}
+  void dispose() {
+    _clusterWithCheckinsSubscription?.cancel();
+    _checkinEvent?.close();
+    _selectedData?.close();
+    _clusterWithCheckIn?.close();
+    _currentTab?.close();
+  }
 
   LatLng _center;
 
   Stream<CheckInViewType> get checkInEvent => _checkinEvent.stream;
-
   Stream<Point> get selectedPoint => _selectedData.stream;
-
-  Stream<Response<List<Point>>> getPoints() => pointInteractor.getAllPoints();
-
+  Stream<CurrentTab> get tabEvent => _currentTab.stream;
+  Stream<Response<Cluster>> getCluster() => pointInteractor.getCluster();
   Stream<Response<Point>> getPointOfInterest() => pointInteractor.getPointOfInterest();
+  Stream<Response<Cluster>> get clusterWithCheckInsStream => _clusterWithCheckIn.stream;
 
   void setCenter(LatLng center) {
     _center = center;
@@ -56,6 +79,10 @@ class PointListViewModel {
     }
     _selectedData.add(point);
   }
+  
+  void setCurrentTab(CurrentTab tab) {
+    _currentTab.add(tab);
+  }
 
   void getPointById(Point point) {
     setSelectedPoint(point);
@@ -64,7 +91,7 @@ class PointListViewModel {
 
   Future<void> checkIn(String uuid) async {
     _checkinEvent.add(CheckInViewType.CHECKING_IN);
-    var response = await pointInteractor.checkIn(uuid);
+    var response = await checkInInteractor.checkIn(uuid);
     switch (response.status) {
       case Status.LOADING:
         _checkinEvent.add(CheckInViewType.CHECKING_IN);
@@ -79,4 +106,35 @@ class PointListViewModel {
         _checkinEvent.add(CheckInViewType.BODY);
     }
   }
+
+  StreamSubscription pointsWithCheckInStream() {
+    return Rx.combineLatest2<Response<Cluster>, Response<List<CheckInResult>>, Response<Cluster>>(
+        pointInteractor.getCluster(), checkInInteractor.getAllCheckIns(),
+            (Response<Cluster> clusterResponse, Response<List<CheckInResult>> checkInResponse)  {
+          if (clusterResponse.status == Status.LOADING || checkInResponse.status == Status.LOADING) {
+            return Response.loading("Loading all Points with Check ins...");
+            // return _clusterWithFavorites.stream;
+          } else if (clusterResponse.status == Status.COMPLETED && checkInResponse.status == Status.COMPLETED) {
+           clusterResponse.data.segmants.forEach((segment) {
+              segment.points.forEach((point) {
+                if (checkInResponse.data.map((e) => e.point.uuid).contains(point.uuid)){
+                  point.checkedIn = true;
+                } else {
+                  point.checkedIn = false;
+                }
+              }); 
+            });
+            developer.log("${clusterResponse.data.segmants[1].points}");
+            return Response.completed(clusterResponse.data);
+           // return _clusterWithFavorites.stream;
+          } else {
+            developer.log("Sierra");
+            return Response.error("Error");
+          }
+    }).listen((event) {
+      developer.log("Sierra");
+      _clusterWithCheckIn.add(event);
+    });
+  }
+
 }

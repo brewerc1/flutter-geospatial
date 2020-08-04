@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:jacobspears/ui/components/check_in_dialog_widget.dart';
+import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
-import 'package:jacobspears/ui/components/check_in_error_widget.dart';
-import 'package:jacobspears/ui/components/checked_in_widget.dart';
-import 'package:jacobspears/ui/components/checking_in_widget.dart';
+import 'package:jacobspears/ui/map/check_in_error_widget.dart';
+import 'package:jacobspears/ui/map/checked_in_widget.dart';
+import 'package:jacobspears/ui/map/checking_in_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
 
 import 'dart:developer' as developer;
@@ -68,9 +68,11 @@ class _MapWidgetState extends State<MapWidget> {
 
 
   void _setPoint(Point point)  {
-    setState(() {
-      _point = point;
-    });
+    if (mounted) {
+      setState(() {
+        _point = point;
+      });
+    }
   }
 
   void _checkIn() {
@@ -85,7 +87,7 @@ class _MapWidgetState extends State<MapWidget> {
         markerId: MarkerId(element.name),
         position: element.geometry.getLatLng(),
         infoWindow:
-            InfoWindow(title: element.name, snippet: element.description),
+            InfoWindow(title: element.name),
         onTap: () {
           _viewModel.setSelectedPoint(element);
         },
@@ -143,6 +145,17 @@ class _MapWidgetState extends State<MapWidget> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                            if (_point.checkedIn) Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Icon(Icons.check, color: Colors.green,),
+                                Text( "CHECKED IN",
+                                  style: const TextStyle(
+                                  color: Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
                             InkWell(
                               onTap: () {
                                 _setViewState(CheckInViewType.DIALOG);
@@ -153,7 +166,6 @@ class _MapWidgetState extends State<MapWidget> {
                                   Icon(Icons.add_location, color: Colors.blue,),
                                   Text( "CHECK IN",
                                     style: const TextStyle(
-                                      fontSize: 12.0,
                                       color: Colors.black54,
                                     ),
                                   ),
@@ -173,7 +185,6 @@ class _MapWidgetState extends State<MapWidget> {
                                   Text(
                                     "INFO",
                                     style: const TextStyle(
-                                      fontSize: 12.0,
                                       color: Colors.black54,
                                     ),
                                   ),
@@ -195,7 +206,7 @@ class _MapWidgetState extends State<MapWidget> {
         body,
         if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: _point?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
         if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: _point?.name),
-        if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _point?.name, onButtonPress: _setViewState,),
+        if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _point?.name, onButtonPress: _setViewState, ),
         if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
       ],
     );

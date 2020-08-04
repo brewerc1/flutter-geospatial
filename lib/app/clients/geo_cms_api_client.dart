@@ -7,14 +7,16 @@ import 'package:http/http.dart' as http;
 import 'package:jacobspears/app/clients/preferences_client.dart';
 import 'package:jacobspears/app/model/api_exception.dart';
 import 'package:jacobspears/utils/app_exception.dart';
+import 'package:jacobspears/values/org_variants.dart';
 import 'package:jacobspears/values/variants.dart';
 
 class GeoCmsApiClient extends http.BaseClient {
   final http.Client _client = http.Client();
   final PreferencesClient _prefClient = PreferencesClient();
   final Variant _variant;
+  final OrgVariant _orgVariant;
 
-  GeoCmsApiClient(this._variant);
+  GeoCmsApiClient(this._variant, this._orgVariant);
 
   String url(String path) => '${_variant.baseUrl}$path';
 
@@ -27,7 +29,7 @@ class GeoCmsApiClient extends http.BaseClient {
     }
 
     request.headers["Authorization"] = await _prefClient.getToken();
-    request.headers["X-Org-Token"] = _variant.orgToken;
+    request.headers["X-Org-Token"] = _orgVariant.orgToken;
 
     return _client.send(request).then((streamResponse) async {
       
@@ -46,9 +48,6 @@ class GeoCmsApiClient extends http.BaseClient {
         developer.log("${request.url} ${request.headers} ${response.body}");
 
         final apiException = APIException.fromJson(json);
-
-        final reason = apiException.atPath('');
-        String errorCode = reason.errorCode;
 
         throw apiException;
       }

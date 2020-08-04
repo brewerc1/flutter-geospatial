@@ -4,12 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:jacobspears/ui/components/check_in_dialog_widget.dart';
+import 'package:jacobspears/app/model/response.dart';
+import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/app/model/point.dart';
-import 'package:jacobspears/ui/components/check_in_error_widget.dart';
-import 'package:jacobspears/ui/components/checked_in_widget.dart';
-import 'package:jacobspears/ui/components/checking_in_widget.dart';
+import 'package:jacobspears/ui/map/check_in_error_widget.dart';
+import 'package:jacobspears/ui/map/checked_in_widget.dart';
+import 'package:jacobspears/ui/map/checking_in_widget.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/map/point_list_screen.dart';
 
@@ -17,24 +18,30 @@ import 'dart:developer' as developer;
 
 import 'package:provider/provider.dart';
 
+import '../components/error_screen.dart';
+import '../components/loading_screen.dart';
+
 class PointOfInterestScreen extends StatefulWidget {
-  final Point point;
+  final PointListViewModel viewModel;
+  final bool checkedIn;
 
   PointOfInterestScreen({
     Key key,
-    @required this.point,
+    @required this.viewModel,
+    @required this.checkedIn
   }) : super(key: key);
 
   @override
-  _PointOfInterestScreenState createState() => _PointOfInterestScreenState(point);
+  _PointOfInterestScreenState createState() => _PointOfInterestScreenState(viewModel, checkedIn);
 }
 
 class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
-  final Point point;
+  final PointListViewModel _viewModel;
+  bool _checkedIn;
 
-  _PointOfInterestScreenState(this.point);
+  _PointOfInterestScreenState(this._viewModel, this._checkedIn);
 
-  PointListViewModel _viewModel;
+  Point point;
   StreamSubscription _checkinSubscription;
   GoogleMapController mapController;
   CheckInViewType _viewType = CheckInViewType.BODY;
@@ -56,12 +63,64 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _viewModel = PointListViewModel.fromContext(context);
-    _checkinSubscription = _viewModel.checkInEvent.listen((event) => _setViewState(event));
+    _checkinSubscription = _viewModel.checkInEvent?.listen((event) => _setViewState(event));
   }
 
   @override
   Widget build(BuildContext context) {
+    return Provider(
+      create: (_) => _viewModel,
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              child: StreamBuilder<Response<Point>>(
+                stream: _viewModel.getPointOfInterest(),
+                builder: (final BuildContext context,
+                    final AsyncSnapshot<Response<Point>> snapshot) {
+                  if (snapshot.hasError) {
+                    return ErrorScreen(
+                      message: snapshot.error.toString(),
+                    );
+                  } else if (snapshot.hasData) {
+                    switch (snapshot.data.status) {
+                      case Status.LOADING:
+                        return LoadingScreen(
+                          message: "Loading...",
+                        );
+                        break;
+                      case Status.COMPLETED:
+                        if (snapshot.data.data != null) {
+                          point = snapshot.data.data;
+                          return _buildScreen(point);
+                        } else {
+                          return ErrorScreen(
+                            message: "Oops, something went wrong",
+                          );
+                        }
+                        break;
+                      default:
+                        return ErrorScreen(
+                          message: snapshot.error.toString(),
+                        );
+                        break;
+                    }
+                  } else {
+                    return ErrorScreen(
+                      message: "Oops, something went wrong",
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildScreen(Point point) {
     Widget titleSection = Container(
       padding: const EdgeInsets.all(32),
       child: Row(
@@ -85,6 +144,18 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                     color: Colors.grey[500],
                   ),
                 ),
+                if (_checkedIn) Row(children: <Widget>[
+                  Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  ),
+                  Text(
+                    "Checked In",
+                    style: TextStyle(
+                      color: Colors.green,
+                    ),
+                  ),
+                ])
               ],
             ),
           ),
@@ -93,7 +164,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
             children: <Widget>[
               InkWell(
                   onTap: () {
-                     _setViewState(CheckInViewType.DIALOG);
+                    _setViewState(CheckInViewType.DIALOG);
                   },
                   child: _buildButtonColumn(Colors.blue, Icons.add_location, "Check in")
               ),
@@ -107,33 +178,35 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         borderOnForeground: true,
         child: Container(
-                height: 200,
-                child: GoogleMap(
-                  onTap: (LatLng) {
-                    Navigator.pop(context);
-                  },
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(
-                      point.geometry.coordinates[1],
-                      point.geometry.coordinates[0],
-                    ),
-                    zoom: 12.0,
-                  ),
-                  markers: {
-                    Marker(
-                      // This marker id can be anything that uniquely identifies each marker.
-                      markerId: MarkerId(point.name),
-                      position: LatLng(
-                          point.geometry.coordinates[1], point.geometry.coordinates[0]),
-                      infoWindow:
-                      InfoWindow(title: point.name),
-                      icon: BitmapDescriptor.defaultMarker,
-                    )
-                  },
-                  mapType: MapType.normal,
+            height: 200,
+            child: GoogleMap(
+              onTap: (LatLng) {
+                _viewModel.setCurrentTab(CurrentTab.MAP);
+                _viewModel.setSelectedPoint(point);
+                Navigator.pop(context);
+              },
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: LatLng(
+                  point.geometry.coordinates[1],
+                  point.geometry.coordinates[0],
+                ),
+                zoom: 12.0,
+              ),
+              markers: {
+                Marker(
+                  // This marker id can be anything that uniquely identifies each marker.
+                  markerId: MarkerId(point.name),
+                  position: LatLng(
+                      point.geometry.coordinates[1], point.geometry.coordinates[0]),
+                  infoWindow:
+                  InfoWindow(title: point.name),
+                  icon: BitmapDescriptor.defaultMarker,
                 )
-            ));
+              },
+              mapType: MapType.normal,
+            )
+        ));
 
     Widget textSection = Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -166,9 +239,9 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
         body: Stack(
           children: <Widget>[
             body,
-            if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: point.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
-            if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: point.name),
-            if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: point.name, onButtonPress: _setViewState,),
+            if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: point?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
+            if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: point?.name),
+            if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: point?.name, onButtonPress: _setViewState,),
             if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
           ],
         )

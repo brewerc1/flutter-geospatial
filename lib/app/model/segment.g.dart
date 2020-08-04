@@ -15,8 +15,6 @@ Segment _$SegmentFromJson(Map<String, dynamic> json) {
         ?.map(
             (e) => e == null ? null : Point.fromJson(e as Map<String, dynamic>))
         ?.toList(),
-    pointRules:
-        (json['points_rules'] as List)?.map((e) => e as String)?.toList(),
   );
 }
 
@@ -25,5 +23,4 @@ Map<String, dynamic> _$SegmentToJson(Segment instance) => <String, dynamic>{
       'name': instance.name,
       'description': instance.description,
       'points': instance.points,
-      'points_rules': instance.pointRules,
     };
