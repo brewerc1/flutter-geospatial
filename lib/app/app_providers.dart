@@ -8,16 +8,19 @@ import 'package:jacobspears/app/interactors/point_interactor.dart';
 import 'package:jacobspears/app/interactors/report_interactor.dart';
 import 'package:jacobspears/app/interactors/user_interactor.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
+import 'package:jacobspears/values/org_variants.dart';
 import 'package:jacobspears/values/variants.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 
 class AppProviders extends StatelessWidget {
   final Variant variant;
+  final OrgVariant orgVariant;
   final Widget child;
 
   AppProviders({
     @required this.variant,
+    @required this.orgVariant,
     @required this.child,
   });
 
@@ -30,6 +33,7 @@ class AppProviders extends StatelessWidget {
             return _AppProvidersFuture(
               child: child,
               variant: variant,
+              orgVariant: orgVariant,
             );
           } else {
             return Container();
@@ -46,21 +50,24 @@ class AppProviders extends StatelessWidget {
 
 class _AppProvidersFuture extends StatefulWidget {
   final Variant variant;
+  final OrgVariant orgVariant;
   final Widget child;
 
   _AppProvidersFuture({
     @required this.variant,
+    @required this.orgVariant,
     @required this.child,
   });
 
   @override
-  _AppProvidersFutureState createState() => _AppProvidersFutureState(variant);
+  _AppProvidersFutureState createState() => _AppProvidersFutureState(variant, orgVariant);
 }
 
 class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   final GlobalKey<NavigatorState> _navigatorKey = new GlobalKey();
 
   final Variant _variant;
+  final OrgVariant _orgVariant;
 
   GeoCmsApiClient _apiClient;
   
@@ -71,15 +78,15 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   UserInteractor _userInteractor; 
   ReportInteractor _reportInteractor; 
 
-  _AppProvidersFutureState(this._variant);
+  _AppProvidersFutureState(this._variant, this._orgVariant);
 
   @override
   void initState() {
     super.initState();
 
-    _apiClient = GeoCmsApiClient(_variant);
+    _apiClient = GeoCmsApiClient(_variant, _orgVariant);
     
-    _apiInteractor = GeoCmsApiInteractor(_apiClient, _variant);
+    _apiInteractor = GeoCmsApiInteractor(_apiClient, _orgVariant);
     _pointInteractor = PointInteractor(_apiInteractor);
     _checkInInteractor = CheckInInteractor(_apiInteractor);
     _alertsInteractor = AlertsInteractor(_apiInteractor); 

@@ -5,22 +5,23 @@ import 'package:async/async.dart';
 import 'package:http/http.dart';
 import 'package:jacobspears/app/clients/geo_cms_api_client.dart';
 import 'package:jacobspears/app/clients/preferences_client.dart';
-import 'package:jacobspears/app/model/Incident.dart';
 import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/app/model/cluster.dart';
+import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/organization.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/segment.dart';
 import 'package:jacobspears/app/model/user.dart';
+import 'package:jacobspears/values/org_variants.dart';
 import 'package:jacobspears/values/variants.dart';
 
 class GeoCmsApiInteractor {
   final PreferencesClient _prefClient = PreferencesClient();
   final GeoCmsApiClient _apiClient;
-  final Variant _variant;
+  final OrgVariant _orgVariant;
 
-  GeoCmsApiInteractor(this._apiClient, this._variant);
+  GeoCmsApiInteractor(this._apiClient, this._orgVariant);
 
   Future<Result<void>> login(String email, String password) async {
     final Future<Response> networkAction = _apiClient.post(
@@ -137,7 +138,7 @@ class GeoCmsApiInteractor {
 
   Future<Result<Cluster>> getCluster() async {
     final Future<Response> networkAction = _apiClient.get(
-        _apiClient.url("/api/v1/mobile/clusters/${_variant.clusterId}/"));
+        _apiClient.url("/api/v1/mobile/clusters/${_orgVariant.clusterId}/"));
 
     return _runNetworkAction(networkAction.then((response) {
       return Cluster.fromJson(jsonDecode(response.body));

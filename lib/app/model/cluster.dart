@@ -40,7 +40,7 @@ class Cluster extends Equatable {
   });
 
   @override
-  List<Object> get props => [uuid, name, relatedPoints];
+  List<Object> get props => [uuid, name, description, segmants, relatedPoints, incidentTypes];
 
   @override
   bool get stringify => true;
