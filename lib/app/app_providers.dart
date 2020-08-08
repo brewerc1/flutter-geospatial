@@ -2,12 +2,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:jacobspears/app/clients/geo_cms_api_client.dart';
 import 'package:jacobspears/app/interactors/alert_interactor.dart';
+import 'package:jacobspears/app/interactors/app_interactor.dart';
 import 'package:jacobspears/app/interactors/checkin_interactor.dart';
 import 'package:jacobspears/app/interactors/geo_cms_api_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
 import 'package:jacobspears/app/interactors/report_interactor.dart';
 import 'package:jacobspears/app/interactors/user_interactor.dart';
-import 'package:jacobspears/ui/map/PointsListViewModel.dart';
+import 'package:jacobspears/app/services/app_permission_service.dart';
 import 'package:jacobspears/values/org_variants.dart';
 import 'package:jacobspears/values/variants.dart';
 import 'package:package_info/package_info.dart';
@@ -70,13 +71,16 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   final OrgVariant _orgVariant;
 
   GeoCmsApiClient _apiClient;
+
+  AppPermissionService _permissionService;
   
   GeoCmsApiInteractor _apiInteractor;
   PointInteractor _pointInteractor;
   CheckInInteractor _checkInInteractor;
   AlertsInteractor _alertsInteractor; 
   UserInteractor _userInteractor; 
-  ReportInteractor _reportInteractor; 
+  ReportInteractor _reportInteractor;
+  AppInteractor _appInteractor;
 
   _AppProvidersFutureState(this._variant, this._orgVariant);
 
@@ -85,13 +89,16 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
     super.initState();
 
     _apiClient = GeoCmsApiClient(_variant, _orgVariant);
+
+    _permissionService = AppPermissionService();
     
     _apiInteractor = GeoCmsApiInteractor(_apiClient, _orgVariant);
     _pointInteractor = PointInteractor(_apiInteractor);
     _checkInInteractor = CheckInInteractor(_apiInteractor);
     _alertsInteractor = AlertsInteractor(_apiInteractor); 
     _userInteractor = UserInteractor(_apiInteractor); 
-    _reportInteractor = ReportInteractor(_apiInteractor); 
+    _reportInteractor = ReportInteractor(_apiInteractor);
+    _appInteractor = AppInteractor(_permissionService);
 
   }
 
@@ -112,7 +119,8 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
         Provider.value(value: _checkInInteractor),
         Provider.value(value: _alertsInteractor), 
         Provider.value(value: _userInteractor), 
-        Provider.value(value: _reportInteractor)
+        Provider.value(value: _reportInteractor),
+        Provider.value(value: _appInteractor)
       ],
       child: widget.child,
     );

@@ -4,10 +4,12 @@ import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/utils/Callback.dart';
 
 class CheckInErrorWidget extends StatelessWidget {
+
+  final message;
   final VoidCallback onTryAgainButtonPress;
   final CheckedInStateCallBack onCloseButtonPress;
 
-  const CheckInErrorWidget({Key key, this.onCloseButtonPress, this.onTryAgainButtonPress})
+  const CheckInErrorWidget({Key key, this.message, this.onCloseButtonPress, this.onTryAgainButtonPress})
       : super(key: key);
 
   @override
@@ -37,10 +39,10 @@ class CheckInErrorWidget extends StatelessWidget {
               ),
             ),
             new Container(
-              margin: const EdgeInsets.only(top: 25.0),
+              margin: const EdgeInsets.fromLTRB(10, 25.0, 10, 10),
               child: new Center(
                 child: new Text(
-                  "Oops, something went wrong!",
+                  message,
                   style: new TextStyle(
                       color: Colors.white
                   ),
