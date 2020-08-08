@@ -12,7 +12,7 @@ import 'package:jacobspears/ui/map/check_in_error_widget.dart';
 import 'package:jacobspears/ui/map/checked_in_widget.dart';
 import 'package:jacobspears/ui/map/checking_in_widget.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
-import 'package:jacobspears/ui/map/point_list_screen.dart';
+import 'package:jacobspears/utils/distance_util.dart';
 
 import 'dart:developer' as developer;
 
@@ -57,7 +57,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   }
 
   void _checkIn() {
-    _viewModel.checkIn(point.uuid);
+    _viewModel.checkIn(point);
   }
 
   @override
@@ -242,7 +242,12 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
             if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: point?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
             if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: point?.name),
             if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: point?.name, onButtonPress: _setViewState,),
-            if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
+            if (_viewType == CheckInViewType.TOO_FAR) CheckInErrorWidget(
+              message: "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${point.name}!",
+              onCloseButtonPress: _setViewState,
+              onTryAgainButtonPress: _checkIn,
+            ),
+            if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(message: "Oops, something went wrong!", onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
           ],
         )
     );

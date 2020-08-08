@@ -10,6 +10,7 @@ import 'package:jacobspears/ui/map/check_in_error_widget.dart';
 import 'package:jacobspears/ui/map/checked_in_widget.dart';
 import 'package:jacobspears/ui/map/checking_in_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
+import 'package:jacobspears/utils/distance_util.dart';
 
 import 'dart:developer' as developer;
 
@@ -76,7 +77,7 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   void _checkIn() {
-    _viewModel.checkIn(_point.uuid);
+    _viewModel.checkIn(_point);
   }
 
   Set<Marker> _onAddMarkerButtonPressed(List<Point> points) {
@@ -91,7 +92,7 @@ class _MapWidgetState extends State<MapWidget> {
         onTap: () {
           _viewModel.setSelectedPoint(element);
         },
-        icon: BitmapDescriptor.defaultMarker,
+        icon: (element.checkedIn) ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen) : BitmapDescriptor.defaultMarker,
       ));
     });
     return _markers;
@@ -207,7 +208,12 @@ class _MapWidgetState extends State<MapWidget> {
         if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: _point?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
         if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: _point?.name),
         if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _point?.name, onButtonPress: _setViewState, ),
-        if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
+        if (_viewType == CheckInViewType.TOO_FAR) CheckInErrorWidget(
+          message: "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${_point?.name}!",
+          onCloseButtonPress: _setViewState,
+          onTryAgainButtonPress: _checkIn,
+        ),
+        if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(message: "Oops, something went wrong!", onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
       ],
     );
   }
