@@ -15,6 +15,8 @@ import 'package:jacobspears/ui/reports/dropdownWidget.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
 import 'package:provider/provider.dart';
 
+import 'dart:developer' as developer;
+
 class ReportsScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -112,10 +114,12 @@ class _ReportsScreen extends State<ReportsScreen> {
                         break;
                       case Status.COMPLETED:
                         incidentTypes = snapshot.data.data;
+                        dropdownValue = incidentTypes.first
+                        developer.log("${incidentTypes.map((e) => e.title)}");
                         return showCamera ? CameraExampleHome() : Container(
                           child: Stack(
                             children: <Widget>[
-                              buildBody(incidentTypes.map((e) => e.title)),
+                              buildBody(),
                               Positioned(
                                 left: 0.0,
                                 right: 0.0,
@@ -146,7 +150,7 @@ class _ReportsScreen extends State<ReportsScreen> {
     );
   }
 
-  Widget buildBody(List<String> dropDownItems) {
+  Widget buildBody() {
     Widget textSection = Container(
       padding: const EdgeInsets.fromLTRB(32, 32, 32, 6),
       child: Text(
@@ -158,7 +162,7 @@ class _ReportsScreen extends State<ReportsScreen> {
     Widget dropDownSection = Container(
       padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
       child: DropdownButton<String>(
-        value: dropdownValue,
+        value: incidentTypes.map((e) => e.title).first,
         elevation: 16,
         style: TextStyle(color: Colors.black),
         underline: Container(
@@ -170,7 +174,7 @@ class _ReportsScreen extends State<ReportsScreen> {
             dropdownValue = newValue;
           });
         },
-        items: dropDownItems
+        items: incidentTypes.map((e) => e.title)
             .map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
@@ -237,7 +241,7 @@ class _ReportsScreen extends State<ReportsScreen> {
         children: <Widget>[
           addPhotoContainer,
           textSection,
-          if (dropDownItems.isNotEmpty) dropDownSection,
+          if (incidentTypes.isNotEmpty) dropDownSection,
           descriptionText,
           descriptionEditText
         ]

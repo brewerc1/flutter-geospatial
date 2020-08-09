@@ -26,4 +26,10 @@ class IncidentType extends Equatable {
 
   Map<String, dynamic> toJson() => _$IncidentTypeToJson(this);
 
+  bool operator ==(dynamic other) =>
+      other != null && other is IncidentType && this.uuid == other.uuid;
+
+  @override
+  int get hashCode => super.hashCode;
+
 }
