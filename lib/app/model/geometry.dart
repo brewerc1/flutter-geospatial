@@ -13,7 +13,7 @@ class Geometry extends Equatable {
   final String type;
 
   @JsonKey(name: "coordinates")
-  final List<double> coordinates;
+  List<double> coordinates;
 
   Geometry({
     this.type,

@@ -20,7 +20,6 @@ class IncidentType extends Equatable {
   });
 
   @override
-  // TODO: implement props
   List<Object> get props => [uuid, title];
 
   factory IncidentType.fromJson(Map<String, dynamic> json) => _$IncidentTypeFromJson(json);

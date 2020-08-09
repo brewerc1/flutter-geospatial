@@ -9,6 +9,7 @@ import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/incident.dart';
+import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/organization.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/segment.dart';
@@ -190,6 +191,16 @@ class GeoCmsApiInteractor {
     );
 
     return _runNetworkAction(networkAction);
+  }
+
+  Future<Result<List<IncidentType>>> getIncidentTypes() async {
+    final Future<Response> networkAction = _apiClient.get(
+        _apiClient.url("/api/v1/mobile/incidents/types/"));
+
+    return _runNetworkAction(networkAction.then((response) {
+      final List<dynamic> json = jsonDecode(response.body)["results"];
+      return json.map((e) => IncidentType.fromJson(e)).toList();
+    }));
   }
 
   Future<Result<T>> _runNetworkAction<T>(Future<T> networkAction) {

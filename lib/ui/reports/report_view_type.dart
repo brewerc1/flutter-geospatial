@@ -1,0 +1,1 @@
+enum ReportViewType { BODY, DIALOG, REPORTING, REPORTED, ERROR }
