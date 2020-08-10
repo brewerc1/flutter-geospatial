@@ -24,7 +24,7 @@ bool isYesterday(DateTime date) {
 }
 
 String dateStringFromEpochMillis(double timeStamp) {
-  var format = new DateFormat("MM/dd/yy h:mm a");
+  var format = new DateFormat("MM/dd h:mm a");
   return format.format(DateTime.fromMillisecondsSinceEpoch(timeStamp.toInt()));
 }
 

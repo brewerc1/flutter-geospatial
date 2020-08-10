@@ -1,20 +1,21 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
-import 'package:jacobspears/ui/map/check_in_view_type.dart';
+import 'package:icons_helper/icons_helper.dart';
+import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/point.dart';
+import 'package:jacobspears/app/model/response.dart';
+import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_error_widget.dart';
+import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/ui/map/checked_in_widget.dart';
 import 'package:jacobspears/ui/map/checking_in_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
+import 'package:jacobspears/utils/date_utils.dart';
 import 'package:jacobspears/utils/distance_util.dart';
-
-import 'dart:developer' as developer;
-
-
 import 'PointsListViewModel.dart';
 
 class MapWidget extends StatefulWidget {
@@ -42,10 +43,14 @@ class _MapWidgetState extends State<MapWidget> {
   _MapWidgetState(this._viewModel, this._items, this._onNavigateCallback);
 
   Point _point;
+  Alert _alert;
   GoogleMapController mapController;
   StreamSubscription _checkinSubscription;
   StreamSubscription _pointSubscription;
+  StreamSubscription _alertsSubscription;
+  StreamSubscription _alertSubscription; 
 
+  Set<Marker> markers = Set();
   CheckInViewType _viewType = CheckInViewType.BODY;
   MapType _currentMapType = MapType.normal;
 
@@ -61,17 +66,32 @@ class _MapWidgetState extends State<MapWidget> {
     });
   }
 
-  void _setViewState(CheckInViewType viewType)  {
+  void _setViewState(CheckInViewType viewType) {
     setState(() {
       _viewType = viewType;
     });
   }
 
-
-  void _setPoint(Point point)  {
+  void _setPoint(Point point) {
     if (mounted) {
       setState(() {
         _point = point;
+      });
+    }
+  }
+
+  void _setAlert(Alert alert) {
+    if (mounted) {
+      setState(() {
+        _alert = alert;
+      });
+    }
+  }
+
+  void _setMarkers(Set<Marker> markers) {
+    if (mounted) {
+      setState(() {
+        this.markers.addAll(markers);
       });
     }
   }
@@ -80,35 +100,181 @@ class _MapWidgetState extends State<MapWidget> {
     _viewModel.checkIn(_point);
   }
 
-  Set<Marker> _onAddMarkerButtonPressed(List<Point> points) {
+  void _onAddMarkerButtonPressed(List<Point> points) {
     final Set<Marker> _markers = {};
     points.forEach((element) {
       _markers.add(Marker(
         // This marker id can be anything that uniquely identifies each marker.
-        markerId: MarkerId(element.name),
+        markerId: MarkerId(element.uuid),
         position: element.geometry.getLatLng(),
-        infoWindow:
-            InfoWindow(title: element.name),
+        infoWindow: InfoWindow(title: element.name),
         onTap: () {
           _viewModel.setSelectedPoint(element);
         },
-        icon: (element.checkedIn) ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen) : BitmapDescriptor.defaultMarker,
+        icon: (element.checkedIn)
+            ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen)
+            : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
       ));
     });
-    return _markers;
+    _setMarkers(_markers);
+  }
+
+  void addAlertMarkers(List<Alert> alerts) {
+    final Set<Marker> _markers = {};
+    alerts.forEach((element) {
+      _markers.add(Marker(
+        // This marker id can be anything that uniquely identifies each marker.
+        markerId: MarkerId(element.uuid),
+        position: element.geometry.getLatLng(),
+        infoWindow: InfoWindow(title: element.title),
+        onTap: () {
+          _viewModel.setSelectedAlert(element);
+        },
+        icon: BitmapDescriptor.defaultMarker
+      ));
+    });
+    _setMarkers(_markers);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _checkinSubscription = _viewModel.checkInEvent.listen((event) => _setViewState(event));
-    _pointSubscription = _viewModel.selectedPoint.listen((event) => _setPoint(event));
+    _onAddMarkerButtonPressed(_items);
+    _checkinSubscription =
+        _viewModel.checkInEvent.listen((event) => _setViewState(event));
+    _pointSubscription =
+        _viewModel.selectedPoint.listen((event) => _setPoint(event));
+    _alertsSubscription = _viewModel.getAlerts().listen((event) {
+      if (event.status == Status.COMPLETED) {
+        addAlertMarkers(event.data);
+      }
+    });
+    _alertSubscription = _viewModel.selectAlert.listen((event) => _setAlert(event)); 
   }
 
   @override
   Widget build(BuildContext context) {
     developer.log("get center ${_viewModel.getCenter()}");
-    var center = (_viewModel.getCenter() != null) ? _viewModel.getCenter() : _items[1].geometry.getLatLng();
+    var center = (_viewModel.getCenter() != null)
+        ? _viewModel.getCenter()
+        : _items[1].geometry.getLatLng();
+    
+    Widget alertWindow = Align(
+      alignment: Alignment.bottomCenter,
+      child: Card(
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Icon(
+                        _alert?.iconName != null && _alert?.iconName?.isNotEmpty ? getIconUsingPrefix(name: _alert?.iconName) : Icons.warning,
+                        color: _alert?.isActive == true ? Colors.red : Colors.grey,
+                      ),
+                      if (_alert != null) Text(
+                        "REPORTED " + dateStringFromEpochMillis(_alert.timeStamp),
+                        maxLines: 2,
+                        style: const TextStyle(
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                InkWell(
+                  onTap: () {
+                    _onNavigateCallback(_point);
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.blue,
+                      ),
+                      Text(
+                        "INFO",
+                        style: const TextStyle(
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )),
+    );
+
+    Widget pointWindow = Align(
+      alignment: Alignment.bottomCenter,
+      child: Card(
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                if (_point?.checkedIn == true)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Icon(
+                        Icons.check,
+                        color: Colors.green,
+                      ),
+                      Text(
+                        "CHECKED IN",
+                        style: const TextStyle(
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                InkWell(
+                  onTap: () {
+                    _setViewState(CheckInViewType.DIALOG);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Icon(
+                        Icons.add_location,
+                        color: Colors.blue,
+                      ),
+                      Text(
+                        "CHECK IN",
+                        style: const TextStyle(
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    _onNavigateCallback(_point);
+                  },
+                  child: Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.blue,
+                      ),
+                      Text(
+                        "INFO",
+                        style: const TextStyle(
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )),
+    ); 
+    
     Widget body = Stack(children: <Widget>[
       GoogleMap(
         onMapCreated: _onMapCreated,
@@ -116,10 +282,11 @@ class _MapWidgetState extends State<MapWidget> {
           target: center,
           zoom: 12.0,
         ),
-        markers: _onAddMarkerButtonPressed(_items),
+        markers: markers,
         mapType: _currentMapType,
         onTap: (_) {
           if (_point != null) _viewModel.setSelectedPoint(null);
+          if (_alert != null) _viewModel.setSelectedAlert(null); 
         },
       ),
       Padding(
@@ -137,83 +304,41 @@ class _MapWidgetState extends State<MapWidget> {
                       child: const Icon(Icons.map, size: 36.0),
                     ),
                   ])),
-              if (_point != null)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Card(
-                      child: Container(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            if (_point.checkedIn) Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Icon(Icons.check, color: Colors.green,),
-                                Text( "CHECKED IN",
-                                  style: const TextStyle(
-                                  color: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            InkWell(
-                              onTap: () {
-                                _setViewState(CheckInViewType.DIALOG);
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Icon(Icons.add_location, color: Colors.blue,),
-                                  Text( "CHECK IN",
-                                    style: const TextStyle(
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                _onNavigateCallback(_point);
-                              },
-                              child: Row(
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.info_outline,
-                                    color: Colors.blue,
-                                  ),
-                                  Text(
-                                    "INFO",
-                                    style: const TextStyle(
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                  ),
-                )
+              if (_point != null) pointWindow, 
+              if (_alert != null) alertWindow
             ],
-          )
-      ),
+          )),
     ]);
 
     return Stack(
       children: <Widget>[
         body,
-        if (_viewType == CheckInViewType.DIALOG) CheckInDialogWidget(name: _point?.name, onCloseButtonPress: _setViewState, onCheckInButton: _checkIn,),
-        if (_viewType == CheckInViewType.CHECKING_IN) CheckingInWidget(name: _point?.name),
-        if (_viewType == CheckInViewType.CHECKED_IN) CheckedInWidget(name: _point?.name, onButtonPress: _setViewState, ),
-        if (_viewType == CheckInViewType.TOO_FAR) CheckInErrorWidget(
-          message: "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${_point?.name}!",
-          onCloseButtonPress: _setViewState,
-          onTryAgainButtonPress: _checkIn,
-        ),
-        if (_viewType == CheckInViewType.ERROR) CheckInErrorWidget(message: "Oops, something went wrong!", onCloseButtonPress: _setViewState, onTryAgainButtonPress: _checkIn,),
+        if (_viewType == CheckInViewType.DIALOG)
+          CheckInDialogWidget(
+            name: _point?.name,
+            onCloseButtonPress: _setViewState,
+            onCheckInButton: _checkIn,
+          ),
+        if (_viewType == CheckInViewType.CHECKING_IN)
+          CheckingInWidget(name: _point?.name),
+        if (_viewType == CheckInViewType.CHECKED_IN)
+          CheckedInWidget(
+            name: _point?.name,
+            onButtonPress: _setViewState,
+          ),
+        if (_viewType == CheckInViewType.TOO_FAR)
+          CheckInErrorWidget(
+            message:
+                "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${_point?.name}!",
+            onCloseButtonPress: _setViewState,
+            onTryAgainButtonPress: _checkIn,
+          ),
+        if (_viewType == CheckInViewType.ERROR)
+          CheckInErrorWidget(
+            message: "Oops, something went wrong!",
+            onCloseButtonPress: _setViewState,
+            onTryAgainButtonPress: _checkIn,
+          ),
       ],
     );
   }
