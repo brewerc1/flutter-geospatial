@@ -9,7 +9,7 @@ void main() {
     orgVariant: OrgVariant.nku(),
     variant: Variant.development(),
     child: MaterialApp(
-      title: 'Jacob Spears',
+      title: 'Jacob Spears Trail',
       home: Home(),
     ),
   ));
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Jacob Spears',
+      title: 'Jacob Spears Trail',
       home: Home(),
     );
   }
