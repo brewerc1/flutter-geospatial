@@ -13,8 +13,17 @@ class Alert extends Equatable {
   @JsonKey(name: "id")
   final String uuid;
 
+  @JsonKey(name: "title")
+  final String title;
+
   @JsonKey(name: "description")
   final String description;
+
+  @JsonKey(name: "created_timestamp")
+  final double timeStamp;
+
+  @JsonKey(name: "is_active")
+  final bool isActive;
 
   @JsonKey(name: "geometry")
   final Geometry geometry;
@@ -24,9 +33,12 @@ class Alert extends Equatable {
 
   Alert({
     this.uuid,
+    this.title,
     this.description,
+    this.timeStamp,
+    this.isActive,
     this.geometry,
-    this.iconName
+    this.iconName,
   });
 
   @override

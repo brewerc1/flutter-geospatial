@@ -8,6 +8,7 @@ import 'package:jacobspears/app/model/geometry.dart';
 import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
+import 'package:jacobspears/app/model/settings.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/ui/reports/CameraScreen.dart';
@@ -111,10 +112,10 @@ class _ReportsScreen extends State<ReportsScreen> {
           Expanded(
             child: Container(
               width: double.infinity,
-              child: StreamBuilder<Response<List<IncidentType>>>(
-                stream: _viewModel.getIncidentTypes(),
+              child: StreamBuilder<Response<Settings>>(
+                stream: _viewModel.getClusterSettingsConfig(),
                 builder: (final BuildContext context,
-                    final AsyncSnapshot<Response<List<IncidentType>>> snapshot) {
+                    final AsyncSnapshot<Response<Settings>> snapshot) {
                   if (snapshot.hasError) {
                     return ErrorScreen(
                       message: snapshot.error.toString(),
@@ -127,7 +128,8 @@ class _ReportsScreen extends State<ReportsScreen> {
                         );
                         break;
                       case Status.COMPLETED:
-                        incidentTypes = snapshot.data.data;
+                        incidentTypes = snapshot.data.data.incidentTypes;
+                        // _imagesAllowed = snapshot.data.data.allowPhotos; TODO add photo support
                         dropdownValue = incidentTypes.first.title;
                         developer.log("${incidentTypes.map((e) => e.title)}");
                         return showCamera ? CameraExampleHome() : Container(

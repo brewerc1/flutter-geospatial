@@ -1,6 +1,7 @@
 import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
+import 'package:jacobspears/app/model/settings.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'geo_cms_api_interactor.dart';
@@ -8,7 +9,7 @@ import 'geo_cms_api_interactor.dart';
 class ReportInteractor {
   final GeoCmsApiInteractor apiInteractor;
 
-  final BehaviorSubject<Response<List<IncidentType>>> _incidentTypes = BehaviorSubject.seeded(null);
+  final BehaviorSubject<Response<Settings>> _settingConfig = BehaviorSubject.seeded(null);
 
   ReportInteractor(this.apiInteractor);
 
@@ -17,14 +18,14 @@ class ReportInteractor {
   }
 
   void dispose() {
-    _incidentTypes.close();
+    _settingConfig.close();
   }
 
   Future<void> refreshTypes() async {
-    _incidentTypes.add(Response.loading("Loading points"));
-    final result = await apiInteractor.getIncidentTypes();
+    _settingConfig.add(Response.loading("Loading points"));
+    final result = await apiInteractor.getClusterSettings();
     if (result.isValue) {
-      _incidentTypes.add(Response.completed(result.asValue.value));
+      _settingConfig.add(Response.completed(result.asValue.value));
     } else {
       return Response.error("RefreshPoints: Something went wrong");
     }
@@ -39,6 +40,6 @@ class ReportInteractor {
     }
   }
 
-  Stream<Response<List<IncidentType>>> getAllIncidentTypes() => _incidentTypes;
+  Stream<Response<Settings>> getClusterSettingsConfig() => _settingConfig;
 
 }
