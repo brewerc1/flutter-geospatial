@@ -25,6 +25,9 @@ class Point extends Equatable {
   @JsonKey(name: "segments")
   final List<String> segments;
 
+  @JsonKey(name: "icon")
+  final String iconName;
+
   bool checkedIn = false;
   int checkInIn = 0;
 
@@ -33,11 +36,12 @@ class Point extends Equatable {
     this.name,
     this.description,
     this.geometry,
-    this.segments
+    this.segments,
+    this.iconName
   });
 
   @override
-  List<Object> get props => [uuid, name, description, geometry, segments];
+  List<Object> get props => [uuid, name, description, geometry, segments, iconName];
 
   @override
   bool get stringify => true;

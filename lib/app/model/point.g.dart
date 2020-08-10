@@ -10,6 +10,7 @@ Point _$PointFromJson(Map<String, dynamic> json) {
   return Point(
     uuid: json['id'] as String,
     name: json['name'] as String,
+    iconName: json['icon'] as String,
     description: json['description'] as String,
     geometry: json['geometry'] == null
         ? null
@@ -24,4 +25,5 @@ Map<String, dynamic> _$PointToJson(Point instance) => <String, dynamic>{
       'description': instance.description,
       'geometry': instance.geometry,
       'segments': instance.segments,
+      'icon': instance.iconName,
     };

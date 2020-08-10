@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:jacobspears/ui/account/settings.dart';
-import 'package:jacobspears/ui/alerts/alerts.dart';
+import 'package:jacobspears/ui/alerts/alerts_screen.dart';
 import 'package:jacobspears/ui/map/point_list_screen.dart';
 
+import 'account/settings_screen.dart';
 import 'reports/reports.dart';
 
-import 'alerts/alerts.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -21,14 +20,14 @@ class _HomeState extends State<Home> {
     PointListScreen(),
     AlertsScreen(),
     ReportsScreen(),
-    SettingsScreen(Colors.red),
+    SettingScreen()
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Jacob Spears'),
+        title: Text('Jacob Spears Trail'),
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

@@ -9,21 +9,21 @@ part 'check_in_result.g.dart';
 @JsonSerializable()
 class CheckInResult extends Equatable {
 
-  @JsonKey(name: "id")
-  final String uuid;
+  @JsonKey(name: "checkin_dates")
+  final List<double> checkInTimestamps;
 
   @JsonKey(name: "point")
   final Point point;
 
   CheckInResult({
-    this.uuid,
+    this.checkInTimestamps,
     this.point
 });
 
 
   @override
   // TODO: implement props
-  List<Object> get props => [uuid, point];
+  List<Object> get props => [checkInTimestamps, point];
 
   factory CheckInResult.fromJson(Map<String, dynamic> json) => _$CheckInResultFromJson(json);
 

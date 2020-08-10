@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
-class AlertsScreen extends StatelessWidget {
-
-  // final List<CustomAlertListItemFull> items;
-
-  // AlertsScreen({Key key, @required this.items}) : super(key: key);
+class AlertsScreenDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {

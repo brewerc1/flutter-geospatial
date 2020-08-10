@@ -1,35 +1,45 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:icons_helper/icons_helper.dart';
+import 'package:jacobspears/app/model/app_permission.dart';
 import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/segment.dart';
 import 'package:jacobspears/ui/components/colored_tab_bar.dart';
-import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
+import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/map/map_widget.dart';
 import 'package:jacobspears/ui/map/point_of_interest_screen.dart';
+import 'package:jacobspears/utils/distance_util.dart';
 import 'package:provider/provider.dart';
-
-import 'dart:developer' as developer;
 
 class PointListScreen extends StatefulWidget {
   @override
   PointListScreenState createState() => PointListScreenState();
 }
 
-class PointListScreenState extends State<PointListScreen> with SingleTickerProviderStateMixin {
+class PointListScreenState extends State<PointListScreen>
+    with SingleTickerProviderStateMixin {
   PointListViewModel _viewModel;
   TabController _controller;
   StreamSubscription _tabSubscription;
+  StreamSubscription _permissionSubscription;
+
+  Position _position;
 
   void _navigateToSingle(Point point) {
     _viewModel.getPointById(point);
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => buildSinglePoint(context, point.checkedIn)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => buildSinglePoint(context, point.checkedIn)));
   }
 
   void switchToMap(Point point) {
@@ -53,29 +63,41 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
     _viewModel?.dispose();
     _viewModel = PointListViewModel.fromContext(context);
     _viewModel.init();
-    _tabSubscription = _viewModel.tabEvent.listen((event) => _controller.animateTo(event == CurrentTab.MAP ? 1 : 0));
-
+    _tabSubscription = _viewModel.tabEvent.listen(
+        (event) => _controller.animateTo(event == CurrentTab.MAP ? 1 : 0));
+    _permissionSubscription =
+        _viewModel.getLocationPermission().listen((permissionEvent) async {
+      if (permissionEvent != AppPermission.granted) {
+        _viewModel.promptForLocationPermissions();
+      } else {
+        _position = await Geolocator()
+            .getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+        developer.log("Sierra ${_position.latitude} ${_position.longitude}");
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-
     return DefaultTabController(
         length: 2,
         child: new Scaffold(
           appBar: ColoredTabBar(
               Colors.blue,
               TabBar(
-                controller: _controller,
-                  indicatorColor: Colors.white, tabs: [
-                Tab(text: "LIST",),
-                Tab(text: "MAP",)
-              ])),
-          body: TabBarView(
-              controller: _controller,
-              children: [
-                _buildList(context),
-                _buildMap(context),
+                  controller: _controller,
+                  indicatorColor: Colors.white,
+                  tabs: [
+                    Tab(
+                      text: "LIST",
+                    ),
+                    Tab(
+                      text: "MAP",
+                    )
+                  ])),
+          body: TabBarView(controller: _controller, children: [
+            _buildList(context),
+            _buildMap(context),
           ]),
         ));
   }
@@ -152,7 +174,6 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
                 stream: _viewModel.clusterWithCheckInsStream,
                 builder: (final BuildContext context,
                     final AsyncSnapshot<Response<Cluster>> snapshot) {
-                  
                   if (snapshot.hasError) {
                     return ErrorScreen(
                       message: snapshot.error.toString(),
@@ -207,7 +228,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
         children: <Widget>[
           _buildHeader(context, segment),
           ListView.builder(
-              itemCount: 2,
+              itemCount: segment.points.length,
               physics: ClampingScrollPhysics(),
               shrinkWrap: true,
               itemBuilder: (context, i) {
@@ -256,7 +277,7 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
             height: 50,
             width: 50,
             child: Icon(
-              Icons.location_on,
+              (point.iconName != null && point.iconName.isNotEmpty) ? getIconUsingPrefix(name: point.iconName) : Icons.location_on,
               color: Colors.white,
             ),
             decoration:
@@ -290,9 +311,11 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
                         children: <Widget>[
                           Row(
                             children: <Widget>[
-                              Icon(Icons.location_on),
+                              Icon((_position != null) ? Icons.location_on : Icons.location_on),
                               Text(
-                                point.geometry.printCoordinates(),
+                                (_position != null)
+                                    ? "${calculateDistanceInMiles(LatLng(_position.latitude, _position.longitude), point.geometry.getLatLng()).toStringAsFixed(1)} mi"
+                                    : point.geometry.printCoordinates(),
                                 style: const TextStyle(
                                   fontSize: 12.0,
                                   color: Colors.black54,
@@ -320,13 +343,13 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
             )));
 
     Widget right = InkWell(
-      onTap: () {
-        _navigateToSingle(point);
-      },
+        onTap: () {
+          _navigateToSingle(point);
+        },
         child: Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[Icon(Icons.chevron_right)])));
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[Icon(Icons.chevron_right)])));
 
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -340,7 +363,10 @@ class PointListScreenState extends State<PointListScreen> with SingleTickerProvi
     );
   }
 
-  Widget buildSinglePoint(BuildContext context, bool checkedIn ) {
-    return PointOfInterestScreen(viewModel: _viewModel, checkedIn: checkedIn,);
+  Widget buildSinglePoint(BuildContext context, bool checkedIn) {
+    return PointOfInterestScreen(
+      viewModel: _viewModel,
+      checkedIn: checkedIn,
+    );
   }
 }

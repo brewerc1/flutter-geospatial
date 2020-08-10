@@ -36,7 +36,7 @@ class CheckedInWidget extends StatelessWidget {
               ),
             ),
             new Container(
-              margin: const EdgeInsets.only(top: 25.0),
+              margin: const EdgeInsets.fromLTRB(10, 25.0, 10, 10),
               child: new Center(
                 child: new Text(
                   "Checked into $name",

@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
+import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/utils/Callback.dart';
 
-class CheckInErrorWidget extends StatelessWidget {
+class ReportErrorWidget extends StatelessWidget {
 
   final message;
   final VoidCallback onTryAgainButtonPress;
-  final CheckedInStateCallBack onCloseButtonPress;
+  final ReportedViewStateCallBack onCloseButtonPress;
 
-  const CheckInErrorWidget({Key key, this.message, this.onCloseButtonPress, this.onTryAgainButtonPress})
+  const ReportErrorWidget({Key key, this.message, this.onCloseButtonPress, this.onTryAgainButtonPress})
       : super(key: key);
 
   @override
@@ -56,7 +57,7 @@ class CheckInErrorWidget extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      onCloseButtonPress(CheckInViewType.BODY);
+                      onCloseButtonPress(ReportViewType.BODY);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

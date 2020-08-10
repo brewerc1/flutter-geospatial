@@ -1,15 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:jacobspears/ui/map/check_in_view_type.dart';
+import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/utils/Callback.dart';
 
-class CheckInErrorWidget extends StatelessWidget {
+class ReportNeedLocationWidget extends StatelessWidget {
 
-  final message;
   final VoidCallback onTryAgainButtonPress;
-  final CheckedInStateCallBack onCloseButtonPress;
+  final ReportedViewStateCallBack onCloseButtonPress;
 
-  const CheckInErrorWidget({Key key, this.message, this.onCloseButtonPress, this.onTryAgainButtonPress})
+  const ReportNeedLocationWidget({Key key, this.onCloseButtonPress, this.onTryAgainButtonPress})
       : super(key: key);
 
   @override
@@ -42,7 +41,7 @@ class CheckInErrorWidget extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(10, 25.0, 10, 10),
               child: new Center(
                 child: new Text(
-                  message,
+                  "Permission to access your location data is needed to submit a report.",
                   style: new TextStyle(
                       color: Colors.white
                   ),
@@ -56,7 +55,7 @@ class CheckInErrorWidget extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      onCloseButtonPress(CheckInViewType.BODY);
+                      onCloseButtonPress(ReportViewType.BODY);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -80,7 +79,7 @@ class CheckInErrorWidget extends StatelessWidget {
                           color: Colors.white,
                         ),
                         Text(
-                          "TRY AGAIN",
+                          "TURN ON",
                           style: const TextStyle(
                             fontSize: 12.0,
                             color: Colors.white,
