@@ -6,6 +6,7 @@ import 'package:jacobspears/app/model/app_permission.dart';
 import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
+import 'package:jacobspears/app/model/settings.dart';
 import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -40,7 +41,7 @@ class ReportViewModel {
 
   void promptForLocationPermissions() => _appInteractor.promptForLocationPermissions();
 
-  Stream<Response<List<IncidentType>>> getIncidentTypes() => _reportInteractor.getAllIncidentTypes();
+  Stream<Response<Settings>> getClusterSettingsConfig() => _reportInteractor.getClusterSettingsConfig();
 
   Future<void> reportIncident(Incident incident) async {
     reportViewTypeEvent.add(ReportViewType.REPORTING);

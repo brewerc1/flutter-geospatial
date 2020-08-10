@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:icons_helper/icons_helper.dart';
 import 'package:jacobspears/app/model/app_permission.dart';
 import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/point.dart';
@@ -276,7 +277,7 @@ class PointListScreenState extends State<PointListScreen>
             height: 50,
             width: 50,
             child: Icon(
-              Icons.location_on,
+              (point.iconName != null && point.iconName.isNotEmpty) ? getIconUsingPrefix(name: point.iconName) : Icons.location_on,
               color: Colors.white,
             ),
             decoration:

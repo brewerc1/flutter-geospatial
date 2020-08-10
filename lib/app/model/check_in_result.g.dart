@@ -8,7 +8,9 @@ part of 'check_in_result.dart';
 
 CheckInResult _$CheckInResultFromJson(Map<String, dynamic> json) {
   return CheckInResult(
-    uuid: json['id'] as String,
+    checkInTimestamps:  (json['checkin_dates'] as List)
+        ?.map((e) => (e as num)?.toDouble())
+        ?.toList(),
     point: json['point'] == null
         ? null
         : Point.fromJson(json['point'] as Map<String, dynamic>),
@@ -17,6 +19,6 @@ CheckInResult _$CheckInResultFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$CheckInResultToJson(CheckInResult instance) =>
     <String, dynamic>{
-      'id': instance.uuid,
+      'checkin_dates': instance.checkInTimestamps,
       'point': instance.point,
     };
