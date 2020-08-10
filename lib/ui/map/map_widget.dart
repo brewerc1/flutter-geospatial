@@ -8,6 +8,7 @@ import 'package:icons_helper/icons_helper.dart';
 import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
+import 'package:jacobspears/ui/alerts/single_alert_view.dart';
 import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_error_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
@@ -100,6 +101,13 @@ class _MapWidgetState extends State<MapWidget> {
     _viewModel.checkIn(_point);
   }
 
+  void _navigateToAlert(Alert alert) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SingleAlertView(alert: alert,)));
+  }
+
   void _onAddMarkerButtonPressed(List<Point> points) {
     final Set<Marker> _markers = {};
     points.forEach((element) {
@@ -185,7 +193,7 @@ class _MapWidgetState extends State<MapWidget> {
                   ),
                 InkWell(
                   onTap: () {
-                    _onNavigateCallback(_point);
+                    _navigateToAlert(_alert);
                   },
                   child: Row(
                     children: <Widget>[
