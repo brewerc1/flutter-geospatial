@@ -26,7 +26,7 @@ class ReportViewModel {
   final ReportInteractor _reportInteractor;
   final AppInteractor _appInteractor;
 
-  PublishSubject<ReportViewType> _reportViewTypeEvent = PublishSubject();
+  PublishSubject<ReportViewType> reportViewTypeEvent = PublishSubject();
 
   ReportViewModel(this._reportInteractor, this._appInteractor);
 
@@ -43,22 +43,22 @@ class ReportViewModel {
   Stream<Response<List<IncidentType>>> getIncidentTypes() => _reportInteractor.getAllIncidentTypes();
 
   Future<void> reportIncident(Incident incident) async {
-    _reportViewTypeEvent.add(ReportViewType.REPORTING);
+    reportViewTypeEvent.add(ReportViewType.REPORTING);
     var _position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
     incident.geometry.coordinates = [_position.longitude, _position.latitude];
     var response = await _reportInteractor.checkIn(incident);
     switch (response.status) {
       case Status.LOADING:
-        _reportViewTypeEvent.add(ReportViewType.REPORTING);
+        reportViewTypeEvent.add(ReportViewType.REPORTING);
         break;
       case Status.COMPLETED:
-        _reportViewTypeEvent.add(ReportViewType.REPORTED);
+        reportViewTypeEvent.add(ReportViewType.REPORTED);
         break;
       case Status.ERROR:
-        _reportViewTypeEvent.add(ReportViewType.ERROR);
+        reportViewTypeEvent.add(ReportViewType.ERROR);
         break;
       default:
-        _reportViewTypeEvent.add(ReportViewType.BODY);
+        reportViewTypeEvent.add(ReportViewType.BODY);
     }
   }
 
