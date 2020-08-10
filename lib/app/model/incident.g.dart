@@ -10,7 +10,7 @@ Incident _$IncidentFromJson(Map<String, dynamic> json) {
   return Incident(
     uuid: json['id'] as String,
     typeUuid: json['type'] as String,
-    photo: json['photos'] as String,
+    photo: (json['photos'] as List)?.map((e) => e as String)?.toList(),
     description: json['description'] as String,
     geometry: json['geometry'] == null
         ? null

@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class CheckingInWidget extends StatelessWidget {
-  final String name;
+class ReportingDialog extends StatelessWidget {
 
-  const CheckingInWidget({Key key, this.name}) : super(key: key);
+  const ReportingDialog({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +39,7 @@ class CheckingInWidget extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(10, 25.0, 10, 10),
               child: new Center(
                 child: new Text(
-                  "Checking into $name",
+                  "Submitting incident report...",
                   style: new TextStyle(
                       color: Colors.white
                   ),

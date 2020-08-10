@@ -12,10 +12,16 @@ import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/ui/reports/CameraScreen.dart';
 import 'package:jacobspears/ui/reports/dropdownWidget.dart';
+import 'package:jacobspears/ui/reports/need_permission_dialog.dart';
+import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
+import 'package:jacobspears/ui/reports/reported_dialog.dart';
+import 'package:jacobspears/ui/reports/reporting_dialog.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:developer' as developer;
+
+import 'error_report_dialog.dart';
 
 class ReportsScreen extends StatefulWidget {
   @override
@@ -30,11 +36,13 @@ class _ReportsScreen extends State<ReportsScreen> {
   ReportViewModel _viewModel;
 
   StreamSubscription _permissionSubscription;
+  StreamSubscription _reportSubscription;
 
   bool showCamera = false;
   bool _imagesAllowed = false;
   List<IncidentType> incidentTypes;
   String dropdownValue = "";
+  ReportViewType _viewType = ReportViewType.BODY;
 
   void _onCameraPressed() {
     setState(() {
@@ -50,9 +58,16 @@ class _ReportsScreen extends State<ReportsScreen> {
         type: "POINT",
         coordinates: null
       ),
+      photo: []
     );
     _viewModel.reportIncident(incident);
 
+  }
+
+  void _setViewState(ReportViewType viewType)  {
+    setState(() {
+      _viewType = viewType;
+    });
   }
 
   @override
@@ -65,6 +80,7 @@ class _ReportsScreen extends State<ReportsScreen> {
           if (permissionEvent != AppPermission.granted) {
             _viewModel.promptForLocationPermissions();
           }});
+    _reportSubscription = _viewModel.reportViewTypeEvent.listen((event) => _setViewState(event));
   }
 
   @override
@@ -81,9 +97,7 @@ class _ReportsScreen extends State<ReportsScreen> {
         padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
         child: FlatButton.icon(
           color: Colors.blue,
-          onPressed: () {
-            // to do
-          },
+          onPressed: onSubmitPressed,
           icon: Icon(Icons.add_alert),
           label: Text('Submit report'),
           textColor: Colors.white,
@@ -114,7 +128,7 @@ class _ReportsScreen extends State<ReportsScreen> {
                         break;
                       case Status.COMPLETED:
                         incidentTypes = snapshot.data.data;
-                        dropdownValue = incidentTypes.first
+                        dropdownValue = incidentTypes.first.title;
                         developer.log("${incidentTypes.map((e) => e.title)}");
                         return showCamera ? CameraExampleHome() : Container(
                           child: Stack(
@@ -125,7 +139,18 @@ class _ReportsScreen extends State<ReportsScreen> {
                                 right: 0.0,
                                 bottom: 0.0,
                                 child: submitButton,
-                              )
+                              ),
+                              if (_viewType == ReportViewType.REPORTING) ReportingDialog(),
+                              if (_viewType == ReportViewType.REPORTED) ReportedWidget(onButtonPress: _setViewState,),
+                              if (_viewType == ReportViewType.ERROR) ReportErrorWidget(
+                                message: "Oops, something went wrong!",
+                                onCloseButtonPress: _setViewState,
+                                onTryAgainButtonPress: onSubmitPressed,
+                              ),
+                              if (_viewType == ReportViewType.NEED_LOCATION) ReportNeedLocationWidget(
+                                onCloseButtonPress: _setViewState,
+                                onTryAgainButtonPress: _viewModel.promptForLocationPermissions,
+                              ),
                             ],
                           ),
                         );

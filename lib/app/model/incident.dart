@@ -23,7 +23,7 @@ class Incident extends Equatable {
   final Geometry geometry;
 
   @JsonKey(name: "photos")
-  final String photo;
+  final List<String> photo;
 
   Incident({
     this.uuid,
