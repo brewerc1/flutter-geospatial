@@ -25,7 +25,7 @@ class UserSettingsViewModel {
   UserSettingsViewModel(this.checkInInteractor, this.userInteractor);
 
   init() {
-    userInteractor.init();
+    // userInteractor.init(); TODO end point does not exist
     checkInInteractor.init();
   }
 
