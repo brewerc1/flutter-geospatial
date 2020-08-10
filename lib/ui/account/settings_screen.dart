@@ -10,6 +10,7 @@ import 'package:jacobspears/app/model/user.dart';
 import 'package:jacobspears/ui/account/user_settings_viewmodel.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
+import 'package:jacobspears/utils/date_utils.dart';
 import 'package:provider/provider.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -52,22 +53,16 @@ class _SettingsScreenState extends State<SettingScreen> {
                         );
                         break;
                       case Status.COMPLETED:
-                        if (snapshot.data.data.isNotEmpty) {
-                          List<CheckInResult> checkIns = snapshot.data.data;
-                          return _buildUi(
-                              context,
-                              checkIns,
-                              User(
-                                firstName: "Sierra",
-                                lastName: "OBryan",
-                                email: "sierrarobryan@gmail.com"
-                              )
-                          );
-                        } else {
-                          return ErrorScreen(
-                            message: "Oops, something went wrong",
-                          );
-                        }
+                        List<CheckInResult> checkIns = snapshot.data.data;
+                        return _buildUi(
+                            context,
+                            checkIns,
+                            User(
+                              firstName: "Sierra",
+                              lastName: "OBryan",
+                              email: "sierrarobryan@gmail.com"
+                            )
+                        );
                         break;
                       default:
                         return ErrorScreen(
@@ -150,6 +145,10 @@ class _SettingsScreenState extends State<SettingScreen> {
       ),
     ));
 
+    Widget historyEmpty = ErrorScreen(
+      message: "Oops, you have no history!\nCheck in to get started.",
+    );
+
     Widget historyList = ListView.builder(
         shrinkWrap: true,
         itemCount: checkIns.length,
@@ -160,11 +159,13 @@ class _SettingsScreenState extends State<SettingScreen> {
         });;
 
     return ListView(
+      physics: ClampingScrollPhysics(),
+      shrinkWrap: true,
       children: <Widget>[
         infoSection,
         badgeSection,
         historyText,
-        historyList
+        checkIns != null && checkIns.isNotEmpty ? historyList : historyEmpty
       ],
     );
 
@@ -267,7 +268,7 @@ class _SettingsScreenState extends State<SettingScreen> {
 
   Widget _buildRow(final BuildContext context, final double timestamp) {
     return Container(
-        margin: const EdgeInsets.fromLTRB(90, 0, 20, 0),
+        margin: const EdgeInsets.fromLTRB(90, 0, 20, 5),
         child: Row(
           children: <Widget>[
             Icon(
@@ -277,7 +278,7 @@ class _SettingsScreenState extends State<SettingScreen> {
             Container(
               margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
               child: Text(
-                DateTime.fromMillisecondsSinceEpoch(timestamp.toInt()).toString()
+                  printDate(timestamp)
             ))
         ],
     ));
@@ -335,21 +336,34 @@ class _SettingsScreenState extends State<SettingScreen> {
   }
 
   int _totalCheckins(List<CheckInResult> checkIns) {
-    return checkIns.map((e) => e.checkInTimestamps)
-        .expand((element) => element)
-        .toList().length;
+    if (checkIns != null) {
+      return checkIns
+          .map((e) => e.checkInTimestamps)
+          .expand((element) => element)
+          .toList()
+          .length;
+    } else {
+      return 0;
+    }
   }
 
   int _totalPointVisited(List<CheckInResult> checkIns) {
-    return checkIns.length;
+    if (checkIns != null) {
+      return checkIns.length;
+    } else {
+      return 0;
+    }
   }
 
   String _lastCheckIn(List<CheckInResult> checkIns) {
-    var format = new DateFormat("yMd");
-    var dates = checkIns.map((e) => e.checkInTimestamps)
-        .expand((element) => element)
-        .toList();
-    dates.sort();
-    return format.format(DateTime.fromMillisecondsSinceEpoch(dates.last.toInt()));
+    if (checkIns != null) {
+      var dates = checkIns.map((e) => e.checkInTimestamps)
+          .expand((element) => element)
+          .toList();
+      dates.sort();
+      return dates.last != null ? shortDateStringFromEpochMillis(dates.last) : "-";
+    } else {
+      return "-";
+    }
   }
 }

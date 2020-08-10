@@ -6,6 +6,7 @@ import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/alerts/alert_viewmodel.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
+import 'package:jacobspears/utils/date_utils.dart';
 import 'package:provider/provider.dart';
 
 class AlertsScreen extends StatefulWidget {
@@ -124,7 +125,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                DateTime.fromMillisecondsSinceEpoch(alert.timeStamp.toInt()).toString(),
+                printDate(alert.timeStamp),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
