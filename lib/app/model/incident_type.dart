@@ -20,11 +20,16 @@ class IncidentType extends Equatable {
   });
 
   @override
-  // TODO: implement props
   List<Object> get props => [uuid, title];
 
   factory IncidentType.fromJson(Map<String, dynamic> json) => _$IncidentTypeFromJson(json);
 
   Map<String, dynamic> toJson() => _$IncidentTypeToJson(this);
+
+  bool operator ==(dynamic other) =>
+      other != null && other is IncidentType && this.uuid == other.uuid;
+
+  @override
+  int get hashCode => super.hashCode;
 
 }

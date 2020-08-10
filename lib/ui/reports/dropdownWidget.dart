@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
 class ReportDropDownWidget extends StatefulWidget {
-  ReportDropDownWidget({Key key}) : super(key: key);
+  final List<String> items;
+  ReportDropDownWidget({Key key, this.items}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() =>
-      _ReportDropdownWidget();
+      _ReportDropdownWidget(items);
 }
 
 class _ReportDropdownWidget extends State<ReportDropDownWidget> {
-  String dropdownValue = 'One';
+  List<String> items;
+  String dropdownValue = "";
+
+  _ReportDropdownWidget(this.items);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class _ReportDropdownWidget extends State<ReportDropDownWidget> {
           dropdownValue = newValue;
         });
       },
-      items: <String>['One', 'Two', 'Free', 'Four']
+      items: items
           .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
