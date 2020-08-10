@@ -5,7 +5,7 @@ import 'package:jacobspears/ui/map/point_list_screen.dart';
 
 import 'reports/reports.dart';
 
-import 'alerts/alerts.dart';
+import 'alerts/alerts_demo.dart';
 
 class Home extends StatefulWidget {
   @override

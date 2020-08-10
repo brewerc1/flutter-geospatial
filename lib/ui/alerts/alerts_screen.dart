@@ -92,7 +92,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       width: 50,
       child:
       Icon(
-        alert.iconName != null ? getIconUsingPrefix(name: alert.iconName) : Icons.warning,
+        alert.iconName != null && alert.iconName.isNotEmpty ? getIconUsingPrefix(name: alert.iconName) : Icons.warning,
         color: Colors.white,
         size: 30,
       ),
