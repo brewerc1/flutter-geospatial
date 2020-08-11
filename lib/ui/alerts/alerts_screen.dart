@@ -126,19 +126,20 @@ class _AlertsScreenState extends State<AlertsScreen> {
             children: <Widget>[
               Text(
                 printDate(alert.timeStamp),
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
+                  fontSize: 16.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Padding(padding: EdgeInsets.only(bottom: 2.0)),
+              const Padding(padding: EdgeInsets.only(bottom: 5.0)),
               Text(
                 alert.title,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 12.0,
+                  fontSize: 16.0,
                   color: Colors.black54,
                 ),
               ),
@@ -162,7 +163,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     ),
                   ),
                 ],
-              )
+              ),
+              const Padding(padding: EdgeInsets.only(bottom: 5.0)),
             ],
           ),
         ),
@@ -170,9 +172,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 1.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: SizedBox(
-        height: 120,
+        height: 110,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
