@@ -20,8 +20,6 @@ class AlertViewModel {
 
   final AlertsInteractor _alertsInteractor;
 
-  PublishSubject<ReportViewType> reportViewTypeEvent = PublishSubject();
-
   AlertViewModel(this._alertsInteractor);
 
   init() {

@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jacobspears/app/interactors/alert_interactor.dart';
 import 'package:jacobspears/app/interactors/app_interactor.dart';
 import 'package:jacobspears/app/interactors/checkin_interactor.dart';
 import 'package:jacobspears/app/interactors/point_interactor.dart';
+import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/app_permission.dart';
 import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/app/model/cluster.dart';
@@ -31,26 +33,35 @@ class PointListViewModel {
     return PointListViewModel(
         Provider.of(context, listen: false),
         Provider.of(context, listen: false),
+        Provider.of(context, listen: false),
         Provider.of(context, listen: false)
     );
   }
 
   final PointInteractor _pointInteractor;
   final CheckInInteractor _checkInInteractor;
+  final AlertsInteractor _alertsInteractor;
   final AppInteractor _appInteractor;
 
   PublishSubject<CheckInViewType> _checkinEvent = PublishSubject();
   PublishSubject<Point> _selectedData = PublishSubject();
+  PublishSubject<Alert> _selectedAlertToView = PublishSubject();
   PublishSubject<CurrentTab> _currentTab = PublishSubject();
   BehaviorSubject<Response<Cluster>> _clusterWithCheckIn = BehaviorSubject();
 
   StreamSubscription _clusterWithCheckinsSubscription;
 
-  PointListViewModel(this._pointInteractor, this._checkInInteractor, this._appInteractor);
+  PointListViewModel(
+      this._pointInteractor,
+      this._checkInInteractor,
+      this._appInteractor,
+      this._alertsInteractor
+  );
 
   init() {
     _pointInteractor.refreshPoints();
     _checkInInteractor.refreshCheckInHistory();
+    _alertsInteractor.init();
     _clusterWithCheckinsSubscription = pointsWithCheckInStream();
     _checkinEvent.add(CheckInViewType.BODY);
   }
@@ -75,6 +86,8 @@ class PointListViewModel {
   Stream<CurrentTab> get tabEvent => _currentTab.stream;
   Stream<Response<Cluster>> getCluster() => _pointInteractor.getCluster();
   Stream<Response<Point>> getPointOfInterest() => _pointInteractor.getPointOfInterest();
+  Stream<Response<List<Alert>>> getAlerts() => _alertsInteractor.getAllAlerts();
+  Stream<Alert> get selectAlert => _selectedAlertToView.stream;
   Stream<Response<Cluster>> get clusterWithCheckInsStream => _clusterWithCheckIn.stream;
 
   void setCenter(LatLng center) {
@@ -89,6 +102,14 @@ class PointListViewModel {
       _center = point.geometry.getLatLng();
     }
     _selectedData.add(point);
+  }
+
+  void setSelectedAlert(Alert alert) {
+    if (alert != null) {
+      developer.log("set center ${alert.geometry.getLatLng()}");
+      _center = alert.geometry.getLatLng();
+    }
+    _selectedAlertToView.add(alert);
   }
   
   void setCurrentTab(CurrentTab tab) {
