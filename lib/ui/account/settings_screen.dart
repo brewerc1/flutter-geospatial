@@ -130,7 +130,7 @@ class _SettingsScreenState extends State<SettingScreen> {
         children: [
           _buildBadgeColumn("TOTAL", "CHECK INS", _totalCheckins(checkIns).toString(), true),
           _buildBadgeColumn("TOTAL", "POINTS", _totalPointVisited(checkIns).toString(), true),
-          _buildBadgeColumn("LAST", "CHECKIN", _lastCheckIn(checkIns), false),
+          _buildBadgeColumn("LAST", "CHECK IN", _lastCheckIn(checkIns), false),
         ],
       ),
     );
