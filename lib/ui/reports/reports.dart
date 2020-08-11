@@ -129,9 +129,9 @@ class _ReportsScreen extends State<ReportsScreen> {
                         break;
                       case Status.COMPLETED:
                         incidentTypes = snapshot.data.data.incidentTypes;
+                        incidentTypes.sort((a, b) => a.title.compareTo(b.title));
                         // _imagesAllowed = snapshot.data.data.allowPhotos; TODO add photo support
                         dropdownValue = incidentTypes.first.title;
-                        developer.log("${incidentTypes.map((e) => e.title)}");
                         return showCamera ? CameraExampleHome() : Container(
                           child: Stack(
                             children: <Widget>[
