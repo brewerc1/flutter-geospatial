@@ -19,7 +19,9 @@ class AlertsInteractor {
     _alerts.add(Response.loading("Loading check in history"));
     final result = await apiInteractor.getAlerts();
     if (result.isValue) {
-      _alerts.add(Response.completed(result.asValue.value));
+      var list = result.asValue.value;
+      list.sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
+      _alerts.add(Response.completed(list.reversed.toList()));
     } else {
       return Response.error("refreshAlerts: Something went wrong");
     }
