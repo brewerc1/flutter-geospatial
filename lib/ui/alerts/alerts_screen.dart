@@ -4,6 +4,7 @@ import 'package:icons_helper/icons_helper.dart';
 import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/alerts/alert_viewmodel.dart';
+import 'package:jacobspears/ui/alerts/single_alert_view.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/utils/date_utils.dart';
@@ -17,6 +18,13 @@ class AlertsScreen extends StatefulWidget {
 class _AlertsScreenState extends State<AlertsScreen> {
 
   AlertViewModel _viewModel;
+
+  void _navigateToAlert(Alert alert) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SingleAlertView(alert: alert,)));
+  }
 
   @override
   void didChangeDependencies() {
@@ -171,6 +179,15 @@ class _AlertsScreenState extends State<AlertsScreen> {
       ],
     );
 
+    Widget right = InkWell(
+        onTap: () {
+          _navigateToAlert(alert);
+        },
+        child: Container(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[Icon(Icons.chevron_right)])));
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: SizedBox(
@@ -187,7 +204,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
                 child: description
               ),
-            )
+            ),
+            right
           ],
         ),
       ),
