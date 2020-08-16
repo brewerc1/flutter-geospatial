@@ -12,15 +12,12 @@ import 'package:jacobspears/app/model/settings.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/ui/reports/CameraScreen.dart';
-import 'package:jacobspears/ui/reports/dropdownWidget.dart';
 import 'package:jacobspears/ui/reports/need_permission_dialog.dart';
 import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
 import 'package:jacobspears/ui/reports/reported_dialog.dart';
 import 'package:jacobspears/ui/reports/reporting_dialog.dart';
 import 'package:provider/provider.dart';
-
-import 'dart:developer' as developer;
 
 import 'error_report_dialog.dart';
 
@@ -53,19 +50,17 @@ class _ReportsScreen extends State<ReportsScreen> {
 
   void onSubmitPressed() {
     var incident = Incident(
-      typeUuid: incidentTypes.where((element) => element.title == dropdownValue).first.uuid,
-      description: descriptionController.text,
-      geometry: Geometry(
-        type: "POINT",
-        coordinates: null
-      ),
-      photo: []
-    );
+        typeUuid: incidentTypes
+            .where((element) => element.title == dropdownValue)
+            .first
+            .uuid,
+        description: descriptionController.text,
+        geometry: Geometry(type: "POINT", coordinates: null),
+        photo: []);
     _viewModel.reportIncident(incident);
-
   }
 
-  void _setViewState(ReportViewType viewType)  {
+  void _setViewState(ReportViewType viewType) {
     setState(() {
       _viewType = viewType;
     });
@@ -78,10 +73,12 @@ class _ReportsScreen extends State<ReportsScreen> {
     _viewModel.init();
     _permissionSubscription =
         _viewModel.getLocationPermission().listen((permissionEvent) async {
-          if (permissionEvent != AppPermission.granted) {
-            _viewModel.promptForLocationPermissions();
-          }});
-    _reportSubscription = _viewModel.reportViewTypeEvent.listen((event) => _setViewState(event));
+      if (permissionEvent != AppPermission.granted) {
+        _viewModel.promptForLocationPermissions();
+      }
+    });
+    _reportSubscription =
+        _viewModel.reportViewTypeEvent.listen((event) => _setViewState(event));
   }
 
   @override
@@ -90,10 +87,8 @@ class _ReportsScreen extends State<ReportsScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     Widget submitButton = Container(
         padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
         child: FlatButton.icon(
@@ -102,8 +97,7 @@ class _ReportsScreen extends State<ReportsScreen> {
           icon: Icon(Icons.add_alert),
           label: Text('Submit report'),
           textColor: Colors.white,
-        )
-    );
+        ));
 
     return Provider(
       create: (_) => _viewModel,
@@ -129,33 +123,44 @@ class _ReportsScreen extends State<ReportsScreen> {
                         break;
                       case Status.COMPLETED:
                         incidentTypes = snapshot.data.data.incidentTypes;
-                        incidentTypes.sort((a, b) => a.title.compareTo(b.title));
+                        incidentTypes
+                            .sort((a, b) => a.title.compareTo(b.title));
                         // _imagesAllowed = snapshot.data.data.allowPhotos; TODO add photo support
                         dropdownValue = incidentTypes.first.title;
-                        return showCamera ? CameraExampleHome() : Container(
-                          child: Stack(
-                            children: <Widget>[
-                              buildBody(),
-                              Positioned(
-                                left: 0.0,
-                                right: 0.0,
-                                bottom: 0.0,
-                                child: submitButton,
-                              ),
-                              if (_viewType == ReportViewType.REPORTING) ReportingDialog(),
-                              if (_viewType == ReportViewType.REPORTED) ReportedWidget(onButtonPress: _setViewState,),
-                              if (_viewType == ReportViewType.ERROR) ReportErrorWidget(
-                                message: "Oops, something went wrong!",
-                                onCloseButtonPress: _setViewState,
-                                onTryAgainButtonPress: onSubmitPressed,
-                              ),
-                              if (_viewType == ReportViewType.NEED_LOCATION) ReportNeedLocationWidget(
-                                onCloseButtonPress: _setViewState,
-                                onTryAgainButtonPress: _viewModel.promptForLocationPermissions,
-                              ),
-                            ],
-                          ),
-                        );
+                        return showCamera
+                            ? CameraExampleHome()
+                            : Container(
+                                child: Stack(
+                                  children: <Widget>[
+                                    buildBody(),
+                                    Positioned(
+                                      left: 0.0,
+                                      right: 0.0,
+                                      bottom: 0.0,
+                                      child: submitButton,
+                                    ),
+                                    if (_viewType == ReportViewType.REPORTING)
+                                      ReportingDialog(),
+                                    if (_viewType == ReportViewType.REPORTED)
+                                      ReportedWidget(
+                                        onButtonPress: _setViewState,
+                                      ),
+                                    if (_viewType == ReportViewType.ERROR)
+                                      ReportErrorWidget(
+                                        message: "Oops, something went wrong!",
+                                        onCloseButtonPress: _setViewState,
+                                        onTryAgainButtonPress: onSubmitPressed,
+                                      ),
+                                    if (_viewType ==
+                                        ReportViewType.NEED_LOCATION)
+                                      ReportNeedLocationWidget(
+                                        onCloseButtonPress: _setViewState,
+                                        onTryAgainButtonPress: _viewModel
+                                            .promptForLocationPermissions,
+                                      ),
+                                  ],
+                                ),
+                              );
                         break;
                       default:
                         return ErrorScreen(
@@ -187,29 +192,29 @@ class _ReportsScreen extends State<ReportsScreen> {
     );
 
     Widget dropDownSection = Container(
-      padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
-      child: DropdownButton<String>(
-        value: incidentTypes.map((e) => e.title).first,
-        elevation: 16,
-        style: TextStyle(color: Colors.black),
-        underline: Container(
-          height: 2,
-          color: Colors.blue,
-        ),
-        onChanged: (String newValue) {
-          setState(() {
-            dropdownValue = newValue;
-          });
-        },
-        items: incidentTypes.map((e) => e.title)
-            .map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      )
-    );
+        padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+        child: DropdownButton<String>(
+          value: incidentTypes.map((e) => e.title).first,
+          elevation: 16,
+          style: TextStyle(color: Colors.black),
+          underline: Container(
+            height: 2,
+            color: Colors.blue,
+          ),
+          onChanged: (String newValue) {
+            setState(() {
+              dropdownValue = newValue;
+            });
+          },
+          items: incidentTypes
+              .map((e) => e.title)
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        ));
 
     Widget descriptionText = Container(
       padding: const EdgeInsets.fromLTRB(32, 0, 32, 6),
@@ -224,12 +229,9 @@ class _ReportsScreen extends State<ReportsScreen> {
       child: TextField(
           controller: descriptionController,
           decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: 'Enter description'
-          ),
+              border: InputBorder.none, hintText: 'Enter description'),
           maxLines: 5,
-          keyboardType: TextInputType.multiline
-      ),
+          keyboardType: TextInputType.multiline),
     );
 
     Widget addPhotoButton = Container(
@@ -246,33 +248,25 @@ class _ReportsScreen extends State<ReportsScreen> {
     );
 
     Widget addPhotoContainer = Container(
-        child: Stack (
-          children: <Widget>[
-            Image.asset(
-              'images/licking_river_image.jpg',
-              width: 600,
-              height: 240,
-              fit: BoxFit.cover,
-            ),
-            if (_imagesAllowed) Positioned(
-                left: 0.0,
-                right: 0.0,
-                bottom: 0.0,
-                child: addPhotoButton
-            )
-          ],
-        )
-    );
+        child: Stack(
+      children: <Widget>[
+        Image.asset(
+          'images/licking_river_image.jpg',
+          width: 600,
+          height: 240,
+          fit: BoxFit.cover,
+        ),
+        if (_imagesAllowed)
+          Positioned(left: 0.0, right: 0.0, bottom: 0.0, child: addPhotoButton)
+      ],
+    ));
 
-    return ListView(
-        children: <Widget>[
-          addPhotoContainer,
-          textSection,
-          if (incidentTypes.isNotEmpty) dropDownSection,
-          descriptionText,
-          descriptionEditText
-        ]
-    );
+    return ListView(children: <Widget>[
+      addPhotoContainer,
+      textSection,
+      if (incidentTypes.isNotEmpty) dropDownSection,
+      descriptionText,
+      descriptionEditText
+    ]);
   }
-
 }
