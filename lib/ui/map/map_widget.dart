@@ -18,6 +18,7 @@ import 'package:jacobspears/utils/Callback.dart';
 import 'package:jacobspears/utils/date_utils.dart';
 import 'package:jacobspears/utils/distance_util.dart';
 import 'PointsListViewModel.dart';
+import 'need_location_widget.dart';
 
 class MapWidget extends StatefulWidget {
   final PointListViewModel viewModel;
@@ -346,6 +347,12 @@ class _MapWidgetState extends State<MapWidget> {
             message: "Oops, something went wrong!",
             onCloseButtonPress: _setViewState,
             onTryAgainButtonPress: _checkIn,
+          ),
+        if (_viewType == CheckInViewType.NEED_LOCATION)
+          NeedLocationWidget(
+            onCloseButtonPress: _setViewState,
+            onTryAgainButtonPress: _viewModel
+                .promptForLocationPermissions,
           ),
       ],
     );
