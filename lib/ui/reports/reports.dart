@@ -89,16 +89,6 @@ class _ReportsScreen extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget submitButton = Container(
-        padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
-        child: FlatButton.icon(
-          color: Colors.blue,
-          onPressed: onSubmitPressed,
-          icon: Icon(Icons.add_alert),
-          label: Text('Submit report'),
-          textColor: Colors.white,
-        ));
-
     return Provider(
       create: (_) => _viewModel,
       child: Column(
@@ -133,12 +123,6 @@ class _ReportsScreen extends State<ReportsScreen> {
                                 child: Stack(
                                   children: <Widget>[
                                     buildBody(),
-                                    Positioned(
-                                      left: 0.0,
-                                      right: 0.0,
-                                      bottom: 0.0,
-                                      child: submitButton,
-                                    ),
                                     if (_viewType == ReportViewType.REPORTING)
                                       ReportingDialog(),
                                     if (_viewType == ReportViewType.REPORTED)
@@ -261,12 +245,23 @@ class _ReportsScreen extends State<ReportsScreen> {
       ],
     ));
 
-    return ListView(children: <Widget>[
+    Widget submitButton = Container(
+        padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+        child: FlatButton.icon(
+          color: Colors.blue,
+          onPressed: onSubmitPressed,
+          icon: Icon(Icons.add_alert),
+          label: Text('Submit report'),
+          textColor: Colors.white,
+        ));
+
+   return ListView(children: <Widget>[
       addPhotoContainer,
       textSection,
       if (incidentTypes.isNotEmpty) dropDownSection,
       descriptionText,
-      descriptionEditText
+      descriptionEditText,
+      submitButton
     ]);
   }
 }
