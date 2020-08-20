@@ -37,13 +37,12 @@ class ReportedWidget extends StatelessWidget {
             ),
             new Container(
               margin: const EdgeInsets.fromLTRB(10, 25.0, 10, 10),
-              child: new Center(
-                child: new Text(
+              child: Text(
                   "Incident report successfully submitted!",
+                  textAlign: TextAlign.center,
                   style: new TextStyle(
                       color: Colors.white
                   ),
-                ),
               ),
             ),
             InkWell(
@@ -52,13 +51,17 @@ class ReportedWidget extends StatelessWidget {
                 },
                 child: Container (
                   padding: const EdgeInsets.only(top: 20.0),
-                  child: new Center(
-                    child: new Text(
-                      "CLOSE",
-                      style: new TextStyle(
-                          color: Colors.white
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(Icons.close, color: Colors.white,),
+                      Text( "CLOSE",
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 )
             )

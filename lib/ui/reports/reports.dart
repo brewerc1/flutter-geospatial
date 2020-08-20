@@ -12,6 +12,7 @@ import 'package:jacobspears/app/model/settings.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/ui/reports/CameraScreen.dart';
+import 'package:jacobspears/ui/reports/invalid_form_dialog.dart';
 import 'package:jacobspears/ui/reports/need_permission_dialog.dart';
 import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
@@ -141,6 +142,10 @@ class _ReportsScreen extends State<ReportsScreen> {
                                         onCloseButtonPress: _setViewState,
                                         onTryAgainButtonPress: _viewModel
                                             .promptForLocationPermissions,
+                                      ),
+                                    if (_viewType == ReportViewType.INVALID_FORM)
+                                      InvalidFormWidget(
+                                        onButtonPress: _setViewState,
                                       ),
                                   ],
                                 ),
