@@ -277,7 +277,9 @@ class PointListScreenState extends State<PointListScreen>
             height: 50,
             width: 50,
             child: Icon(
-              (point.iconName != null && point.iconName.isNotEmpty) ? getIconUsingPrefix(name: point.iconName) : Icons.location_on,
+              (point.iconName != null && point.iconName.isNotEmpty)
+                  ? getIconUsingPrefix(name: point.iconName)
+                  : Icons.location_on,
               color: Colors.white,
             ),
             decoration:
@@ -311,7 +313,9 @@ class PointListScreenState extends State<PointListScreen>
                         children: <Widget>[
                           Row(
                             children: <Widget>[
-                              Icon((_position != null) ? Icons.location_on : Icons.location_on),
+                              Icon((_position != null)
+                                  ? Icons.location_on
+                                  : Icons.location_on),
                               Text(
                                 (_position != null)
                                     ? "${calculateDistanceInMiles(LatLng(_position.latitude, _position.longitude), point.geometry.getLatLng()).toStringAsFixed(1)} mi"
