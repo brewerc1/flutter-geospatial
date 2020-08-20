@@ -6,7 +6,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
-import 'package:jacobspears/ui/map/PointsListViewModel.dart';
+import 'package:jacobspears/ui/map/points_list_view_model.dart';
 import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_error_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';

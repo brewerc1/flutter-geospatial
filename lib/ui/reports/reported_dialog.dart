@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/ui/reports/report_view_type.dart';
-import 'package:jacobspears/utils/Callback.dart';
+import 'package:jacobspears/utils/callbacks.dart';
 
 class ReportedWidget extends StatelessWidget {
   final ReportedViewStateCallBack onButtonPress;

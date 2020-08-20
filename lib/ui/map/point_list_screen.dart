@@ -14,7 +14,7 @@ import 'package:jacobspears/app/model/segment.dart';
 import 'package:jacobspears/ui/components/colored_tab_bar.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
-import 'package:jacobspears/ui/map/PointsListViewModel.dart';
+import 'package:jacobspears/ui/map/points_list_view_model.dart';
 import 'package:jacobspears/ui/map/map_widget.dart';
 import 'package:jacobspears/ui/map/point_of_interest_screen.dart';
 import 'package:jacobspears/utils/distance_util.dart';

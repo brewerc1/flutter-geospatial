@@ -11,7 +11,7 @@ import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/settings.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
-import 'package:jacobspears/ui/reports/CameraScreen.dart';
+import 'package:jacobspears/ui/reports/camera_screen.dart';
 import 'package:jacobspears/ui/reports/invalid_form_dialog.dart';
 import 'package:jacobspears/ui/reports/need_permission_dialog.dart';
 import 'package:jacobspears/ui/reports/report_view_type.dart';
