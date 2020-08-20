@@ -16,14 +16,15 @@ class AlertsScreen extends StatefulWidget {
 }
 
 class _AlertsScreenState extends State<AlertsScreen> {
-
   AlertViewModel _viewModel;
 
   void _navigateToAlert(Alert alert) {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SingleAlertView(alert: alert,)));
+            builder: (context) => SingleAlertView(
+                  alert: alert,
+                )));
   }
 
   @override
@@ -97,27 +98,26 @@ class _AlertsScreenState extends State<AlertsScreen> {
     Widget thumbnailImage = new Container(
       height: 50,
       width: 50,
-      child:
-      Icon(
-        alert.iconName != null && alert.iconName.isNotEmpty ? getIconUsingPrefix(name: alert.iconName) : Icons.warning,
+      child: Icon(
+        alert.iconName != null && alert.iconName.isNotEmpty
+            ? getIconUsingPrefix(name: alert.iconName)
+            : Icons.warning,
         color: Colors.white,
         size: 30,
       ),
       decoration: BoxDecoration(
           color: alert.isActive ? Colors.blue : Colors.grey,
-          shape: BoxShape.circle
-      ),
+          shape: BoxShape.circle),
     );
 
     Widget iconView = Stack(
       children: <Widget>[
         Center(
             child: Container(
-              width: 2,
-              height: double.maxFinite,
-              color: Colors.black,
-            )
-        ),
+          width: 2,
+          height: double.maxFinite,
+          color: Colors.black,
+        )),
         Center(
           child: thumbnailImage,
         )
@@ -185,6 +185,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
         },
         child: Container(
             child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[Icon(Icons.chevron_right)])));
 
@@ -201,9 +202,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
-                child: description
-              ),
+                  padding: const EdgeInsets.fromLTRB(20.0, 10.0, 2.0, 10.0),
+                  child: description),
             ),
             right
           ],
@@ -211,5 +211,4 @@ class _AlertsScreenState extends State<AlertsScreen> {
       ),
     );
   }
-
 }

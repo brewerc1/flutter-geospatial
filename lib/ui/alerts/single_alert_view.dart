@@ -69,12 +69,14 @@ class _SingleAlertViewState extends State<SingleAlertView> {
                         ),
                       )),
                 ]),
-                Text(
-                  alert.geometry.printCoordinates(),
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                  ),
-                ),
+                Container(
+                    margin: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      alert.geometry.printCoordinates(),
+                      style: TextStyle(
+                        color: Colors.grey[500],
+                      ),
+                    )),
               ],
             ),
           ),
