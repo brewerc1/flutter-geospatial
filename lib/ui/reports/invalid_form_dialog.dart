@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
+import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/utils/callbacks.dart';
 
-class CheckedInWidget extends StatelessWidget {
-  final String name;
-  final CheckedInStateCallBack onButtonPress;
+class InvalidFormWidget extends StatelessWidget {
+  final ReportedViewStateCallBack onButtonPress;
 
-  const CheckedInWidget({Key key, this.name, this.onButtonPress}) : super(key: key);
+  const InvalidFormWidget({Key key, this.onButtonPress}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,36 +32,38 @@ class CheckedInWidget extends StatelessWidget {
               child: new SizedBox(
                 height: 50.0,
                 width: 50.0,
-                child: Icon(Icons.check, color: Colors.white, size: 50.0,),
+                child: Icon(Icons.error, color: Colors.white, size: 50.0,),
               ),
             ),
             new Container(
               margin: const EdgeInsets.fromLTRB(10, 25.0, 10, 10),
-              child: new Text(
-                  "Checked into $name",
+              child: new Center(
+                child: new Text(
+                  "Oops, looks like some details are missing.\nPlease verify your report and try again.",
                   textAlign: TextAlign.center,
                   style: new TextStyle(
-                      color: Colors.white
+                      color: Colors.white,
                   ),
                 ),
+              ),
             ),
             InkWell(
                 onTap: () {
-                  onButtonPress(CheckInViewType.BODY);
+                  onButtonPress(ReportViewType.BODY);
                 },
                 child: Container (
                   padding: const EdgeInsets.only(top: 20.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Icon(Icons.close, color: Colors.white,),
-                      Text( "CLOSE",
-                        style: const TextStyle(
-                          fontSize: 12.0,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.close, color: Colors.white,),
+                          Text( "CLOSE",
+                            style: const TextStyle(
+                              fontSize: 12.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                   ),
                 )
             )

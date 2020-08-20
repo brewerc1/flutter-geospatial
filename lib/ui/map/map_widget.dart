@@ -14,10 +14,10 @@ import 'package:jacobspears/ui/map/check_in_error_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/ui/map/checked_in_widget.dart';
 import 'package:jacobspears/ui/map/checking_in_widget.dart';
-import 'package:jacobspears/utils/Callback.dart';
+import 'package:jacobspears/utils/callbacks.dart';
 import 'package:jacobspears/utils/date_utils.dart';
 import 'package:jacobspears/utils/distance_util.dart';
-import 'PointsListViewModel.dart';
+import 'points_list_view_model.dart';
 import 'need_location_widget.dart';
 
 class MapWidget extends StatefulWidget {

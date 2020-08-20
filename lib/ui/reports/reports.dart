@@ -11,7 +11,8 @@ import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/settings.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
-import 'package:jacobspears/ui/reports/CameraScreen.dart';
+import 'package:jacobspears/ui/reports/camera_screen.dart';
+import 'package:jacobspears/ui/reports/invalid_form_dialog.dart';
 import 'package:jacobspears/ui/reports/need_permission_dialog.dart';
 import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
@@ -89,16 +90,6 @@ class _ReportsScreen extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget submitButton = Container(
-        padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
-        child: FlatButton.icon(
-          color: Colors.blue,
-          onPressed: onSubmitPressed,
-          icon: Icon(Icons.add_alert),
-          label: Text('Submit report'),
-          textColor: Colors.white,
-        ));
-
     return Provider(
       create: (_) => _viewModel,
       child: Column(
@@ -133,12 +124,6 @@ class _ReportsScreen extends State<ReportsScreen> {
                                 child: Stack(
                                   children: <Widget>[
                                     buildBody(),
-                                    Positioned(
-                                      left: 0.0,
-                                      right: 0.0,
-                                      bottom: 0.0,
-                                      child: submitButton,
-                                    ),
                                     if (_viewType == ReportViewType.REPORTING)
                                       ReportingDialog(),
                                     if (_viewType == ReportViewType.REPORTED)
@@ -157,6 +142,10 @@ class _ReportsScreen extends State<ReportsScreen> {
                                         onCloseButtonPress: _setViewState,
                                         onTryAgainButtonPress: _viewModel
                                             .promptForLocationPermissions,
+                                      ),
+                                    if (_viewType == ReportViewType.INVALID_FORM)
+                                      InvalidFormWidget(
+                                        onButtonPress: _setViewState,
                                       ),
                                   ],
                                 ),
@@ -261,12 +250,23 @@ class _ReportsScreen extends State<ReportsScreen> {
       ],
     ));
 
-    return ListView(children: <Widget>[
+    Widget submitButton = Container(
+        padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+        child: FlatButton.icon(
+          color: Colors.blue,
+          onPressed: onSubmitPressed,
+          icon: Icon(Icons.add_alert),
+          label: Text('Submit report'),
+          textColor: Colors.white,
+        ));
+
+   return ListView(children: <Widget>[
       addPhotoContainer,
       textSection,
       if (incidentTypes.isNotEmpty) dropDownSection,
       descriptionText,
-      descriptionEditText
+      descriptionEditText,
+      submitButton
     ]);
   }
 }
