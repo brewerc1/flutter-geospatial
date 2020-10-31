@@ -9,6 +9,7 @@ import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/settings.dart';
+import 'package:jacobspears/ui/components/button_types.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
@@ -144,19 +145,16 @@ class _ReportsScreen extends State<ReportsScreen> {
                                       DialogWidget(
                                         icon: Icons.check,
                                         message: "Incident report successfully submitted!",
-                                        leftButtonName: "CLOSE",
-                                        leftIconData: Icons.close,
+                                        leftButtonType: ButtonType.CLOSE,
                                         onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
                                       ),
                                     if (_viewType == ReportViewType.ERROR)
                                       DialogWidget(
                                         icon: Icons.error_outline,
                                         message: "Oops, something went wrong!",
-                                        leftButtonName: "CLOSE",
-                                        leftIconData: Icons.close,
+                                        leftButtonType: ButtonType.CLOSE,
                                         onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
-                                        rightButtonName: "TRY AGAIN",
-                                        rightIconData: Icons.refresh,
+                                        rightButtonType: ButtonType.TRY_AGAIN,
                                         onRightLeftButtonPress: () => onSubmitPressed(),
                                       ),
                                     if (_viewType ==
@@ -164,10 +162,9 @@ class _ReportsScreen extends State<ReportsScreen> {
                                       DialogWidget(
                                         icon: Icons.error_outline,
                                         message: "Permission to access your location data is needed to submit a report.",
-                                        leftButtonName: "CLOSE",
-                                        leftIconData: Icons.close,
+                                        leftButtonType: ButtonType.CLOSE,
                                         onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
-                                        rightButtonName: "TURN ON",
+                                        rightButtonType: ButtonType.PERMISSION,
                                         onRightLeftButtonPress: () =>  _viewModel
                                             .promptForLocationPermissions(),
                                       ),

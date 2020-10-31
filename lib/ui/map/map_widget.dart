@@ -9,6 +9,7 @@ import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/alerts/single_alert_view.dart';
+import 'package:jacobspears/ui/components/button_types.dart';
 import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
@@ -335,40 +336,34 @@ class _MapWidgetState extends State<MapWidget> {
           DialogWidget(
             icon: Icons.check,
             message: "Checked into ${_point?.name}",
-            leftButtonName: "CLOSE",
-            leftIconData: Icons.close,
+            leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
           ),
         if (_viewType == CheckInViewType.TOO_FAR)
           DialogWidget(
             icon: Icons.error_outline,
             message: "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${_point?.name}!",
-            leftButtonName: "CLOSE",
-            leftIconData: Icons.close,
+            leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
-            rightButtonName: "TRY AGAIN",
-            rightIconData: Icons.refresh,
+            rightButtonType: ButtonType.TRY_AGAIN,
             onRightLeftButtonPress: () => _checkIn(),
           ), 
         if (_viewType == CheckInViewType.ERROR)
           DialogWidget(
             icon: Icons.error_outline,
             message: "Oops, something went wrong!",
-            leftButtonName: "CLOSE",
-            leftIconData: Icons.close,
+            leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
-            rightButtonName: "TRY AGAIN",
-            rightIconData: Icons.refresh,
+            rightButtonType: ButtonType.TRY_AGAIN,
             onRightLeftButtonPress: () => _checkIn(),
           ),
         if (_viewType == CheckInViewType.NEED_LOCATION)
           DialogWidget(
             icon: Icons.error_outline,
             message: "Permission to access your location data is needed to check in.",
-            leftButtonName: "CLOSE",
-            leftIconData: Icons.close,
+            leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
-            rightButtonName: "TURN ON",
+            rightButtonType: ButtonType.PERMISSION,
             onRightLeftButtonPress: () =>  _viewModel
                 .promptForLocationPermissions(),
           ),

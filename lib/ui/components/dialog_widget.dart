@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jacobspears/ui/components/button_types.dart';
 
 class DialogWidget extends StatelessWidget {
   final IconData icon;
   final String message;
+  final ButtonType leftButtonType; 
   final String leftButtonName;
   final IconData leftIconData;
   final VoidCallback onLeftButtonPress;
+  final ButtonType rightButtonType;
   final String rightButtonName;
   final IconData rightIconData;
   final VoidCallback onRightLeftButtonPress;
@@ -15,9 +18,11 @@ class DialogWidget extends StatelessWidget {
       Key key,
       this.icon,
       this.message,
+      this.leftButtonType, 
       this.leftButtonName,
       this.leftIconData,
       this.onLeftButtonPress,
+      this.rightButtonType, 
       this.rightButtonName,
       this.rightIconData,
       this.onRightLeftButtonPress})
@@ -65,10 +70,15 @@ class DialogWidget extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  if (leftButtonName != null)
-                    _buildButton(leftButtonName, leftIconData, onLeftButtonPress),
-                  if (rightButtonName != null)
-                    _buildButton(rightButtonName, rightIconData, onRightLeftButtonPress)
+                  if (leftButtonType != null)
+                    _buildButtonFromType(leftButtonType, onLeftButtonPress)
+                  else if (leftButtonName != null)
+                    _buildButtonCustom(leftButtonName, leftIconData, onLeftButtonPress),
+                  if (rightButtonType != null)
+                    _buildButtonFromType(rightButtonType, onRightLeftButtonPress)
+                  else if (rightButtonName != null)
+                    _buildButtonCustom(
+                        rightButtonName, rightIconData, onRightLeftButtonPress)
                 ],
               ),
             )
@@ -78,7 +88,7 @@ class DialogWidget extends StatelessWidget {
     );
   }
 
-  InkWell _buildButton(String message, IconData iconData, VoidCallback action) {
+  InkWell _buildButtonCustom(String message, IconData iconData, VoidCallback action) {
     return InkWell(
       onTap: action,
       child: Row(
@@ -89,7 +99,7 @@ class DialogWidget extends StatelessWidget {
             color: Colors.white,
           ),
           Text(
-            message,
+            message.toUpperCase(),
             style: const TextStyle(
               fontSize: 12.0,
               color: Colors.white,
@@ -99,4 +109,45 @@ class DialogWidget extends StatelessWidget {
       ),
     );
   }
+
+  InkWell _buildButtonFromType(ButtonType buttonType, VoidCallback action) {
+    return InkWell(
+      onTap: action,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Icon(
+            _buttonIcon(buttonType),
+            color: Colors.white,
+          ),
+          Text(
+            _buttonMessage(buttonType).toUpperCase(),
+            style: const TextStyle(
+              fontSize: 12.0,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  String _buttonMessage(ButtonType buttonType) {
+    switch (buttonType) {
+      case ButtonType.CLOSE: return "Close";
+      case ButtonType.TRY_AGAIN: return "Try again";
+      case ButtonType.PERMISSION: return "Turn on";
+      default: return null;
+    }
+  }
+
+  IconData _buttonIcon(ButtonType buttonType) {
+    switch (buttonType) {
+      case ButtonType.CLOSE: return Icons.close;
+      case ButtonType.TRY_AGAIN: return Icons.refresh;
+      case ButtonType.PERMISSION: return Icons.check;
+      default: return null;
+    }
+  }
+  
 }
