@@ -8,16 +8,14 @@ import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
-import 'package:jacobspears/ui/map/check_in_error_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
-import 'package:jacobspears/ui/map/checked_in_widget.dart';
-import 'package:jacobspears/ui/map/checking_in_widget.dart';
+import 'package:jacobspears/ui/components/dialog_widget.dart';
+import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
 import 'package:jacobspears/utils/distance_util.dart';
 import 'package:provider/provider.dart';
 
 import '../components/error_screen.dart';
 import '../components/loading_screen.dart';
-import 'need_location_widget.dart';
 
 class PointOfInterestScreen extends StatefulWidget {
   final PointListViewModel viewModel;
@@ -243,29 +241,47 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                 onCheckInButton: _checkIn,
               ),
             if (_viewType == CheckInViewType.CHECKING_IN)
-              CheckingInWidget(name: point?.name),
+              ProgressDialogWidget(message: "Checking into ${point?.name}"),
             if (_viewType == CheckInViewType.CHECKED_IN)
-              CheckedInWidget(
-                name: point?.name,
-                onButtonPress: _setViewState,
+              DialogWidget(
+                icon: Icons.check,
+                message: "Checked into ${point?.name}",
+                leftButtonName: "CLOSE",
+                leftIconData: Icons.close,
+                onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
               ),
             if (_viewType == CheckInViewType.TOO_FAR)
-              CheckInErrorWidget(
-                message:
-                    "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${point.name}!",
-                onCloseButtonPress: _setViewState,
-                onTryAgainButtonPress: _checkIn,
+              DialogWidget(
+                icon: Icons.error_outline,
+                message: "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${point?.name}!",
+                leftButtonName: "CLOSE",
+                leftIconData: Icons.close,
+                onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
+                rightButtonName: "TRY AGAIN",
+                rightIconData: Icons.refresh,
+                onRightLeftButtonPress: () => _checkIn(),
               ),
             if (_viewType == CheckInViewType.ERROR)
-              CheckInErrorWidget(
+              DialogWidget(
+                icon: Icons.error_outline,
                 message: "Oops, something went wrong!",
-                onCloseButtonPress: _setViewState,
-                onTryAgainButtonPress: _checkIn,
+                leftButtonName: "CLOSE",
+                leftIconData: Icons.close,
+                onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
+                rightIconData: Icons.refresh,
+                rightButtonName: "TRY AGAIN",
+                onRightLeftButtonPress: () => _checkIn(),
               ),
             if (_viewType == CheckInViewType.NEED_LOCATION)
-              NeedLocationWidget(
-                onCloseButtonPress: _setViewState,
-                onTryAgainButtonPress: _viewModel.promptForLocationPermissions,
+              DialogWidget(
+                icon: Icons.error_outline,
+                message: "Permission to access your location data is needed to check in.",
+                leftButtonName: "CLOSE",
+                leftIconData: Icons.close,
+                onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
+                rightButtonName: "TURN ON",
+                onRightLeftButtonPress: () =>  _viewModel
+                    .promptForLocationPermissions(),
               ),
           ],
         ));

@@ -9,14 +9,13 @@ import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/settings.dart';
+import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
+import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
 import 'package:jacobspears/ui/reports/CameraScreen.dart';
-import 'package:jacobspears/ui/reports/need_permission_dialog.dart';
 import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
-import 'package:jacobspears/ui/reports/reported_dialog.dart';
-import 'package:jacobspears/ui/reports/reporting_dialog.dart';
 import 'package:provider/provider.dart';
 
 import 'error_report_dialog.dart';
@@ -140,23 +139,37 @@ class _ReportsScreen extends State<ReportsScreen> {
                                       child: submitButton,
                                     ),
                                     if (_viewType == ReportViewType.REPORTING)
-                                      ReportingDialog(),
+                                      ProgressDialogWidget(message: "Submitting incident report..."),
                                     if (_viewType == ReportViewType.REPORTED)
-                                      ReportedWidget(
-                                        onButtonPress: _setViewState,
+                                      DialogWidget(
+                                        icon: Icons.check,
+                                        message: "Incident report successfully submitted!",
+                                        leftButtonName: "CLOSE",
+                                        leftIconData: Icons.close,
+                                        onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
                                       ),
                                     if (_viewType == ReportViewType.ERROR)
-                                      ReportErrorWidget(
+                                      DialogWidget(
+                                        icon: Icons.error_outline,
                                         message: "Oops, something went wrong!",
-                                        onCloseButtonPress: _setViewState,
-                                        onTryAgainButtonPress: onSubmitPressed,
+                                        leftButtonName: "CLOSE",
+                                        leftIconData: Icons.close,
+                                        onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
+                                        rightButtonName: "TRY AGAIN",
+                                        rightIconData: Icons.refresh,
+                                        onRightLeftButtonPress: () => onSubmitPressed(),
                                       ),
                                     if (_viewType ==
                                         ReportViewType.NEED_LOCATION)
-                                      ReportNeedLocationWidget(
-                                        onCloseButtonPress: _setViewState,
-                                        onTryAgainButtonPress: _viewModel
-                                            .promptForLocationPermissions,
+                                      DialogWidget(
+                                        icon: Icons.error_outline,
+                                        message: "Permission to access your location data is needed to submit a report.",
+                                        leftButtonName: "CLOSE",
+                                        leftIconData: Icons.close,
+                                        onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
+                                        rightButtonName: "TURN ON",
+                                        onRightLeftButtonPress: () =>  _viewModel
+                                            .promptForLocationPermissions(),
                                       ),
                                   ],
                                 ),

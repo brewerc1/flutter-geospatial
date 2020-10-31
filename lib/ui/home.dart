@@ -16,20 +16,24 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   int _currentIndex = 0;
-  final List<Widget> _children = [
-    PointListScreen(),
-    AlertsScreen(),
-    ReportsScreen(),
-    SettingScreen()
-  ];
 
   @override
   Widget build(BuildContext context) {
+    Widget body;
+    if (_currentIndex == 0) {
+      body = PointListScreen();
+    } else if (_currentIndex == 1) {
+      body = AlertsScreen();
+    } else if (_currentIndex == 2) {
+      body = ReportsScreen();
+    } else {
+      body = SettingScreen();
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('Jacob Spears Trail'),
       ),
-      body: _children[_currentIndex],
+      body: body,
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,

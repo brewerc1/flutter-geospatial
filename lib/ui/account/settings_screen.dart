@@ -151,16 +151,17 @@ class _SettingsScreenState extends State<SettingScreen> {
 
     Widget historyList = ListView.builder(
         shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
         itemCount: checkIns.length,
         itemBuilder: (context, i) {
           return Column(children: [
             _buildPoint(context, checkIns[i])
           ]);
-        });;
+        });
 
     return ListView(
       physics: ClampingScrollPhysics(),
-      shrinkWrap: true,
+      shrinkWrap: false,
       children: <Widget>[
         infoSection,
         badgeSection,
@@ -178,7 +179,7 @@ class _SettingsScreenState extends State<SettingScreen> {
           _buildHeader(context, checkIn.point),
           ListView.builder(
               itemCount: checkIn.checkInTimestamps.length,
-              physics: ClampingScrollPhysics(),
+              physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemBuilder: (context, i) {
                 return Column(
