@@ -9,15 +9,15 @@ enum DialogType { PROGRESS, ICON }
 class DialogWidget extends StatelessWidget {
   final DialogType dialogType; // default ICON
   final bool invertColor; // default false
-  final IconData icon;
+  final IconData icon; // will not be use if dialogType == Progress
   final String message;
   final ButtonType leftButtonType;
-  final String leftButtonName;
-  final IconData leftIconData;
+  final String leftButtonName; // will not be used if leftButtonType is set
+  final IconData leftIconData; // will not be used if leftButtonType is set
   final VoidCallback onLeftButtonPress;
   final ButtonType rightButtonType;
-  final String rightButtonName;
-  final IconData rightIconData;
+  final String rightButtonName; // will not be used if rightButtonType is set
+  final IconData rightIconData; // will not be used if rightButtonType is set
   final VoidCallback onRightLeftButtonPress;
 
   const DialogWidget(
