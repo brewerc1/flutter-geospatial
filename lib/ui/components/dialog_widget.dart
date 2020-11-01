@@ -4,6 +4,7 @@ import 'package:jacobspears/ui/components/button_types.dart';
 import 'package:jacobspears/values/strings.dart';
 
 class DialogWidget extends StatelessWidget {
+  final bool invertColor;
   final IconData icon;
   final String message;
   final ButtonType leftButtonType; 
@@ -17,6 +18,7 @@ class DialogWidget extends StatelessWidget {
 
   const DialogWidget({
       Key key,
+      this.invertColor,
       this.icon,
       this.message,
       this.leftButtonType, 
@@ -38,7 +40,8 @@ class DialogWidget extends StatelessWidget {
       ),
       child: new Container(
         decoration: new BoxDecoration(
-            color: Colors.blue, borderRadius: new BorderRadius.circular(10.0)),
+            color: (invertColor == true) ? Colors.white : Colors.blue,
+            borderRadius: new BorderRadius.circular(10.0)),
         width: 300.0,
         height: 200.0,
         alignment: AlignmentDirectional.center,
@@ -52,7 +55,7 @@ class DialogWidget extends StatelessWidget {
                 width: 50.0,
                 child: Icon(
                   icon,
-                  color: Colors.white,
+                  color: (invertColor == true) ? Colors.blue : Colors.white,
                   size: 50.0,
                 ),
               ),
@@ -62,7 +65,9 @@ class DialogWidget extends StatelessWidget {
               child: new Center(
                 child: new Text(
                   message,
-                  style: new TextStyle(color: Colors.white),
+                  style: new TextStyle(
+                      color: (invertColor == true) ? Colors.blue : Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -97,13 +102,13 @@ class DialogWidget extends StatelessWidget {
         children: <Widget>[
           Icon(
             iconData,
-            color: Colors.white,
+            color: (invertColor == true) ? Colors.blue : Colors.white,
           ),
           Text(
             message.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.0,
-              color: Colors.white,
+              color: (invertColor == true) ? Colors.blue : Colors.white,
             ),
           ),
         ],
@@ -119,13 +124,13 @@ class DialogWidget extends StatelessWidget {
         children: <Widget>[
           Icon(
             _buttonIcon(buttonType),
-            color: Colors.white,
+            color: (invertColor == true) ? Colors.blue : Colors.white,
           ),
           Text(
             _buttonMessage(buttonType).toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.0,
-              color: Colors.white,
+              color: (invertColor == true) ? Colors.blue : Colors.white,
             ),
           ),
         ],

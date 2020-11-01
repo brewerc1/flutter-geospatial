@@ -10,7 +10,6 @@ import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/alerts/single_alert_view.dart';
 import 'package:jacobspears/ui/components/button_types.dart';
-import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
 import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
@@ -101,6 +100,10 @@ class _MapWidgetState extends State<MapWidget> {
 
   void _checkIn() {
     _viewModel.checkIn(_point);
+  }
+
+  void _closeDialog() {
+    _setViewState(CheckInViewType.BODY);
   }
 
   void _navigateToAlert(Alert alert) {
@@ -327,10 +330,13 @@ class _MapWidgetState extends State<MapWidget> {
       children: <Widget>[
         body,
         if (_viewType == CheckInViewType.DIALOG)
-          CheckInDialogWidget(
-            name: _point?.name,
-            onCloseButtonPress: _setViewState,
-            onCheckInButton: _checkIn,
+          DialogWidget(
+            invertColor: true,
+            message: sprintf(Strings.readyToCheckInQuestion, [_point?.name]),
+            leftButtonType: ButtonType.CLOSE,
+            onLeftButtonPress: () => _closeDialog(),
+            rightButtonType: ButtonType.CHECK_IN,
+            onRightLeftButtonPress: () => _checkIn(),
           ),
         if (_viewType == CheckInViewType.CHECKING_IN)
           ProgressDialogWidget(
@@ -344,14 +350,14 @@ class _MapWidgetState extends State<MapWidget> {
                 Strings.checkedIntoPointDynamic, [_point?.name]
             ),
             leftButtonType: ButtonType.CLOSE,
-            onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
+            onLeftButtonPress: () =>_closeDialog(),
           ),
         if (_viewType == CheckInViewType.TOO_FAR)
           DialogWidget(
             icon: Icons.error_outline,
             message: sprintf(Strings.tooFarAwayError, [MAX_DISTANCE.toStringAsFixed(1), _point?.name]),
             leftButtonType: ButtonType.CLOSE,
-            onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
+            onLeftButtonPress: () => _closeDialog(),
             rightButtonType: ButtonType.TRY_AGAIN,
             onRightLeftButtonPress: () => _checkIn(),
           ), 
@@ -360,7 +366,7 @@ class _MapWidgetState extends State<MapWidget> {
             icon: Icons.error_outline,
             message: Strings.errorGeneric,
             leftButtonType: ButtonType.CLOSE,
-            onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
+            onLeftButtonPress: () => _closeDialog(),
             rightButtonType: ButtonType.TRY_AGAIN,
             onRightLeftButtonPress: () => _checkIn(),
           ),
@@ -369,7 +375,7 @@ class _MapWidgetState extends State<MapWidget> {
             icon: Icons.error_outline,
             message: Strings.needLocationPermission,
             leftButtonType: ButtonType.CLOSE,
-            onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
+            onLeftButtonPress: () => _closeDialog(),
             rightButtonType: ButtonType.PERMISSION,
             onRightLeftButtonPress: () =>  _viewModel
                 .promptForLocationPermissions(),

@@ -20,8 +20,6 @@ import 'package:jacobspears/ui/reports/report_viewmodel.dart';
 import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';
 
-import 'error_report_dialog.dart';
-
 class ReportsScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -141,22 +139,26 @@ class _ReportsScreen extends State<ReportsScreen> {
                                       child: submitButton,
                                     ),
                                     if (_viewType == ReportViewType.REPORTING)
-                                      ProgressDialogWidget(message: Strings.submittingReport),
+                                      ProgressDialogWidget(
+                                          message: Strings.submittingReport),
                                     if (_viewType == ReportViewType.REPORTED)
                                       DialogWidget(
                                         icon: Icons.check,
                                         message: Strings.successfullySubmitted,
                                         leftButtonType: ButtonType.CLOSE,
-                                        onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
+                                        onLeftButtonPress: () =>
+                                            _setViewState(ReportViewType.BODY),
                                       ),
                                     if (_viewType == ReportViewType.ERROR)
                                       DialogWidget(
                                         icon: Icons.error_outline,
                                         message: Strings.errorGeneric,
                                         leftButtonType: ButtonType.CLOSE,
-                                        onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
+                                        onLeftButtonPress: () =>
+                                            _setViewState(ReportViewType.BODY),
                                         rightButtonType: ButtonType.TRY_AGAIN,
-                                        onRightLeftButtonPress: () => onSubmitPressed(),
+                                        onRightLeftButtonPress: () =>
+                                            onSubmitPressed(),
                                       ),
                                     if (_viewType ==
                                         ReportViewType.NEED_LOCATION)
@@ -164,9 +166,10 @@ class _ReportsScreen extends State<ReportsScreen> {
                                         icon: Icons.error_outline,
                                         message: Strings.needLocationPermission,
                                         leftButtonType: ButtonType.CLOSE,
-                                        onLeftButtonPress: () => _setViewState(ReportViewType.BODY),
+                                        onLeftButtonPress: () =>
+                                            _setViewState(ReportViewType.BODY),
                                         rightButtonType: ButtonType.PERMISSION,
-                                        onRightLeftButtonPress: () =>  _viewModel
+                                        onRightLeftButtonPress: () => _viewModel
                                             .promptForLocationPermissions(),
                                       ),
                                   ],
@@ -260,17 +263,18 @@ class _ReportsScreen extends State<ReportsScreen> {
 
     Widget addPhotoContainer = Container(
         child: Stack(
-      children: <Widget>[
-        Image.asset(
-          'images/licking_river_image.jpg',
-          width: 600,
-          height: 240,
-          fit: BoxFit.cover,
-        ),
-        if (_imagesAllowed)
-          Positioned(left: 0.0, right: 0.0, bottom: 0.0, child: addPhotoButton)
-      ],
-    ));
+          children: <Widget>[
+            Image.asset(
+              'images/licking_river_image.jpg',
+              width: 600,
+              height: 240,
+              fit: BoxFit.cover,
+            ),
+            if (_imagesAllowed)
+              Positioned(left: 0.0, right: 0.0, bottom: 0.0, child: addPhotoButton)
+          ],
+        )
+    );
 
     return ListView(children: <Widget>[
       addPhotoContainer,

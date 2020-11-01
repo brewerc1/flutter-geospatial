@@ -19,6 +19,7 @@ class Strings {
   static String get mapTitle => "Map";
   static String get loading => "Loading...";
   static String get distanceInMiles => "{{distance}} mi";
+  static String get readyToCheckInQuestion => "Are you ready to check into {{name}}?";
   // settings
   static String get total => "Total";
   static String get checkIns => "Check ins";

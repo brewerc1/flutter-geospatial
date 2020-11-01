@@ -1,5 +1,6 @@
 enum ButtonType {
   CLOSE,
   TRY_AGAIN,
-  PERMISSION
+  PERMISSION,
+  CHECK_IN
 }
