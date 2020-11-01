@@ -9,7 +9,6 @@ import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/settings.dart';
-import 'package:jacobspears/ui/components/dialog_component_types.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';

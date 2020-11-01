@@ -6,7 +6,6 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
-import 'package:jacobspears/ui/components/dialog_component_types.dart';
 import 'package:jacobspears/ui/map/points_viewmodel.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/utils/distance_util.dart';

@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:jacobspears/ui/components/dialog_component_types.dart';
 import 'package:jacobspears/values/strings.dart';
+
+enum ButtonType { CLOSE, TRY_AGAIN, PERMISSION, CHECK_IN }
+
+enum DialogType { PROGRESS, ICON }
 
 class DialogWidget extends StatelessWidget {
   final DialogType dialogType; // default ICON
@@ -159,6 +162,8 @@ class DialogWidget extends StatelessWidget {
         return Strings.buttonTryAgain;
       case ButtonType.PERMISSION:
         return Strings.buttonTurnOn;
+      case ButtonType.CHECK_IN:
+        return Strings.checkIn;
       default:
         return null;
     }
@@ -171,6 +176,8 @@ class DialogWidget extends StatelessWidget {
       case ButtonType.TRY_AGAIN:
         return Icons.refresh;
       case ButtonType.PERMISSION:
+        return Icons.check;
+      case ButtonType.CHECK_IN:
         return Icons.check;
       default:
         return null;

@@ -9,7 +9,6 @@ import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/alerts/single_alert_view.dart';
-import 'package:jacobspears/ui/components/dialog_component_types.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
 import 'package:jacobspears/utils/date_utils.dart';
