@@ -10,7 +10,6 @@ import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/alerts/single_alert_view.dart';
 import 'package:jacobspears/ui/components/button_types.dart';
-import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
@@ -19,7 +18,7 @@ import 'package:jacobspears/utils/distance_util.dart';
 import 'package:jacobspears/utils/sprintf.dart';
 import 'package:jacobspears/values/strings.dart';
 
-import 'PointsListViewModel.dart';
+import 'points_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class MapWidget extends StatefulWidget {

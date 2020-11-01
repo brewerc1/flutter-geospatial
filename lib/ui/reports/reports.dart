@@ -15,7 +15,6 @@ import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
 import 'package:jacobspears/ui/reports/CameraScreen.dart';
-import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
 import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';

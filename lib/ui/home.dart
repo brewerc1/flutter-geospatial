@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jacobspears/ui/alerts/alerts_screen.dart';
-import 'package:jacobspears/ui/map/point_list_screen.dart';
+import 'package:jacobspears/ui/map/points_list_screen.dart';
 
 import 'account/settings_screen.dart';
 import 'reports/reports.dart';
