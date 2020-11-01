@@ -83,6 +83,9 @@ class _ReportsScreen extends State<ReportsScreen> {
   void dispose() {
     descriptionController.dispose();
     super.dispose();
+    _viewModel?.dispose();
+    _reportSubscription.cancel();
+    _permissionSubscription.cancel();
   }
 
   @override

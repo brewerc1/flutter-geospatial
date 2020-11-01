@@ -45,7 +45,7 @@ class _MapWidgetState extends State<MapWidget> {
   Point _point;
   Alert _alert;
   GoogleMapController mapController;
-  StreamSubscription _checkinSubscription;
+  StreamSubscription _checkInSubscription;
   StreamSubscription _pointSubscription;
   StreamSubscription _alertsSubscription;
   StreamSubscription _alertSubscription; 
@@ -153,7 +153,7 @@ class _MapWidgetState extends State<MapWidget> {
     super.didChangeDependencies();
     _viewModel = Provider.of(context, listen: false);
     _onAddMarkerButtonPressed(_items);
-    _checkinSubscription =
+    _checkInSubscription =
         _viewModel.checkInEvent.listen((event) => _setViewState(event));
     _pointSubscription =
         _viewModel.selectedPoint.listen((event) => _setPoint(event));
@@ -165,7 +165,15 @@ class _MapWidgetState extends State<MapWidget> {
     _alertSubscription = _viewModel.selectAlert.listen((event) => _setAlert(event)); 
   }
 
-  // todo dispose
+  @override
+  void dispose() {
+    super.dispose();
+    // TODO viewmodel?
+    _checkInSubscription.cancel();
+    _pointSubscription.cancel(); 
+    _alertsSubscription.cancel(); 
+    _alertSubscription.cancel(); 
+  }
 
   @override
   Widget build(BuildContext context) {

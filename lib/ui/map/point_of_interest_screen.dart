@@ -38,7 +38,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   _PointOfInterestScreenState(this._viewModel, this._checkedIn);
 
   Point point;
-  StreamSubscription _checkinSubscription;
+  StreamSubscription _checkInSubscription;
   GoogleMapController mapController;
   CheckInViewType _viewType = CheckInViewType.BODY;
 
@@ -63,8 +63,15 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _checkinSubscription =
+    _checkInSubscription =
         _viewModel.checkInEvent?.listen((event) => _setViewState(event));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _viewModel?.dispose();
+    _checkInSubscription.cancel();
   }
 
   @override

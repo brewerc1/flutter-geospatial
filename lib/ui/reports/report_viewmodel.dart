@@ -35,6 +35,10 @@ class ReportViewModel {
     _reportInteractor.init();
   }
 
+  void dispose() {
+    reportViewTypeEvent?.close();
+  }
+
   Stream<AppPermission> getLocationPermission() {
     return _appInteractor.appPermissions.map((event) => event[RequiredPermission.location]);
   }
