@@ -18,6 +18,8 @@ import 'package:jacobspears/ui/map/PointsListViewModel.dart';
 import 'package:jacobspears/ui/map/map_widget.dart';
 import 'package:jacobspears/ui/map/point_of_interest_screen.dart';
 import 'package:jacobspears/utils/distance_util.dart';
+import 'package:jacobspears/utils/sprintf.dart';
+import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';
 
 class PointListScreen extends StatefulWidget {
@@ -99,10 +101,10 @@ class PointListScreenState extends State<PointListScreen>
                       indicatorColor: Colors.white,
                       tabs: [
                         Tab(
-                          text: "LIST",
+                          text: Strings.listTitle.toUpperCase(),
                         ),
                         Tab(
-                          text: "MAP",
+                          text: Strings.mapTitle.toUpperCase(),
                         )
                       ])),
               body: TabBarView(controller: _controller, children: [
@@ -130,7 +132,7 @@ class PointListScreenState extends State<PointListScreen>
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return LoadingScreen(
-                          message: "Loading...",
+                          message: Strings.loading,
                         );
                         break;
                       case Status.COMPLETED:
@@ -145,7 +147,7 @@ class PointListScreenState extends State<PointListScreen>
                           );
                         } else {
                           return ErrorScreen(
-                            message: "Oops, something went wrong",
+                            message: Strings.errorGeneric,
                           );
                         }
                         break;
@@ -157,7 +159,7 @@ class PointListScreenState extends State<PointListScreen>
                     }
                 } else {
                   return ErrorScreen(
-                    message: "Oops, something went wrong",
+                    message: Strings.errorGeneric,
                   );
                 }
               },
@@ -186,7 +188,7 @@ class PointListScreenState extends State<PointListScreen>
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return LoadingScreen(
-                          message: "Loading...",
+                          message: Strings.loading,
                         );
                         break;
                       case Status.COMPLETED:
@@ -202,7 +204,7 @@ class PointListScreenState extends State<PointListScreen>
                               });
                         } else {
                           return ErrorScreen(
-                            message: "Oops, something went wrong",
+                            message: Strings.errorGeneric,
                           );
                         }
                         break;
@@ -214,7 +216,7 @@ class PointListScreenState extends State<PointListScreen>
                     }
                 } else {
                   return ErrorScreen(
-                    message: "Oops, something went wrong",
+                    message: Strings.errorGeneric,
                   );
                 }
               },
@@ -321,7 +323,8 @@ class PointListScreenState extends State<PointListScreen>
                                   : Icons.location_on),
                               Text(
                                 (_position != null)
-                                    ? "${calculateDistanceInMiles(LatLng(_position.latitude, _position.longitude), point.geometry.getLatLng()).toStringAsFixed(1)} mi"
+                                    ? sprintf(Strings.distanceInMiles,
+                                      [calculateDistanceInMiles(LatLng(_position.latitude, _position.longitude), point.geometry.getLatLng()).toStringAsFixed(1)])
                                     : point.geometry.printCoordinates(),
                                 style: const TextStyle(
                                   fontSize: 12.0,
@@ -337,7 +340,7 @@ class PointListScreenState extends State<PointListScreen>
                                 color: Colors.green,
                               ),
                               Text(
-                                "Checked In",
+                                Strings.checkedIn,
                                 style: TextStyle(
                                   color: Colors.green,
                                 ),

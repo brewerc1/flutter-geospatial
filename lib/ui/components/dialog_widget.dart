@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jacobspears/ui/components/button_types.dart';
+import 'package:jacobspears/values/strings.dart';
 
 class DialogWidget extends StatelessWidget {
   final IconData icon;
@@ -134,9 +135,9 @@ class DialogWidget extends StatelessWidget {
   
   String _buttonMessage(ButtonType buttonType) {
     switch (buttonType) {
-      case ButtonType.CLOSE: return "Close";
-      case ButtonType.TRY_AGAIN: return "Try again";
-      case ButtonType.PERMISSION: return "Turn on";
+      case ButtonType.CLOSE: return Strings.buttonClose;
+      case ButtonType.TRY_AGAIN: return Strings.buttonTryAgain;
+      case ButtonType.PERMISSION: return Strings.buttonTurnOn;
       default: return null;
     }
   }

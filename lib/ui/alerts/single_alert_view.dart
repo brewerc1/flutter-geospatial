@@ -5,6 +5,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:icons_helper/icons_helper.dart';
 import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/utils/date_utils.dart';
+import 'package:jacobspears/utils/sprintf.dart';
+import 'package:jacobspears/values/strings.dart';
 
 class SingleAlertView extends StatefulWidget {
   final Alert alert;
@@ -62,8 +64,7 @@ class _SingleAlertViewState extends State<SingleAlertView> {
                   Container(
                       margin: const EdgeInsets.only(left: 5),
                       child: Text(
-                        "REPORTED " +
-                            dateStringFromEpochMillis(_alert.timeStamp),
+                        sprintf(Strings.reportedOn, [dateStringFromEpochMillis(_alert.timeStamp)]),
                         style: TextStyle(
                           color: Colors.black54,
                         ),
@@ -162,7 +163,7 @@ class _SingleAlertViewState extends State<SingleAlertView> {
         Container(
           margin: const EdgeInsets.only(top: 8, bottom: 8),
           child: Text(
-            "STATUS:",
+            Strings.statusLabel.toUpperCase(),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
@@ -174,7 +175,7 @@ class _SingleAlertViewState extends State<SingleAlertView> {
         Container(
           margin: const EdgeInsets.only(top: 8),
           child: Text(
-            isActive ? "ACTIVE" : "INACTIVE",
+            (isActive ? Strings.active : Strings.inactive).toUpperCase(),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,

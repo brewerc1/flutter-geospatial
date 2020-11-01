@@ -17,6 +17,8 @@ import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
 import 'package:jacobspears/utils/date_utils.dart';
 import 'package:jacobspears/utils/distance_util.dart';
+import 'package:jacobspears/utils/sprintf.dart';
+import 'package:jacobspears/values/strings.dart';
 
 import 'PointsListViewModel.dart';
 import 'package:provider/provider.dart';
@@ -182,11 +184,11 @@ class _MapWidgetState extends State<MapWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       Icon(
-                        _alert?.iconName != null && _alert?.iconName?.isNotEmpty ? getIconUsingPrefix(name: _alert?.iconName) : Icons.warning,
+                        _alert?.iconName != null && _alert?.iconName?.isNotEmpty == true ? getIconUsingPrefix(name: _alert?.iconName) : Icons.warning,
                         color: _alert?.isActive == true ? Colors.red : Colors.grey,
                       ),
                       if (_alert != null) Text(
-                        "REPORTED " + dateStringFromEpochMillis(_alert.timeStamp),
+                        sprintf(Strings.reportedOn, [dateStringFromEpochMillis(_alert.timeStamp)]),
                         maxLines: 2,
                         style: const TextStyle(
                           color: Colors.black54,
@@ -235,7 +237,7 @@ class _MapWidgetState extends State<MapWidget> {
                         color: Colors.green,
                       ),
                       Text(
-                        "CHECKED IN",
+                        Strings.checkedIn.toUpperCase(),
                         style: const TextStyle(
                           color: Colors.green,
                         ),
@@ -254,7 +256,7 @@ class _MapWidgetState extends State<MapWidget> {
                         color: Colors.blue,
                       ),
                       Text(
-                        "CHECK IN",
+                        Strings.checkIn.toUpperCase(),
                         style: const TextStyle(
                           color: Colors.black54,
                         ),
@@ -273,7 +275,7 @@ class _MapWidgetState extends State<MapWidget> {
                         color: Colors.blue,
                       ),
                       Text(
-                        "INFO",
+                        Strings.info.toUpperCase(),
                         style: const TextStyle(
                           color: Colors.black54,
                         ),
@@ -331,18 +333,23 @@ class _MapWidgetState extends State<MapWidget> {
             onCheckInButton: _checkIn,
           ),
         if (_viewType == CheckInViewType.CHECKING_IN)
-          ProgressDialogWidget(message: "Checking into ${_point?.name}"),
+          ProgressDialogWidget(
+              message: sprintf(
+                  Strings.checkingIntoPointDynamic, [_point?.name]
+              )),
         if (_viewType == CheckInViewType.CHECKED_IN)
           DialogWidget(
             icon: Icons.check,
-            message: "Checked into ${_point?.name}",
+            message: sprintf(
+                Strings.checkedIntoPointDynamic, [_point?.name]
+            ),
             leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
           ),
         if (_viewType == CheckInViewType.TOO_FAR)
           DialogWidget(
             icon: Icons.error_outline,
-            message: "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${_point?.name}!",
+            message: sprintf(Strings.tooFarAwayError, [MAX_DISTANCE.toStringAsFixed(1), _point?.name]),
             leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
             rightButtonType: ButtonType.TRY_AGAIN,
@@ -351,7 +358,7 @@ class _MapWidgetState extends State<MapWidget> {
         if (_viewType == CheckInViewType.ERROR)
           DialogWidget(
             icon: Icons.error_outline,
-            message: "Oops, something went wrong!",
+            message: Strings.errorGeneric,
             leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
             rightButtonType: ButtonType.TRY_AGAIN,
@@ -360,7 +367,7 @@ class _MapWidgetState extends State<MapWidget> {
         if (_viewType == CheckInViewType.NEED_LOCATION)
           DialogWidget(
             icon: Icons.error_outline,
-            message: "Permission to access your location data is needed to check in.",
+            message: Strings.needLocationPermission,
             leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _setViewState(CheckInViewType.BODY),
             rightButtonType: ButtonType.PERMISSION,
