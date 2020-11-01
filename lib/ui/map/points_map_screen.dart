@@ -338,6 +338,7 @@ class _MapScreenState extends State<MapScreen> {
           DialogWidget(
             invertColor: true,
             message: sprintf(Strings.readyToCheckInQuestion, [_point?.name]),
+            icon: Icons.not_listed_location,
             leftButtonType: ButtonType.CLOSE,
             onLeftButtonPress: () => _closeDialog(),
             rightButtonType: ButtonType.CHECK_IN,

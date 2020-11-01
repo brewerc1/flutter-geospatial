@@ -248,6 +248,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
               DialogWidget(
                 invertColor: true,
                 message: sprintf(Strings.readyToCheckInQuestion, [point?.name]),
+                icon: Icons.not_listed_location,
                 leftButtonType: ButtonType.CLOSE,
                 onLeftButtonPress: () => _closeDialog(),
                 rightButtonType: ButtonType.CHECK_IN,
