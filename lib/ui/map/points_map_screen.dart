@@ -9,9 +9,8 @@ import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/alerts/single_alert_view.dart';
-import 'package:jacobspears/ui/components/button_types.dart';
+import 'package:jacobspears/ui/components/dialog_component_types.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
-import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
 import 'package:jacobspears/utils/Callback.dart';
 import 'package:jacobspears/utils/date_utils.dart';
 import 'package:jacobspears/utils/distance_util.dart';
@@ -21,26 +20,26 @@ import 'package:jacobspears/values/strings.dart';
 import 'points_viewmodel.dart';
 import 'package:provider/provider.dart';
 
-class MapWidget extends StatefulWidget {
+class MapScreen extends StatefulWidget {
   final List<Point> items;
   final PointCallback onNavigateCallback;
 
-  MapWidget(
+  MapScreen(
       {Key key,
       @required this.items,
       @required this.onNavigateCallback})
       : super(key: key);
 
   @override
-  _MapWidgetState createState() =>
-      _MapWidgetState(items, onNavigateCallback);
+  _MapScreenState createState() =>
+      _MapScreenState(items, onNavigateCallback);
 }
 
-class _MapWidgetState extends State<MapWidget> {
+class _MapScreenState extends State<MapScreen> {
   final List<Point> _items;
   final PointCallback _onNavigateCallback;
 
-  _MapWidgetState(this._items, this._onNavigateCallback);
+  _MapScreenState(this._items, this._onNavigateCallback);
 
   Point _point;
   Alert _alert;
@@ -346,7 +345,8 @@ class _MapWidgetState extends State<MapWidget> {
             onRightLeftButtonPress: () => _checkIn(),
           ),
         if (_viewType == CheckInViewType.CHECKING_IN)
-          ProgressDialogWidget(
+          DialogWidget(
+              dialogType: DialogType.PROGRESS,
               message: sprintf(
                   Strings.checkingIntoPointDynamic, [_point?.name]
               )),

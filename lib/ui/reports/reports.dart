@@ -9,11 +9,10 @@ import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/settings.dart';
-import 'package:jacobspears/ui/components/button_types.dart';
+import 'package:jacobspears/ui/components/dialog_component_types.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
-import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
 import 'package:jacobspears/ui/reports/CameraScreen.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
 import 'package:jacobspears/values/strings.dart';
@@ -141,7 +140,8 @@ class _ReportsScreen extends State<ReportsScreen> {
                                       child: submitButton,
                                     ),
                                     if (_viewType == ReportViewType.REPORTING)
-                                      ProgressDialogWidget(
+                                      DialogWidget(
+                                          dialogType: DialogType.PROGRESS,
                                           message: Strings.submittingReport),
                                     if (_viewType == ReportViewType.REPORTED)
                                       DialogWidget(

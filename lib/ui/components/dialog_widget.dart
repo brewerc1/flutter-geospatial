@@ -1,13 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:jacobspears/ui/components/button_types.dart';
+import 'package:jacobspears/ui/components/dialog_component_types.dart';
 import 'package:jacobspears/values/strings.dart';
 
 class DialogWidget extends StatelessWidget {
-  final bool invertColor;
+  final DialogType dialogType; // default ICON
+  final bool invertColor; // default false
   final IconData icon;
   final String message;
-  final ButtonType leftButtonType; 
+  final ButtonType leftButtonType;
   final String leftButtonName;
   final IconData leftIconData;
   final VoidCallback onLeftButtonPress;
@@ -16,16 +17,17 @@ class DialogWidget extends StatelessWidget {
   final IconData rightIconData;
   final VoidCallback onRightLeftButtonPress;
 
-  const DialogWidget({
-      Key key,
+  const DialogWidget(
+      {Key key,
+      this.dialogType,
       this.invertColor,
       this.icon,
       this.message,
-      this.leftButtonType, 
+      this.leftButtonType,
       this.leftButtonName,
       this.leftIconData,
       this.onLeftButtonPress,
-      this.rightButtonType, 
+      this.rightButtonType,
       this.rightButtonName,
       this.rightIconData,
       this.onRightLeftButtonPress})
@@ -50,15 +52,23 @@ class DialogWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             new Center(
-              child: new SizedBox(
-                height: 50.0,
-                width: 50.0,
-                child: Icon(
-                  icon,
-                  color: (invertColor == true) ? Colors.blue : Colors.white,
-                  size: 50.0,
-                ),
-              ),
+              child: (dialogType == DialogType.PROGRESS)
+                  ? CircularProgressIndicator(
+                      value: null,
+                      strokeWidth: 7.0,
+                      backgroundColor:
+                          (invertColor == true) ? Colors.blue : Colors.white,
+                    )
+                  : new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: Icon(
+                        icon,
+                        color:
+                            (invertColor == true) ? Colors.blue : Colors.white,
+                        size: 50.0,
+                      ),
+                    ),
             ),
             new Container(
               margin: const EdgeInsets.fromLTRB(10, 25.0, 10, 10),
@@ -66,7 +76,7 @@ class DialogWidget extends StatelessWidget {
                 child: new Text(
                   message,
                   style: new TextStyle(
-                      color: (invertColor == true) ? Colors.blue : Colors.white,
+                    color: (invertColor == true) ? Colors.blue : Colors.white,
                   ),
                 ),
               ),
@@ -79,9 +89,11 @@ class DialogWidget extends StatelessWidget {
                   if (leftButtonType != null)
                     _buildButtonFromType(leftButtonType, onLeftButtonPress)
                   else if (leftButtonName != null)
-                    _buildButtonCustom(leftButtonName, leftIconData, onLeftButtonPress),
+                    _buildButtonCustom(
+                        leftButtonName, leftIconData, onLeftButtonPress),
                   if (rightButtonType != null)
-                    _buildButtonFromType(rightButtonType, onRightLeftButtonPress)
+                    _buildButtonFromType(
+                        rightButtonType, onRightLeftButtonPress)
                   else if (rightButtonName != null)
                     _buildButtonCustom(
                         rightButtonName, rightIconData, onRightLeftButtonPress)
@@ -94,7 +106,8 @@ class DialogWidget extends StatelessWidget {
     );
   }
 
-  InkWell _buildButtonCustom(String message, IconData iconData, VoidCallback action) {
+  InkWell _buildButtonCustom(
+      String message, IconData iconData, VoidCallback action) {
     return InkWell(
       onTap: action,
       child: Row(
@@ -137,23 +150,30 @@ class DialogWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   String _buttonMessage(ButtonType buttonType) {
     switch (buttonType) {
-      case ButtonType.CLOSE: return Strings.buttonClose;
-      case ButtonType.TRY_AGAIN: return Strings.buttonTryAgain;
-      case ButtonType.PERMISSION: return Strings.buttonTurnOn;
-      default: return null;
+      case ButtonType.CLOSE:
+        return Strings.buttonClose;
+      case ButtonType.TRY_AGAIN:
+        return Strings.buttonTryAgain;
+      case ButtonType.PERMISSION:
+        return Strings.buttonTurnOn;
+      default:
+        return null;
     }
   }
 
   IconData _buttonIcon(ButtonType buttonType) {
     switch (buttonType) {
-      case ButtonType.CLOSE: return Icons.close;
-      case ButtonType.TRY_AGAIN: return Icons.refresh;
-      case ButtonType.PERMISSION: return Icons.check;
-      default: return null;
+      case ButtonType.CLOSE:
+        return Icons.close;
+      case ButtonType.TRY_AGAIN:
+        return Icons.refresh;
+      case ButtonType.PERMISSION:
+        return Icons.check;
+      default:
+        return null;
     }
   }
-  
 }

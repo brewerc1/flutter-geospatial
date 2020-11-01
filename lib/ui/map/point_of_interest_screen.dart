@@ -6,10 +6,9 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
-import 'package:jacobspears/ui/components/button_types.dart';
+import 'package:jacobspears/ui/components/dialog_component_types.dart';
 import 'package:jacobspears/ui/map/points_viewmodel.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
-import 'package:jacobspears/ui/components/progress_dialog_widget.dart';
 import 'package:jacobspears/utils/distance_util.dart';
 import 'package:jacobspears/utils/sprintf.dart';
 import 'package:jacobspears/values/strings.dart';
@@ -256,8 +255,9 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                 onRightLeftButtonPress: () => _checkIn(),
               ),
             if (_viewType == CheckInViewType.CHECKING_IN)
-              ProgressDialogWidget(message:
-                  sprintf(Strings.checkingIntoPointDynamic, [point?.name])
+              DialogWidget(
+                  dialogType: DialogType.PROGRESS,
+                  message: sprintf(Strings.checkingIntoPointDynamic, [point?.name])
               ),
             if (_viewType == CheckInViewType.CHECKED_IN)
               DialogWidget(

@@ -141,7 +141,7 @@ class PointListScreenState extends State<PointListScreen>
                               .map((e) => e.points)
                               .expand((element) => element)
                               .toList();
-                          return MapWidget(
+                          return MapScreen(
                             items: points,
                             onNavigateCallback: _navigateToSingle,
                           );

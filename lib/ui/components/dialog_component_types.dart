@@ -4,3 +4,8 @@ enum ButtonType {
   PERMISSION,
   CHECK_IN
 }
+
+enum DialogType {
+  PROGRESS, 
+  ICON 
+}
