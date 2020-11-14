@@ -4,12 +4,12 @@ import 'package:jacobspears/app/interactors/app_interactor.dart';
 import 'package:jacobspears/app/interactors/report_interactor.dart';
 import 'package:jacobspears/app/model/app_permission.dart';
 import 'package:jacobspears/app/model/incident.dart';
-import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/settings.dart';
-import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
+
+enum ReportViewType { BODY, DIALOG, REPORTING, REPORTED, ERROR, NEED_LOCATION, INVALID_FORM }
 
 class ReportViewModel {
 
@@ -33,6 +33,10 @@ class ReportViewModel {
 
   init() {
     _reportInteractor.init();
+  }
+
+  void dispose() {
+    reportViewTypeEvent?.close();
   }
 
   Stream<AppPermission> getLocationPermission() {

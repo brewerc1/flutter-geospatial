@@ -8,6 +8,7 @@ import 'package:jacobspears/ui/alerts/single_alert_view.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/utils/date_utils.dart';
+import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';
 
 class AlertsScreen extends StatefulWidget {
@@ -55,7 +56,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return LoadingScreen(
-                          message: "Loading...",
+                          message: Strings.loading,
                         );
                         break;
                       case Status.COMPLETED:
@@ -70,7 +71,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                               });
                         } else {
                           return ErrorScreen(
-                            message: "Oops, something went wrong",
+                            message: Strings.errorGeneric,
                           );
                         }
                         break;
@@ -82,7 +83,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     }
                   } else {
                     return ErrorScreen(
-                      message: "Oops, something went wrong",
+                      message: Strings.errorGeneric,
                     );
                   }
                 },

@@ -14,13 +14,14 @@ import 'package:jacobspears/app/model/check_in_result.dart';
 import 'package:jacobspears/app/model/cluster.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
-import 'package:jacobspears/ui/map/check_in_view_type.dart';
 import 'package:jacobspears/utils/distance_util.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/subjects.dart';
 
 enum CurrentTab { MAP, LIST }
+
+enum CheckInViewType { BODY, DIALOG, CHECKING_IN, CHECKED_IN, TOO_FAR, ERROR, NEED_LOCATION }
 
 class PointListViewModel {
   static PointListViewModel of(BuildContext context) {

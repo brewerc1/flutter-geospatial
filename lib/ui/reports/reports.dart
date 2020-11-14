@@ -9,18 +9,13 @@ import 'package:jacobspears/app/model/incident.dart';
 import 'package:jacobspears/app/model/incident_type.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/app/model/settings.dart';
+import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/ui/reports/camera_screen.dart';
-import 'package:jacobspears/ui/reports/invalid_form_dialog.dart';
-import 'package:jacobspears/ui/reports/need_permission_dialog.dart';
-import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
-import 'package:jacobspears/ui/reports/reported_dialog.dart';
-import 'package:jacobspears/ui/reports/reporting_dialog.dart';
+import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';
-
-import 'error_report_dialog.dart';
 
 class ReportsScreen extends StatefulWidget {
   @override
@@ -86,6 +81,9 @@ class _ReportsScreen extends State<ReportsScreen> {
   void dispose() {
     descriptionController.dispose();
     super.dispose();
+    _viewModel?.dispose();
+    _reportSubscription.cancel();
+    _permissionSubscription.cancel();
   }
 
   @override
@@ -109,7 +107,7 @@ class _ReportsScreen extends State<ReportsScreen> {
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return LoadingScreen(
-                          message: "Loading...",
+                          message: Strings.loading,
                         );
                         break;
                       case Status.COMPLETED:
@@ -119,34 +117,56 @@ class _ReportsScreen extends State<ReportsScreen> {
                         // _imagesAllowed = snapshot.data.data.allowPhotos; TODO add photo support
                         dropdownValue = incidentTypes.first.title;
                         return showCamera
-                            ? CameraExampleHome()
+                            ? CameraScreen()
                             : Container(
                                 child: Stack(
                                   children: <Widget>[
                                     buildBody(),
                                     if (_viewType == ReportViewType.REPORTING)
-                                      ReportingDialog(),
+                                      DialogWidget(
+                                          dialogType: DialogType.PROGRESS,
+                                          message: Strings.submittingReport),
                                     if (_viewType == ReportViewType.REPORTED)
-                                      ReportedWidget(
-                                        onButtonPress: _setViewState,
+                                      DialogWidget(
+                                        icon: Icons.check,
+                                        message: Strings.successfullySubmitted,
+                                        leftButtonType: ButtonType.CLOSE,
+                                        onLeftButtonPress: () =>
+                                            _setViewState(ReportViewType.BODY),
                                       ),
                                     if (_viewType == ReportViewType.ERROR)
-                                      ReportErrorWidget(
-                                        message: "Oops, something went wrong!",
-                                        onCloseButtonPress: _setViewState,
-                                        onTryAgainButtonPress: onSubmitPressed,
+                                      DialogWidget(
+                                        icon: Icons.error_outline,
+                                        message: Strings.errorGeneric,
+                                        leftButtonType: ButtonType.CLOSE,
+                                        onLeftButtonPress: () =>
+                                            _setViewState(ReportViewType.BODY),
+                                        rightButtonType: ButtonType.TRY_AGAIN,
+                                        onRightLeftButtonPress: () =>
+                                            onSubmitPressed(),
                                       ),
                                     if (_viewType ==
                                         ReportViewType.NEED_LOCATION)
-                                      ReportNeedLocationWidget(
-                                        onCloseButtonPress: _setViewState,
-                                        onTryAgainButtonPress: _viewModel
-                                            .promptForLocationPermissions,
+                                      DialogWidget(
+                                        icon: Icons.error_outline,
+                                        message: Strings.needLocationPermission,
+                                        leftButtonType: ButtonType.CLOSE,
+                                        onLeftButtonPress: () =>
+                                            _setViewState(ReportViewType.BODY),
+                                        rightButtonType: ButtonType.PERMISSION,
+                                        onRightLeftButtonPress: () => _viewModel
+                                            .promptForLocationPermissions(),
                                       ),
-                                    if (_viewType == ReportViewType.INVALID_FORM)
-                                      InvalidFormWidget(
-                                        onButtonPress: _setViewState,
-                                      ),
+                                    if (_viewType ==
+                                        ReportViewType.INVALID_FORM)
+                                      DialogWidget(
+                                        icon: Icons.error_outline,
+                                        message:
+                                            Strings.detailsAreMissingTryAgain,
+                                        leftButtonType: ButtonType.CLOSE,
+                                        onLeftButtonPress: () =>
+                                            _setViewState(ReportViewType.BODY),
+                                      )
                                   ],
                                 ),
                               );
@@ -159,7 +179,7 @@ class _ReportsScreen extends State<ReportsScreen> {
                     }
                   } else {
                     return ErrorScreen(
-                      message: "Oops, something went wrong",
+                      message: Strings.errorGeneric,
                     );
                   }
                 },
@@ -175,7 +195,7 @@ class _ReportsScreen extends State<ReportsScreen> {
     Widget textSection = Container(
       padding: const EdgeInsets.fromLTRB(32, 32, 32, 6),
       child: Text(
-        'Select type of incident to report',
+        Strings.selectTypeIncident,
         softWrap: true,
       ),
     );
@@ -208,7 +228,7 @@ class _ReportsScreen extends State<ReportsScreen> {
     Widget descriptionText = Container(
       padding: const EdgeInsets.fromLTRB(32, 0, 32, 6),
       child: Text(
-        'Enter a description of the incident',
+        Strings.enterDescriptionIncident,
         softWrap: true,
       ),
     );
@@ -218,7 +238,7 @@ class _ReportsScreen extends State<ReportsScreen> {
       child: TextField(
           controller: descriptionController,
           decoration: InputDecoration(
-              border: InputBorder.none, hintText: 'Enter description'),
+              border: InputBorder.none, hintText: Strings.enterDescriptionHint),
           maxLines: 5,
           keyboardType: TextInputType.multiline),
     );
@@ -228,7 +248,7 @@ class _ReportsScreen extends State<ReportsScreen> {
       child: FlatButton.icon(
         color: Colors.blue,
         icon: Icon(Icons.add_a_photo),
-        label: Text('Add a Photo'),
+        label: Text(Strings.addPhoto),
         textColor: Colors.white,
         onPressed: () {
           _onCameraPressed();
@@ -238,16 +258,16 @@ class _ReportsScreen extends State<ReportsScreen> {
 
     Widget addPhotoContainer = Container(
         child: Stack(
-      children: <Widget>[
-        Image.asset(
-          'images/licking_river_image.jpg',
-          width: 600,
-          height: 240,
-          fit: BoxFit.cover,
-        ),
-        if (_imagesAllowed)
-          Positioned(left: 0.0, right: 0.0, bottom: 0.0, child: addPhotoButton)
-      ],
+          children: <Widget>[
+            Image.asset(
+              Strings.lickingRiverImagePath, 
+              width: 600, 
+              height: 240, 
+              fit: BoxFit.cover,
+            ), 
+            if (_imagesAllowed)
+              Positioned(left: 0.0, right: 0.0, bottom: 0.0, child: addPhotoButton)
+          ],
     ));
 
     Widget submitButton = Container(
@@ -256,11 +276,11 @@ class _ReportsScreen extends State<ReportsScreen> {
           color: Colors.blue,
           onPressed: onSubmitPressed,
           icon: Icon(Icons.add_alert),
-          label: Text('Submit report'),
+          label: Text(Strings.submitReport),
           textColor: Colors.white,
         ));
 
-   return ListView(children: <Widget>[
+    return ListView(children: <Widget>[
       addPhotoContainer,
       textSection,
       if (incidentTypes.isNotEmpty) dropDownSection,

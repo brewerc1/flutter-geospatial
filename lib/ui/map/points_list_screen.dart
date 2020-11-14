@@ -14,10 +14,12 @@ import 'package:jacobspears/app/model/segment.dart';
 import 'package:jacobspears/ui/components/colored_tab_bar.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
-import 'package:jacobspears/ui/map/points_list_view_model.dart';
-import 'package:jacobspears/ui/map/map_widget.dart';
+import 'package:jacobspears/ui/map/points_viewmodel.dart';
+import 'package:jacobspears/ui/map/points_map_screen.dart';
 import 'package:jacobspears/ui/map/point_of_interest_screen.dart';
 import 'package:jacobspears/utils/distance_util.dart';
+import 'package:jacobspears/utils/sprintf.dart';
+import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';
 
 class PointListScreen extends StatefulWidget {
@@ -55,74 +57,82 @@ class PointListScreenState extends State<PointListScreen>
       length: 2,
       initialIndex: 0,
     );
+    _viewModel?.dispose();
+    _viewModel = PointListViewModel.fromContext(context);
+    _viewModel.init();
+    _tabSubscription = _viewModel.tabEvent.listen(
+            (event) => _controller.animateTo(event == CurrentTab.MAP ? 1 : 0));
+    _permissionSubscription =
+        _viewModel.getLocationPermission().listen((permissionEvent) async {
+          if (permissionEvent != AppPermission.granted) {
+            _viewModel.promptForLocationPermissions();
+          } else {
+            _position = await Geolocator()
+                .getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+            developer.log("Sierra ${_position.latitude} ${_position.longitude}");
+          }
+        });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
     _viewModel?.dispose();
-    _viewModel = PointListViewModel.fromContext(context);
-    _viewModel.init();
-    _tabSubscription = _viewModel.tabEvent.listen(
-        (event) => _controller.animateTo(event == CurrentTab.MAP ? 1 : 0));
-    _permissionSubscription =
-        _viewModel.getLocationPermission().listen((permissionEvent) async {
-      if (permissionEvent != AppPermission.granted) {
-        _viewModel.promptForLocationPermissions();
-      } else {
-        _position = await Geolocator()
-            .getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
-        developer.log("Sierra ${_position.latitude} ${_position.longitude}");
-      }
-    });
+    _tabSubscription.cancel();
+    _permissionSubscription.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-        length: 2,
-        child: new Scaffold(
-          appBar: ColoredTabBar(
-              Colors.blue,
-              TabBar(
-                  controller: _controller,
-                  indicatorColor: Colors.white,
-                  tabs: [
-                    Tab(
-                      text: "LIST",
-                    ),
-                    Tab(
-                      text: "MAP",
-                    )
-                  ])),
-          body: TabBarView(controller: _controller, children: [
-            _buildList(context),
-            _buildMap(context),
-          ]),
-        ));
+    return Provider(
+        create: (_) => _viewModel,
+        child: DefaultTabController(
+            length: 2,
+            child: new Scaffold(
+              appBar: ColoredTabBar(
+                  Colors.blue,
+                  TabBar(
+                      controller: _controller,
+                      indicatorColor: Colors.white,
+                      tabs: [
+                        Tab(
+                          text: Strings.listTitle.toUpperCase(),
+                        ),
+                        Tab(
+                          text: Strings.mapTitle.toUpperCase(),
+                        )
+                      ])),
+              body: TabBarView(controller: _controller, children: [
+                _buildList(context),
+                _buildMap(context),
+              ]),
+            )));
   }
 
   Widget _buildMap(BuildContext context) {
-    return Provider(
-      create: (_) => _viewModel,
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              child: StreamBuilder<Response<Cluster>>(
-                stream: _viewModel.clusterWithCheckInsStream,
-                builder: (final BuildContext context,
-                    final AsyncSnapshot<Response<Cluster>> snapshot) {
-                  if (snapshot.hasError) {
-                    return ErrorScreen(
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            child: StreamBuilder<Response<Cluster>>(
+              stream: _viewModel.clusterWithCheckInsStream,
+              builder: (final BuildContext context,
+                  final AsyncSnapshot<Response<Cluster>> snapshot) {
+                if (snapshot.hasError) {
+                  return ErrorScreen(
                       message: snapshot.error.toString(),
                     );
                   } else if (snapshot.hasData) {
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return LoadingScreen(
-                          message: "Loading...",
+                          message: Strings.loading,
                         );
                         break;
                       case Status.COMPLETED:
@@ -131,14 +141,13 @@ class PointListScreenState extends State<PointListScreen>
                               .map((e) => e.points)
                               .expand((element) => element)
                               .toList();
-                          return MapWidget(
-                            viewModel: _viewModel,
+                          return MapScreen(
                             items: points,
                             onNavigateCallback: _navigateToSingle,
                           );
                         } else {
                           return ErrorScreen(
-                            message: "Oops, something went wrong",
+                            message: Strings.errorGeneric,
                           );
                         }
                         break;
@@ -148,41 +157,38 @@ class PointListScreenState extends State<PointListScreen>
                         );
                         break;
                     }
-                  } else {
-                    return ErrorScreen(
-                      message: "Oops, something went wrong",
-                    );
-                  }
-                },
-              ),
+                } else {
+                  return ErrorScreen(
+                    message: Strings.errorGeneric,
+                  );
+                }
+              },
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildList(BuildContext context) {
-    return Provider(
-      create: (_) => _viewModel,
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              child: StreamBuilder<Response<Cluster>>(
-                stream: _viewModel.clusterWithCheckInsStream,
-                builder: (final BuildContext context,
-                    final AsyncSnapshot<Response<Cluster>> snapshot) {
-                  if (snapshot.hasError) {
-                    return ErrorScreen(
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            child: StreamBuilder<Response<Cluster>>(
+              stream: _viewModel.clusterWithCheckInsStream,
+              builder: (final BuildContext context,
+                  final AsyncSnapshot<Response<Cluster>> snapshot) {
+                if (snapshot.hasError) {
+                  return ErrorScreen(
                       message: snapshot.error.toString(),
                     );
                   } else if (snapshot.hasData) {
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return LoadingScreen(
-                          message: "Loading...",
+                          message: Strings.loading,
                         );
                         break;
                       case Status.COMPLETED:
@@ -198,7 +204,7 @@ class PointListScreenState extends State<PointListScreen>
                               });
                         } else {
                           return ErrorScreen(
-                            message: "Oops, something went wrong",
+                            message: Strings.errorGeneric,
                           );
                         }
                         break;
@@ -208,17 +214,16 @@ class PointListScreenState extends State<PointListScreen>
                         );
                         break;
                     }
-                  } else {
-                    return ErrorScreen(
-                      message: "Oops, something went wrong",
-                    );
-                  }
-                },
-              ),
+                } else {
+                  return ErrorScreen(
+                    message: Strings.errorGeneric,
+                  );
+                }
+              },
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -318,7 +323,8 @@ class PointListScreenState extends State<PointListScreen>
                                   : Icons.location_on),
                               Text(
                                 (_position != null)
-                                    ? "${calculateDistanceInMiles(LatLng(_position.latitude, _position.longitude), point.geometry.getLatLng()).toStringAsFixed(1)} mi"
+                                    ? sprintf(Strings.distanceInMiles,
+                                      [calculateDistanceInMiles(LatLng(_position.latitude, _position.longitude), point.geometry.getLatLng()).toStringAsFixed(1)])
                                     : point.geometry.printCoordinates(),
                                 style: const TextStyle(
                                   fontSize: 12.0,
@@ -334,7 +340,7 @@ class PointListScreenState extends State<PointListScreen>
                                 color: Colors.green,
                               ),
                               Text(
-                                "Checked In",
+                                Strings.checkedIn,
                                 style: TextStyle(
                                   color: Colors.green,
                                 ),

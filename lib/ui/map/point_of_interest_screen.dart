@@ -6,18 +6,15 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
-import 'package:jacobspears/ui/map/points_list_view_model.dart';
-import 'package:jacobspears/ui/map/check_in_dialog_widget.dart';
-import 'package:jacobspears/ui/map/check_in_error_widget.dart';
-import 'package:jacobspears/ui/map/check_in_view_type.dart';
-import 'package:jacobspears/ui/map/checked_in_widget.dart';
-import 'package:jacobspears/ui/map/checking_in_widget.dart';
+import 'package:jacobspears/ui/map/points_viewmodel.dart';
+import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/utils/distance_util.dart';
+import 'package:jacobspears/utils/sprintf.dart';
+import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';
 
 import '../components/error_screen.dart';
 import '../components/loading_screen.dart';
-import 'need_location_widget.dart';
 
 class PointOfInterestScreen extends StatefulWidget {
   final PointListViewModel viewModel;
@@ -39,7 +36,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
   _PointOfInterestScreenState(this._viewModel, this._checkedIn);
 
   Point point;
-  StreamSubscription _checkinSubscription;
+  StreamSubscription _checkInSubscription;
   GoogleMapController mapController;
   CheckInViewType _viewType = CheckInViewType.BODY;
 
@@ -57,11 +54,22 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
     _viewModel.checkIn(point);
   }
 
+  void _closeDialog() {
+    _setViewState(CheckInViewType.BODY);
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _checkinSubscription =
+    _checkInSubscription =
         _viewModel.checkInEvent?.listen((event) => _setViewState(event));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _viewModel?.dispose();
+    _checkInSubscription.cancel();
   }
 
   @override
@@ -85,7 +93,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return LoadingScreen(
-                          message: "Loading...",
+                          message: Strings.loading,
                         );
                         break;
                       case Status.COMPLETED:
@@ -94,7 +102,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                           return _buildScreen(point);
                         } else {
                           return ErrorScreen(
-                            message: "Oops, something went wrong",
+                            message: Strings.errorGeneric,
                           );
                         }
                         break;
@@ -106,7 +114,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                     }
                   } else {
                     return ErrorScreen(
-                      message: "Oops, something went wrong",
+                      message: Strings.errorGeneric,
                     );
                   }
                 },
@@ -149,7 +157,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                       color: Colors.green,
                     ),
                     Text(
-                      "Checked In",
+                      Strings.checkedIn,
                       style: TextStyle(
                         color: Colors.green,
                       ),
@@ -166,7 +174,7 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
                     _setViewState(CheckInViewType.DIALOG);
                   },
                   child: _buildButtonColumn(
-                      Colors.blue, Icons.add_location, "Check in")),
+                      Colors.blue, Icons.add_location, Strings.checkIn)),
             ],
           ),
         ],
@@ -237,35 +245,54 @@ class _PointOfInterestScreenState extends State<PointOfInterestScreen> {
           children: <Widget>[
             body,
             if (_viewType == CheckInViewType.DIALOG)
-              CheckInDialogWidget(
-                name: point?.name,
-                onCloseButtonPress: _setViewState,
-                onCheckInButton: _checkIn,
+              DialogWidget(
+                invertColor: true,
+                message: sprintf(Strings.readyToCheckInQuestion, [point?.name]),
+                icon: Icons.not_listed_location,
+                leftButtonType: ButtonType.CLOSE,
+                onLeftButtonPress: () => _closeDialog(),
+                rightButtonType: ButtonType.CHECK_IN,
+                onRightLeftButtonPress: () => _checkIn(),
               ),
             if (_viewType == CheckInViewType.CHECKING_IN)
-              CheckingInWidget(name: point?.name),
+              DialogWidget(
+                  dialogType: DialogType.PROGRESS,
+                  message: sprintf(Strings.checkingIntoPointDynamic, [point?.name])
+              ),
             if (_viewType == CheckInViewType.CHECKED_IN)
-              CheckedInWidget(
-                name: point?.name,
-                onButtonPress: _setViewState,
+              DialogWidget(
+                icon: Icons.check,
+                message: sprintf(Strings.checkedIntoPointDynamic, [point?.name]),
+                leftButtonType: ButtonType.CLOSE,
+                onLeftButtonPress: () => _closeDialog(),
               ),
             if (_viewType == CheckInViewType.TOO_FAR)
-              CheckInErrorWidget(
-                message:
-                    "Oops, you need to be within ${MAX_DISTANCE.toStringAsFixed(1)} mile to check into ${point.name}!",
-                onCloseButtonPress: _setViewState,
-                onTryAgainButtonPress: _checkIn,
+              DialogWidget(
+                icon: Icons.error_outline,
+                message: sprintf(Strings.tooFarAwayError, [MAX_DISTANCE.toStringAsFixed(1), point?.name]),
+                leftButtonType: ButtonType.CLOSE,
+                onLeftButtonPress: () => _closeDialog(),
+                rightButtonType: ButtonType.TRY_AGAIN,
+                onRightLeftButtonPress: () => _checkIn(),
               ),
             if (_viewType == CheckInViewType.ERROR)
-              CheckInErrorWidget(
-                message: "Oops, something went wrong!",
-                onCloseButtonPress: _setViewState,
-                onTryAgainButtonPress: _checkIn,
+              DialogWidget(
+                icon: Icons.error_outline,
+                message: Strings.errorGeneric,
+                leftButtonType: ButtonType.CLOSE,
+                onLeftButtonPress: () => _closeDialog(),
+                rightButtonType: ButtonType.TRY_AGAIN,
+                onRightLeftButtonPress: () => _checkIn(),
               ),
             if (_viewType == CheckInViewType.NEED_LOCATION)
-              NeedLocationWidget(
-                onCloseButtonPress: _setViewState,
-                onTryAgainButtonPress: _viewModel.promptForLocationPermissions,
+              DialogWidget(
+                icon: Icons.error_outline,
+                message: Strings.needLocationPermission,
+                leftButtonType: ButtonType.CLOSE,
+                onLeftButtonPress: () => _closeDialog(),
+                rightButtonType: ButtonType.PERMISSION,
+                onRightLeftButtonPress: () =>  _viewModel
+                    .promptForLocationPermissions(),
               ),
           ],
         ));

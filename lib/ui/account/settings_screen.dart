@@ -11,6 +11,8 @@ import 'package:jacobspears/ui/account/user_settings_viewmodel.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
 import 'package:jacobspears/utils/date_utils.dart';
+import 'package:jacobspears/utils/sprintf.dart';
+import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -49,7 +51,7 @@ class _SettingsScreenState extends State<SettingScreen> {
                     switch (snapshot.data.status) {
                       case Status.LOADING:
                         return LoadingScreen(
-                          message: "Loading...",
+                          message: Strings.loading,
                         );
                         break;
                       case Status.COMPLETED:
@@ -72,7 +74,7 @@ class _SettingsScreenState extends State<SettingScreen> {
                     }
                   } else {
                     return ErrorScreen(
-                      message: "Oops, something went wrong",
+                      message: Strings.errorGeneric,
                     );
                   }
                 },
@@ -96,7 +98,7 @@ class _SettingsScreenState extends State<SettingScreen> {
                 Container(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
-                    user.firstName + " " + user.lastName,
+                    sprintf(Strings.fullNameFormat, [user.firstName, user.lastName]),
                     style: TextStyle(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,
@@ -128,9 +130,9 @@ class _SettingsScreenState extends State<SettingScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildBadgeColumn("TOTAL", "CHECK INS", _totalCheckins(checkIns).toString(), true),
-          _buildBadgeColumn("TOTAL", "POINTS", _totalPointVisited(checkIns).toString(), true),
-          _buildBadgeColumn("LAST", "CHECK IN", _lastCheckIn(checkIns), false),
+          _buildBadgeColumn(Strings.total, Strings.checkIns, _totalCheckIns(checkIns).toString(), true),
+          _buildBadgeColumn(Strings.total, Strings.points, _totalPointVisited(checkIns).toString(), true),
+          _buildBadgeColumn(Strings.last, Strings.checkIn, _lastCheckIn(checkIns), false),
         ],
       ),
     );
@@ -138,7 +140,7 @@ class _SettingsScreenState extends State<SettingScreen> {
     Widget historyText = Container(
       margin: const EdgeInsets.fromLTRB(32, 32, 32, 0),
         child: Text(
-      "YOUR HISTORY",
+      Strings.yourHistory.toUpperCase(),
       style: TextStyle(
         fontSize: 18.0,
         fontWeight: FontWeight.bold,
@@ -146,21 +148,22 @@ class _SettingsScreenState extends State<SettingScreen> {
     ));
 
     Widget historyEmpty = ErrorScreen(
-      message: "Oops, you have no history!\nCheck in to get started.",
+      message: Strings.emptyHistory,
     );
 
     Widget historyList = ListView.builder(
         shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
         itemCount: checkIns.length,
         itemBuilder: (context, i) {
           return Column(children: [
             _buildPoint(context, checkIns[i])
           ]);
-        });;
+        });
 
     return ListView(
       physics: ClampingScrollPhysics(),
-      shrinkWrap: true,
+      shrinkWrap: false,
       children: <Widget>[
         infoSection,
         badgeSection,
@@ -178,7 +181,7 @@ class _SettingsScreenState extends State<SettingScreen> {
           _buildHeader(context, checkIn.point),
           ListView.builder(
               itemCount: checkIn.checkInTimestamps.length,
-              physics: ClampingScrollPhysics(),
+              physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemBuilder: (context, i) {
                 return Column(
@@ -292,7 +295,7 @@ class _SettingsScreenState extends State<SettingScreen> {
         Container(
           margin: const EdgeInsets.only(top: 8),
           child: Text(
-            top,
+            top.toUpperCase(),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
@@ -323,7 +326,7 @@ class _SettingsScreenState extends State<SettingScreen> {
         ),
         Container(
           child: Text(
-            bottom,
+            bottom.toUpperCase(),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
@@ -335,7 +338,7 @@ class _SettingsScreenState extends State<SettingScreen> {
     );
   }
 
-  int _totalCheckins(List<CheckInResult> checkIns) {
+  int _totalCheckIns(List<CheckInResult> checkIns) {
     if (checkIns != null) {
       return checkIns
           .map((e) => e.checkInTimestamps)
@@ -361,9 +364,9 @@ class _SettingsScreenState extends State<SettingScreen> {
           .expand((element) => element)
           .toList();
       dates.sort();
-      return dates.last != null ? shortDateStringFromEpochMillis(dates.last) : "-";
+      return dates.last != null ? shortDateStringFromEpochMillis(dates.last) : Strings.hyphen;
     } else {
-      return "-";
+      return Strings.hyphen;
     }
   }
 }

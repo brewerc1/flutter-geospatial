@@ -2,9 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:jacobspears/app/interactors/alert_interactor.dart';
 import 'package:jacobspears/app/model/alert.dart';
 import 'package:jacobspears/app/model/response.dart';
-import 'package:jacobspears/ui/reports/report_view_type.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 
 class AlertViewModel {
 
