@@ -8,7 +8,7 @@ class Strings {
   static String get needLocationPermission => "Permission to access your location data is needed to check in.";
   static String get detailsAreMissingTryAgain => "Oops, looks like some details are missing.\nPlease verify your report and try again.";
   // maps
-  static String get reportedOn => "REPORTED {{date}}";
+  static String get reportedOn => "Reported {{date}}";
   static String get checkedIn => "Checked in";
   static String get checkIn => "Check in";
   static String get info => "Info";

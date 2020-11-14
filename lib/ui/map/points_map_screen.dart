@@ -15,17 +15,15 @@ import 'package:jacobspears/utils/date_utils.dart';
 import 'package:jacobspears/utils/distance_util.dart';
 import 'package:jacobspears/utils/sprintf.dart';
 import 'package:jacobspears/values/strings.dart';
-import 'points_viewmodel.dart';
 import 'package:provider/provider.dart';
+
+import 'points_viewmodel.dart';
 
 class MapScreen extends StatefulWidget {
   final List<Point> items;
   final PointCallback onNavigateCallback;
 
-  MapScreen(
-      {Key key,
-      @required this.items,
-      @required this.onNavigateCallback})
+  MapScreen({Key key, @required this.items, @required this.onNavigateCallback})
       : super(key: key);
 
   @override
@@ -187,29 +185,32 @@ class _MapScreenState extends State<MapScreen> {
       alignment: Alignment.bottomCenter,
       child: Card(
           child: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Icon(
-                        _alert?.iconName != null && _alert?.iconName?.isNotEmpty == true ? getIconUsingPrefix(name: _alert?.iconName) : Icons.warning,
-                        color: _alert?.isActive == true ? Colors.red : Colors.grey,
-                      ),
-                      if (_alert != null) Text(
-                        sprintf(Strings.reportedOn, [dateStringFromEpochMillis(_alert.timeStamp)]),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Icon(
+                      _alert?.iconName != null &&
+                          _alert?.iconName?.isNotEmpty == true
+                          ? getIconUsingPrefix(name: _alert?.iconName)
+                          : Icons.warning,
+                      color:
+                      _alert?.isActive == true ? Colors.red : Colors.grey,
+                    ),
+                    if (_alert != null)
+                      Text(
+                        sprintf(Strings.reportedOn.toUpperCase(),
+                            [dateStringFromEpochMillis(_alert.timeStamp)]),
                         maxLines: 2,
                         style: const TextStyle(
                           color: Colors.black54,
                         ),
                       ),
-                    ],
-                  ),
+                  ],
+                ),
                 InkWell(
                   onTap: () {
                     _navigateToAlert(_alert);
@@ -221,7 +222,7 @@ class _MapScreenState extends State<MapScreen> {
                         color: Colors.blue,
                       ),
                       Text(
-                        "INFO",
+                        Strings.info.toUpperCase(),
                         style: const TextStyle(
                           color: Colors.black54,
                         ),
@@ -229,37 +230,8 @@ class _MapScreenState extends State<MapScreen> {
                     ],
                   ),
                 ),
-                if (_alert != null)
-                  Text(
-                    "REPORTED " + dateStringFromEpochMillis(_alert.timeStamp),
-                    maxLines: 2,
-                    style: const TextStyle(
-                      color: Colors.black54,
-                    ),
-                  ),
               ],
             ),
-            InkWell(
-              onTap: () {
-                _navigateToAlert(_alert);
-              },
-              child: Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.info_outline,
-                    color: Colors.blue,
-                  ),
-                  Text(
-                    "INFO",
-                    style: const TextStyle(
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       )),
     );
 
@@ -323,31 +295,6 @@ class _MapScreenState extends State<MapScreen> {
                           color: Colors.black54,
                         ),
                       ),
-                  Text(
-                    "CHECK IN",
-                    style: const TextStyle(
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                _onNavigateCallback(_point);
-              },
-              child: Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.info_outline,
-                    color: Colors.blue,
-                  ),
-                  Text(
-                    "INFO",
-                    style: const TextStyle(
-                      color: Colors.black54,
-                    ),
-                  ),
                 ],
               ),
             ),
