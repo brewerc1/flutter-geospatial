@@ -10,12 +10,11 @@ import 'package:jacobspears/app/model/point.dart';
 import 'package:jacobspears/app/model/response.dart';
 import 'package:jacobspears/ui/alerts/single_alert_view.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
-import 'package:jacobspears/utils/Callback.dart';
+import 'package:jacobspears/utils/callbacks.dart';
 import 'package:jacobspears/utils/date_utils.dart';
 import 'package:jacobspears/utils/distance_util.dart';
 import 'package:jacobspears/utils/sprintf.dart';
 import 'package:jacobspears/values/strings.dart';
-
 import 'points_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -46,7 +45,7 @@ class _MapScreenState extends State<MapScreen> {
   StreamSubscription _checkInSubscription;
   StreamSubscription _pointSubscription;
   StreamSubscription _alertsSubscription;
-  StreamSubscription _alertSubscription; 
+  StreamSubscription _alertSubscription;
 
   Set<Marker> markers = Set();
   CheckInViewType _viewType = CheckInViewType.BODY;
@@ -74,6 +73,7 @@ class _MapScreenState extends State<MapScreen> {
   void _setPoint(Point point) {
     if (mounted) {
       setState(() {
+        _alert = null;
         _point = point;
       });
     }
@@ -82,6 +82,7 @@ class _MapScreenState extends State<MapScreen> {
   void _setAlert(Alert alert) {
     if (mounted) {
       setState(() {
+        _point = null;
         _alert = alert;
       });
     }
@@ -107,7 +108,9 @@ class _MapScreenState extends State<MapScreen> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SingleAlertView(alert: alert,)));
+            builder: (context) => SingleAlertView(
+                  alert: alert,
+                )));
   }
 
   void _onAddMarkerButtonPressed(List<Point> points) {
@@ -133,15 +136,14 @@ class _MapScreenState extends State<MapScreen> {
     final Set<Marker> _markers = {};
     alerts.forEach((element) {
       _markers.add(Marker(
-        // This marker id can be anything that uniquely identifies each marker.
-        markerId: MarkerId(element.uuid),
-        position: element.geometry.getLatLng(),
-        infoWindow: InfoWindow(title: element.title),
-        onTap: () {
-          _viewModel.setSelectedAlert(element);
-        },
-        icon: BitmapDescriptor.defaultMarker
-      ));
+          // This marker id can be anything that uniquely identifies each marker.
+          markerId: MarkerId(element.uuid),
+          position: element.geometry.getLatLng(),
+          infoWindow: InfoWindow(title: element.title),
+          onTap: () {
+            _viewModel.setSelectedAlert(element);
+          },
+          icon: BitmapDescriptor.defaultMarker));
     });
     _setMarkers(_markers);
   }
@@ -160,7 +162,8 @@ class _MapScreenState extends State<MapScreen> {
         addAlertMarkers(event.data);
       }
     });
-    _alertSubscription = _viewModel.selectAlert.listen((event) => _setAlert(event)); 
+    _alertSubscription =
+        _viewModel.selectAlert.listen((event) => _setAlert(event));
   }
 
   @override
@@ -179,13 +182,16 @@ class _MapScreenState extends State<MapScreen> {
     var center = (_viewModel.getCenter() != null)
         ? _viewModel.getCenter()
         : _items[1].geometry.getLatLng();
-    
+
     Widget alertWindow = Align(
       alignment: Alignment.bottomCenter,
       child: Card(
           child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                   Row(
@@ -223,9 +229,38 @@ class _MapScreenState extends State<MapScreen> {
                     ],
                   ),
                 ),
+                if (_alert != null)
+                  Text(
+                    "REPORTED " + dateStringFromEpochMillis(_alert.timeStamp),
+                    maxLines: 2,
+                    style: const TextStyle(
+                      color: Colors.black54,
+                    ),
+                  ),
               ],
             ),
-          )),
+            InkWell(
+              onTap: () {
+                _navigateToAlert(_alert);
+              },
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.blue,
+                  ),
+                  Text(
+                    "INFO",
+                    style: const TextStyle(
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      )),
     );
 
     Widget pointWindow = Align(
@@ -288,14 +323,39 @@ class _MapScreenState extends State<MapScreen> {
                           color: Colors.black54,
                         ),
                       ),
-                    ],
+                  Text(
+                    "CHECK IN",
+                    style: const TextStyle(
+                      color: Colors.black54,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          )),
-    ); 
-    
+            InkWell(
+              onTap: () {
+                _onNavigateCallback(_point);
+              },
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.blue,
+                  ),
+                  Text(
+                    "INFO",
+                    style: const TextStyle(
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      )),
+    );
+
     Widget body = Stack(children: <Widget>[
       GoogleMap(
         onMapCreated: _onMapCreated,
@@ -303,11 +363,13 @@ class _MapScreenState extends State<MapScreen> {
           target: center,
           zoom: 12.0,
         ),
+        zoomGesturesEnabled: true,
+        zoomControlsEnabled: true,
         markers: markers,
         mapType: _currentMapType,
         onTap: (_) {
           if (_point != null) _viewModel.setSelectedPoint(null);
-          if (_alert != null) _viewModel.setSelectedAlert(null); 
+          if (_alert != null) _viewModel.setSelectedAlert(null);
         },
       ),
       Padding(
@@ -325,7 +387,7 @@ class _MapScreenState extends State<MapScreen> {
                       child: const Icon(Icons.map, size: 36.0),
                     ),
                   ])),
-              if (_point != null) pointWindow, 
+              if (_point != null) pointWindow,
               if (_alert != null) alertWindow
             ],
           )),

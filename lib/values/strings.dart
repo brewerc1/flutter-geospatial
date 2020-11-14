@@ -6,6 +6,7 @@ class Strings {
   static String get buttonTurnOn => "Turn On";
   static String get errorGeneric => "Oops, something went wrong!";
   static String get needLocationPermission => "Permission to access your location data is needed to check in.";
+  static String get detailsAreMissingTryAgain => "Oops, looks like some details are missing.\nPlease verify your report and try again.";
   // maps
   static String get reportedOn => "REPORTED {{date}}";
   static String get checkedIn => "Checked in";
@@ -41,6 +42,9 @@ class Strings {
   static String get enterDescriptionIncident => "Enter a description of the incident";
   static String get enterDescriptionHint => "Enter description";
   static String get addPhoto => "Add a Photo";
+  
+  // image Paths 
+  static String get lickingRiverImagePath => 'images/licking_river_image.jpg';  
 
 
 }

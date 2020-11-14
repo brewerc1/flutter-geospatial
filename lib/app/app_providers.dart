@@ -32,7 +32,17 @@ class AppProviders extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return _AppProvidersFuture(
-              child: child,
+              child: GestureDetector(
+                onTap: () {
+                  FocusScopeNode currentFocus = FocusScope.of(context);
+
+                  if (!currentFocus.hasPrimaryFocus &&
+                      currentFocus.focusedChild != null) {
+                    FocusManager.instance.primaryFocus.unfocus();
+                  }
+                },
+                child: child,
+              ),
               variant: variant,
               orgVariant: orgVariant,
             );
@@ -61,7 +71,8 @@ class _AppProvidersFuture extends StatefulWidget {
   });
 
   @override
-  _AppProvidersFutureState createState() => _AppProvidersFutureState(variant, orgVariant);
+  _AppProvidersFutureState createState() =>
+      _AppProvidersFutureState(variant, orgVariant);
 }
 
 class _AppProvidersFutureState extends State<_AppProvidersFuture> {
@@ -73,12 +84,12 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
   GeoCmsApiClient _apiClient;
 
   AppPermissionService _permissionService;
-  
+
   GeoCmsApiInteractor _apiInteractor;
   PointInteractor _pointInteractor;
   CheckInInteractor _checkInInteractor;
-  AlertsInteractor _alertsInteractor; 
-  UserInteractor _userInteractor; 
+  AlertsInteractor _alertsInteractor;
+  UserInteractor _userInteractor;
   ReportInteractor _reportInteractor;
   AppInteractor _appInteractor;
 
@@ -91,15 +102,14 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
     _apiClient = GeoCmsApiClient(_variant, _orgVariant);
 
     _permissionService = AppPermissionService();
-    
+
     _apiInteractor = GeoCmsApiInteractor(_apiClient, _orgVariant);
     _pointInteractor = PointInteractor(_apiInteractor);
     _checkInInteractor = CheckInInteractor(_apiInteractor);
-    _alertsInteractor = AlertsInteractor(_apiInteractor); 
-    _userInteractor = UserInteractor(_apiInteractor); 
+    _alertsInteractor = AlertsInteractor(_apiInteractor);
+    _userInteractor = UserInteractor(_apiInteractor);
     _reportInteractor = ReportInteractor(_apiInteractor);
     _appInteractor = AppInteractor(_permissionService);
-
   }
 
   @override
@@ -117,8 +127,8 @@ class _AppProvidersFutureState extends State<_AppProvidersFuture> {
         Provider.value(value: _apiInteractor),
         Provider.value(value: _pointInteractor),
         Provider.value(value: _checkInInteractor),
-        Provider.value(value: _alertsInteractor), 
-        Provider.value(value: _userInteractor), 
+        Provider.value(value: _alertsInteractor),
+        Provider.value(value: _userInteractor),
         Provider.value(value: _reportInteractor),
         Provider.value(value: _appInteractor)
       ],

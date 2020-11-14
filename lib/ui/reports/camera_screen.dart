@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
-class CameraExampleHome extends StatefulWidget {
+class CameraScreen extends StatefulWidget {
 
   @override
-  _CameraExampleHomeState createState() {
-    return _CameraExampleHomeState();
+  _CameraScreenState createState() {
+    return _CameraScreenState();
   }
 }
 
@@ -30,7 +30,7 @@ IconData getCameraLensIcon(CameraLensDirection direction) {
 void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
-class _CameraExampleHomeState extends State<CameraExampleHome>
+class _CameraScreenState extends State<CameraScreen>
     with WidgetsBindingObserver {
   CameraController controller;
   String imagePath;
@@ -452,7 +452,7 @@ class CameraApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: CameraExampleHome(),
+      home: CameraScreen(),
     );
   }
 }

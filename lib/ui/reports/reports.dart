@@ -12,7 +12,7 @@ import 'package:jacobspears/app/model/settings.dart';
 import 'package:jacobspears/ui/components/dialog_widget.dart';
 import 'package:jacobspears/ui/components/error_screen.dart';
 import 'package:jacobspears/ui/components/loading_screen.dart';
-import 'package:jacobspears/ui/reports/CameraScreen.dart';
+import 'package:jacobspears/ui/reports/camera_screen.dart';
 import 'package:jacobspears/ui/reports/report_viewmodel.dart';
 import 'package:jacobspears/values/strings.dart';
 import 'package:provider/provider.dart';
@@ -88,16 +88,6 @@ class _ReportsScreen extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget submitButton = Container(
-        padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
-        child: FlatButton.icon(
-          color: Colors.blue,
-          onPressed: onSubmitPressed,
-          icon: Icon(Icons.add_alert),
-          label: Text(Strings.submitReport),
-          textColor: Colors.white,
-        ));
-
     return Provider(
       create: (_) => _viewModel,
       child: Column(
@@ -127,17 +117,11 @@ class _ReportsScreen extends State<ReportsScreen> {
                         // _imagesAllowed = snapshot.data.data.allowPhotos; TODO add photo support
                         dropdownValue = incidentTypes.first.title;
                         return showCamera
-                            ? CameraExampleHome()
+                            ? CameraScreen()
                             : Container(
                                 child: Stack(
                                   children: <Widget>[
                                     buildBody(),
-                                    Positioned(
-                                      left: 0.0,
-                                      right: 0.0,
-                                      bottom: 0.0,
-                                      child: submitButton,
-                                    ),
                                     if (_viewType == ReportViewType.REPORTING)
                                       DialogWidget(
                                           dialogType: DialogType.PROGRESS,
@@ -173,6 +157,16 @@ class _ReportsScreen extends State<ReportsScreen> {
                                         onRightLeftButtonPress: () => _viewModel
                                             .promptForLocationPermissions(),
                                       ),
+                                    if (_viewType ==
+                                        ReportViewType.INVALID_FORM)
+                                      DialogWidget(
+                                        icon: Icons.error_outline,
+                                        message:
+                                            Strings.detailsAreMissingTryAgain,
+                                        leftButtonType: ButtonType.CLOSE,
+                                        onLeftButtonPress: () =>
+                                            _setViewState(ReportViewType.BODY),
+                                      )
                                   ],
                                 ),
                               );
@@ -266,23 +260,33 @@ class _ReportsScreen extends State<ReportsScreen> {
         child: Stack(
           children: <Widget>[
             Image.asset(
-              'images/licking_river_image.jpg',
-              width: 600,
-              height: 240,
+              Strings.lickingRiverImagePath, 
+              width: 600, 
+              height: 240, 
               fit: BoxFit.cover,
-            ),
+            ), 
             if (_imagesAllowed)
               Positioned(left: 0.0, right: 0.0, bottom: 0.0, child: addPhotoButton)
           ],
-        )
-    );
+    ));
+
+    Widget submitButton = Container(
+        padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+        child: FlatButton.icon(
+          color: Colors.blue,
+          onPressed: onSubmitPressed,
+          icon: Icon(Icons.add_alert),
+          label: Text(Strings.submitReport),
+          textColor: Colors.white,
+        ));
 
     return ListView(children: <Widget>[
       addPhotoContainer,
       textSection,
       if (incidentTypes.isNotEmpty) dropDownSection,
       descriptionText,
-      descriptionEditText
+      descriptionEditText,
+      submitButton
     ]);
   }
 }
